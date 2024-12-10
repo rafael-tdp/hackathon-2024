@@ -18,6 +18,9 @@ export default {
           green400: "rgba(0, 200, 0, 1)",
           red400: "rgba(255, 0, 0, 0.5)",
           indigo300: "rgba(75, 0, 130, 0.8)",
+          black: "rgba(0, 0, 0, 1)",
+          'text-rgba': 'rgba(255, 255, 255, 0.7)',  // Blanc avec 70% de transparence
+
       },
   },
   plugins: [],

@@ -96,7 +96,7 @@ const login = async () => {
                 />
               </div>
             </div>
-            <div class="tomodify">
+            <div class="bg-black text-text-rgba">
               <button
                 @click.prevent="login"
                 type="button"
@@ -121,9 +121,3 @@ const login = async () => {
     </div>
   </template>
   
-  
-<style>
-.tomodify{
-    background-color: black;
-    color: white;
-}</style>
