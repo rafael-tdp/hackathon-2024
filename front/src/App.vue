@@ -1,30 +1,71 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="flex flex-col min-h-screen">
+      <!-- <nav-bar /> -->
+      <router-view />
+      <!-- <bottom-bar /> -->
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script>
+import Login from "./views/Login.vue";
+// import BottomBar from "./components/BottomBar.vue";
+// import NavBar from "./components/NavBar.vue";
+import { RouterView } from "vue-router";
+
+export default {
+  components: {
+      // BottomBar,
+      Login,
+      // NavBar,
+  },
+  data() {
+      return {
+          isNavToggled: false,
+      };
+  },
+  methods: {
+      toggleNav() {
+          this.isNavToggled = !this.isNavToggled; // Inverse l'état au clic du bouton
+      },
+  },
+};
+</script>
+
+<style>
+* {
+  box-sizing: border-box;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Montserrat", sans-serif;
+  background: #f6f6f6;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+#page-wrap {
+  margin: auto;
+  max-width: 800px;
+}
+
+@media screen and (max-width: 800px) {
+  html {
+      font-size: 14px;
+  }
+  .body img {
+      width: 90%;
+  }
+}
+
+button {
+  background-color: black;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  outline: 0;
+  padding: 16px;
 }
 </style>
