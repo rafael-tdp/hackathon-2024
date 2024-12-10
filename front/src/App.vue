@@ -1,33 +1,17 @@
 <template>
   <div class="flex flex-col min-h-screen">
-      <!-- <nav-bar /> -->
       <router-view />
-      <!-- <bottom-bar /> -->
   </div>
 </template>
 
 <script>
 import Login from "./views/Login.vue";
-// import BottomBar from "./components/BottomBar.vue";
-// import NavBar from "./components/NavBar.vue";
 import { RouterView } from "vue-router";
 
 export default {
   components: {
-      // BottomBar,
       Login,
-      // NavBar,
-  },
-  data() {
-      return {
-          isNavToggled: false,
-      };
-  },
-  methods: {
-      toggleNav() {
-          this.isNavToggled = !this.isNavToggled; // Inverse l'état au clic du bouton
-      },
-  },
+  }
 };
 </script>
 
