@@ -8,6 +8,7 @@ export default {
     extend: {},
     colors: {
       transparent: "transparent",
+      white: "#ffffff",
 
       // Définition des couleurs personnalisées
       purple500: "rgb(167, 139, 250)",    // Violet clair

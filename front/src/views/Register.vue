@@ -166,11 +166,11 @@ const validateName = (name) => {
                             <small v-if="state.errors.password" class="error">{{ state.errors.password }}</small>
                         </div>
                     </div>
-                    <div class="space-y-2 bg-black">
+                    <div class="flex justify-center mt-6">
                         <button
                             @click.prevent="register"
-                            class="w-full px-8 py-3 font-semibold rounded-md border-4 border-black bg-black text-white"
-                        >
+                            class="px-8 py-3 font-semibold rounded-full bg-black text-white w-full sm:w-auto"
+                            >
                             Inscription
                         </button>
                     </div>
