@@ -13,17 +13,10 @@ import {
 	ArrowRightStartOnRectangleIcon,
 	BellAlertIcon,
 	HomeIcon,
-	DocumentTextIcon,
-	DocumentCheckIcon,
 	UserGroupIcon,
-	RectangleGroupIcon,
-	ChevronDoubleRightIcon,
-	ChevronDoubleLeftIcon,
-	UsersIcon,
 	ChevronLeftIcon,
 	ChevronRightIcon,
-	PhotoIcon,
-	CalendarIcon
+	UsersIcon,
 } from "@heroicons/vue/24/outline";
 
 import { useRouter } from "vue-router";
@@ -38,29 +31,29 @@ const navigation = [
 		current: router.currentRoute.value.path === "/",
 	},
 	{
-		name: "Planification",
-		href: "/planification",
-		icon: CalendarIcon,
-		current: router.currentRoute.value.path === "/planification",
-	},
-	{
-		name: "Classes",
-		href: "/classes",
+		name: "Enseignants",
+		href: "/enseignants",  // Lien pour les enseignants
 		icon: UsersIcon,
-		current: router.currentRoute.value.path === "/classes",
+		current: router.currentRoute.value.path === "/enseignants",
 	},
 	{
-	name: "Courses",
-		href: "/courses",
-		icon: HomeIcon,
-		current: router.currentRoute.value.path === "/courses",
+		name: "Etudiants",
+		href: "/etudiants",  // Lien pour les étudiants
+		icon: UserGroupIcon,
+		current: router.currentRoute.value.path === "/etudiants",
 	},
 	{
-		name: "Utilisateurs",
-		href: "/users",
-		icon: HomeIcon,
-		current: router.currentRoute.value.path === "/users",
+		name: "Messages",
+		href: "/messages",  // Lien pour les messages
+		icon: BellAlertIcon,
+		current: router.currentRoute.value.path === "/messages",
 	},
+	{
+		name: "Alerte",
+		href: "/alerte",  // Lien pour envoyer une alerte
+		icon: BellAlertIcon,
+		current: router.currentRoute.value.path === "/alerte",
+	}
 ];
 
 const logout = () => {
@@ -331,13 +324,6 @@ const toggleLargeSidebar = () => {
 				<span class="sr-only">Ouvrir la barre</span>
 				<Bars3Icon class="h-6 w-6" aria-hidden="true" />
 			</button>
-			<!-- <div class="flex-1 text-sm font-semibold leading-6 text-white">
-        {{
-          navigation.find(
-            (item) => item.href === router.currentRoute.value.path
-          )?.name
-        }}
-      </div> -->
 			<a href="/dash/profile">
 				<span class="sr-only">Votre profil</span>
 				<UserIcon
