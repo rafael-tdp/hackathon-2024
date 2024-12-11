@@ -1,5 +1,9 @@
 <template>
     <div>
+      <!-- Ajout de la Navbar -->
+      <Navbar />
+      
+      <!-- Contenu principal -->
       <h1>Liste des Professeurs</h1>
       <ul>
         <li v-for="professor in professors" :key="professor._id">
@@ -10,8 +14,14 @@
   </template>
   
   <script>
+  // Importation du composant Navbar
+  import Navbar from '@/components/Navbar.vue';
+  
   export default {
     name: 'Professors',
+    components: {
+      Navbar // Déclaration du composant Navbar ici
+    },
     data() {
       return {
         professors: [
@@ -24,5 +34,6 @@
   </script>
   
   <style scoped>
+  /* Ajouter des styles si nécessaire pour la page des professeurs */
   </style>
   

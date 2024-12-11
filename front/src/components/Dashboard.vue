@@ -1,89 +1,99 @@
 <template>
     <div class="dashboard">
-      <div class="container">
-        <h1 class="title">Bienvenue sur le Dashboard</h1>
-        <div class="stats-container">
-          <div class="stat-card professor">
-            <h2 class="stat-title">Professeurs</h2>
-            <p class="stat-number">{{ stats.professors }}</p>
+      <header>
+        <Navbar />
+      </header>
+      
+      <main class="main-content">
+        <div class="container">
+          <h1 class="title">Bienvenue sur le Dashboard</h1>
+          <div class="stats-container">
+            <div class="stat-card professor">
+              <h2 class="stat-title">Professeurs</h2>
+              <p class="stat-number">{{ stats.professors }}</p>
+            </div>
+            <div class="stat-card student">
+              <h2 class="stat-title">Étudiants</h2>
+              <p class="stat-number">{{ stats.students }}</p>
+            </div>
+            <div class="stat-card class">
+              <h2 class="stat-title">Classes</h2>
+              <p class="stat-number">{{ stats.classes }}</p>
+            </div>
+            <div class="stat-card subject">
+              <h2 class="stat-title">Matières</h2>
+              <p class="stat-number">{{ stats.subjects }}</p>
+            </div>
           </div>
-          <div class="stat-card student">
-            <h2 class="stat-title">Étudiants</h2>
-            <p class="stat-number">{{ stats.students }}</p>
-          </div>
-          <div class="stat-card class">
-            <h2 class="stat-title">Classes</h2>
-            <p class="stat-number">{{ stats.classes }}</p>
-          </div>
-          <div class="stat-card subject">
-            <h2 class="stat-title">Matières</h2>
-            <p class="stat-number">{{ stats.subjects }}</p>
-          </div>
-        </div>
-        <div class="calendar-container">
-          <div class="calendar">
-            <div class="calendar-header">
-              <span class="month">Décembre 2024</span>
-              <div class="nav-buttons">
-                <button class="prev">◀</button>
-                <button class="next">▶</button>
+          <div class="calendar-container">
+            <div class="calendar">
+              <div class="calendar-header">
+                <span class="month">Décembre 2024</span>
+                <div class="nav-buttons">
+                  <button class="prev">◀</button>
+                  <button class="next">▶</button>
+                </div>
+              </div>
+              <div class="calendar-grid">
+                <div class="calendar-day">Lun</div>
+                <div class="calendar-day">Mar</div>
+                <div class="calendar-day">Mer</div>
+                <div class="calendar-day">Jeu</div>
+                <div class="calendar-day">Ven</div>
+                <div class="calendar-day">Sam</div>
+                <div class="calendar-day">Dim</div>
+                <div class="calendar-date"></div>
+                <div class="calendar-date"></div>
+                <div class="calendar-date"></div>
+                <div class="calendar-date"></div>
+                <div class="calendar-date">1</div>
+                <div class="calendar-date">2</div>
+                <div class="calendar-date">3</div>
+                <div class="calendar-date">4</div>
+                <div class="calendar-date">5</div>
+                <div class="calendar-date">6</div>
+                <div class="calendar-date">7</div>
+                <div class="calendar-date">8</div>
+                <div class="calendar-date">9</div>
+                <div class="calendar-date">10</div>
+                <div class="calendar-date">11</div>
+                <div class="calendar-date">12</div>
+                <div class="calendar-date">13</div>
+                <div class="calendar-date">14</div>
+                <div class="calendar-date">15</div>
+                <div class="calendar-date">16</div>
+                <div class="calendar-date">17</div>
+                <div class="calendar-date">18</div>
+                <div class="calendar-date">19</div>
+                <div class="calendar-date">20</div>
+                <div class="calendar-date">21</div>
+                <div class="calendar-date">22</div>
+                <div class="calendar-date">23</div>
+                <div class="calendar-date">24</div>
+                <div class="calendar-date">25</div>
+                <div class="calendar-date">26</div>
+                <div class="calendar-date">27</div>
+                <div class="calendar-date">28</div>
+                <div class="calendar-date">29</div>
+                <div class="calendar-date">30</div>
+                <div class="calendar-date">31</div>
               </div>
             </div>
-            <div class="calendar-grid">
-              <div class="calendar-day">Lun</div>
-              <div class="calendar-day">Mar</div>
-              <div class="calendar-day">Mer</div>
-              <div class="calendar-day">Jeu</div>
-              <div class="calendar-day">Ven</div>
-              <div class="calendar-day">Sam</div>
-              <div class="calendar-day">Dim</div>
-              <div class="calendar-date"></div>
-              <div class="calendar-date"></div>
-              <div class="calendar-date"></div>
-              <div class="calendar-date"></div>
-              <div class="calendar-date">1</div>
-              <div class="calendar-date">2</div>
-              <div class="calendar-date">3</div>
-              <div class="calendar-date">4</div>
-              <div class="calendar-date">5</div>
-              <div class="calendar-date">6</div>
-              <div class="calendar-date">7</div>
-              <div class="calendar-date">8</div>
-              <div class="calendar-date">9</div>
-              <div class="calendar-date">10</div>
-              <div class="calendar-date">11</div>
-              <div class="calendar-date">12</div>
-              <div class="calendar-date">13</div>
-              <div class="calendar-date">14</div>
-              <div class="calendar-date">15</div>
-              <div class="calendar-date">16</div>
-              <div class="calendar-date">17</div>
-              <div class="calendar-date">18</div>
-              <div class="calendar-date">19</div>
-              <div class="calendar-date">20</div>
-              <div class="calendar-date">21</div>
-              <div class="calendar-date">22</div>
-              <div class="calendar-date">23</div>
-              <div class="calendar-date">24</div>
-              <div class="calendar-date">25</div>
-              <div class="calendar-date">26</div>
-              <div class="calendar-date">27</div>
-              <div class="calendar-date">28</div>
-              <div class="calendar-date">29</div>
-              <div class="calendar-date">30</div>
-              <div class="calendar-date">31</div>
-            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   </template>
   
   <script>
   import axios from 'axios';
+  import Navbar from '@/components/Navbar.vue';
   
   export default {
     name: 'Dashboard',
+    components: {
+      Navbar
+    },
     data() {
       return {
         stats: {
@@ -109,7 +119,20 @@
   
   <style scoped>
   .dashboard {
+    display: flex;
+    flex-direction: column;
     background-color: #f8f9fa;
+  }
+  
+  header {
+    background-color: #333;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .main-content {
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -237,7 +260,7 @@
   
   .calendar-day {
     font-weight: bold;
-    color: #666;
+    color: #667;
   }
   
   .calendar-date {
