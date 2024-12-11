@@ -17,6 +17,10 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   UsersIcon,
+  EnvelopeIcon,
+  BookOpenIcon,
+  UserPlusIcon,
+  CalendarIcon,
 } from "@heroicons/vue/24/outline";
 
 import { useRouter } from "vue-router";
@@ -29,6 +33,12 @@ const navigation = [
     href: "/",
     icon: HomeIcon,
     current: router.currentRoute.value.path === "/",
+  },
+  {
+    name: "Planning",
+    href: "/planification", // Lien pour envoyer une alerte
+    icon: CalendarIcon,
+    current: router.currentRoute.value.path === "/alerte",
   },
   {
     name: "Enseignants",
@@ -45,11 +55,11 @@ const navigation = [
   {
     name: "Messages",
     href: "/messages", // Lien pour les messages
-    icon: BellAlertIcon,
+    icon: EnvelopeIcon,
     current: router.currentRoute.value.path === "/messages",
   },
   {
-    name: "Alerte",
+    name: "Alertes",
     href: "/alerte", // Lien pour envoyer une alerte
     icon: BellAlertIcon,
     current: router.currentRoute.value.path === "/alerte",
@@ -57,13 +67,13 @@ const navigation = [
   {
     name: "Utilisateurs",
     href: "/users",
-    icon: HomeIcon,
+    icon: UserPlusIcon,
     current: router.currentRoute.value.path === "/users",
   },
   {
-    name: "Courses",
+    name: "Cours",
     href: "/courses",
-    icon: HomeIcon,
+    icon: BookOpenIcon,
     current: router.currentRoute.value.path === "/courses",
   },
 ];
