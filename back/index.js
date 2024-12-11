@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const authRouter = require("./routes/authRoutes");
 const { json, urlencoded } = require("express");
@@ -64,9 +63,19 @@ mongoose
 	.catch((err) => console.error("Erreur de connexion à MongoDB:", err));
 
 app.get("/", (req, res) => {
-	res.send("Bienvenue sur l'API !");
+  res.send("Bienvenue sur l'API !");
 });
 
 app.listen(PORT, () => {
-	console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
+  console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
 });
+
+app.get('/api/stats', (req, res) => {
+	res.json({
+	  professors: 10, // Exemple
+	  students: 100, // Exemple
+	  classes: 5, // Exemple
+	  subjects: 8, // Exemple
+	});
+  });
+  
