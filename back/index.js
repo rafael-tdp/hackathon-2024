@@ -7,7 +7,7 @@ const cors = require("cors");
 const GenericRouter = require("./routes/genericRouter");
 const User = require("./models/user");
 const Class = require("./models/class");
-const ClassRoom = require("./models/classRoom");
+const Room = require("./models/room");
 const Course = require("./models/course");
 const Subject = require("./models/subject");
 const Unavailability = require("./models/unavailability");
@@ -32,10 +32,10 @@ const userRouter = new GenericRouter(userController).getRouter();
 const classService = new GenericService(Class);
 const classController = new GenericController(classService);
 const classRouter = new GenericRouter(classController).getRouter();
-// ClassRoom
-const classRoomService = new GenericService(ClassRoom);
-const classRoomController = new GenericController(classRoomService);
-const classRoomRouter = new GenericRouter(classRoomController).getRouter();
+// Room
+const roomService = new GenericService(Room);
+const roomController = new GenericController(roomService);
+const roomRouter = new GenericRouter(roomController).getRouter();
 // Course
 const courseService = new GenericService(Course);
 const courseController = new GenericController(courseService);
@@ -58,7 +58,7 @@ const weekClassRouter = new GenericRouter(weekClassController).getRouter();
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/classes", classRouter);
-app.use("/api/classrooms", classRoomRouter);
+app.use("/api/rooms", roomRouter);
 app.use("/api/courses", courseRouter);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/unavailabilities", unavailabilityRouter);

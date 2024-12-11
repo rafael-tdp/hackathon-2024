@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const CourseStatus = require("../enum/courseStatus");
 
 const courseSchema = new mongoose.Schema(
     {
@@ -28,6 +29,11 @@ const courseSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Class',
             required: true
+        },
+        status: {
+            type: String,
+            default: CourseStatus.PENDING,
+            enum: [CourseStatus.PENDING, CourseStatus.ACCEPTED, CourseStatus.CANCELED]
         }
     }
 );
