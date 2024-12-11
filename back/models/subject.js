@@ -18,9 +18,9 @@ const subjectSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }],
-        programId: {
+        studyFieldId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Program'
+            ref: 'StudyField'
         }
 });
 

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const programSchema = new mongoose.Schema(
+const studyFieldSchema  = new mongoose.Schema(
     {
         name: {
             type: String,
@@ -9,4 +9,4 @@ const programSchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model('Program', programSchema);
+module.exports = mongoose.model('Study', studyFieldSchema );
