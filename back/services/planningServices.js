@@ -1,5 +1,5 @@
 const SubjectClass = require("../models/subjectClass");
-const SchoolClass = require("../models/shcoolClass");
+const SchoolClass = require("../models/schoolClass");
 const TeacherSubject = require("../models/teacherSubject");
 const Unavailability = require("../models/unavailability");
 const Course = require("../models/course");

@@ -23,8 +23,8 @@ const userSchema = new mongoose.Schema(
 		},
 		role: {
 			type: String,
-			default: UserRoles.TEACHER,
-			enum: [UserRoles.ADMIN, UserRoles.TEACHER],
+			default: UserRoles.STUDENT,
+			enum: [UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT],
 		},
 		classId: {
 			type: mongoose.Schema.Types.ObjectId,
