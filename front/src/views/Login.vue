@@ -96,14 +96,17 @@ const login = async () => {
                 />
               </div>
             </div>
-            <div class="bg-black text-text-rgba">
+            <div class="text-text-rgba">
+             
+
               <button
                 @click.prevent="login"
                 type="button"
-                class="w-full px-8 py-3 font-semibold rounded-md border-4 border-black bg-black text-white"
+                class="px-8 py-3 font-semibold rounded-full bg-black text-white"
               >
                 Connexion
               </button>
+              
             </div>
   
             <p class="px-6 text-sm text-center text-gray-500">

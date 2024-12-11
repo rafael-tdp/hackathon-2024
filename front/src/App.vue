@@ -24,7 +24,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Montserrat", sans-serif;
-  background: #f6f6f6;
+  background: #ffffff;
 }
 
 #page-wrap {
