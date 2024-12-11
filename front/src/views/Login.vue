@@ -22,7 +22,7 @@ const login = async () => {
     const response = await axios({
       baseURL: BASE_URL,
       method: "POST",
-      url: "/api/users/login",
+      url: "/api/auth/login",
       data: {
         email: form.email,
         password: form.password,
