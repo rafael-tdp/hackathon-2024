@@ -55,6 +55,12 @@ const navigation = [
 		icon: HomeIcon,
 		current: router.currentRoute.value.path === "/courses",
 	},
+	{
+		name: "Utilisateurs",
+		href: "/users",
+		icon: HomeIcon,
+		current: router.currentRoute.value.path === "/users",
+	},
 ];
 
 const logout = () => {

@@ -24,7 +24,7 @@
           <label :for="field.name" class="block text-gray-700 font-medium">{{ field.label }}</label>
           <div class="relative mt-2">
             <input
-              v-if="field.type === 'text'"
+              v-if="field.type === 'text' || field.type === 'email'"
               v-model="formData[field.name]"
               :type="field.type"
               :name="field.name"
@@ -32,14 +32,12 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-300"
               :required="field.required"
             />
-            <textarea
-              v-if="field.type === 'textarea'"
+            <div v-if="field.type === 'date'">
+            <v-date-picker
               v-model="formData[field.name]"
-              :name="field.name"
-              :placeholder="field.placeholder"
-              class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-              :required="field.required"
+              :format="'YYYY-MM-DD'"
             />
+          </div>
             <select
               v-if="field.type === 'select'"
               v-model="formData[field.name]"
