@@ -77,9 +77,18 @@ const deleteClass = () => {
 
 <template>
   <LayoutAuthenticated>
-  <div class="min-h-screen py-12 px-6">
-    <div class="flex justify-center mb-8">
+    <div class="min-h-screen py-12 px-6">
+      <div class="flex justify-between items-center mb-8">
       <h2 class="text-4xl font-bold text-gray-800">Classes</h2>
+      <div class="flex justify-center mt-6">
+        <button
+          @click="openEditModal({})"
+          type="button"
+          class="px-8 py-3 font-semibold rounded-full bg-black text-white w-full sm:w-auto"
+        >
+          Nouvelle classe
+        </button>
+      </div>
     </div>
 
     <!-- Tableau dynamique -->

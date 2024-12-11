@@ -23,7 +23,7 @@ import {
 	ChevronLeftIcon,
 	ChevronRightIcon,
 	PhotoIcon,
-	CalendarIcon,
+	CalendarIcon
 } from "@heroicons/vue/24/outline";
 
 import { useRouter } from "vue-router";
@@ -48,7 +48,13 @@ const navigation = [
 		href: "/classes",
 		icon: UsersIcon,
 		current: router.currentRoute.value.path === "/classes",
-	}
+	},
+	{
+	name: "Courses",
+		href: "/courses",
+		icon: HomeIcon,
+		current: router.currentRoute.value.path === "/courses",
+	},
 ];
 
 const logout = () => {
