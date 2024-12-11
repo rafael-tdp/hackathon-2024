@@ -2,7 +2,7 @@
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-// import { useMainStore } from "@/stores/main";
+import { useMainStore } from "@/stores/main";
 import { showToast } from "@/utils/toast";
 
 
@@ -28,8 +28,8 @@ const login = async () => {
         password: form.password,
       },
     });
-    //  localStorage.setItem("token", response.data.token);
-    //useMainStore().setUser(response.data.user);
+    localStorage.setItem("token", response.data.token);
+    useMainStore().setUser(response.data.user);
     router.push("/test");
   } catch (err) {
     console.error("Error during login:", err);
