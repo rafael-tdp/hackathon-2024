@@ -9,10 +9,6 @@ const subjectSchema = new mongoose.Schema({
 		type: Number,
 		required: true,
 	},
-	graduatingId: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: "Graduating",
-	},
 });
 
 module.exports = mongoose.model("Subject", subjectSchema);
