@@ -28,9 +28,9 @@ const userService = new GenericService(User);
 const userController = new GenericController(userService);
 const userRouter = new GenericRouter(userController).getRouter();
 // Class
-const classService = new GenericService(Class);
-const classController = new GenericController(classService);
-const classRouter = new GenericRouter(classController).getRouter();
+const schoolClassService = new GenericService(Class);
+const schoolClassController = new GenericController(schoolClassService);
+const schoolClassRouter = new GenericRouter(schoolClassController).getRouter();
 // Room
 const roomService = new GenericService(Room);
 const roomController = new GenericController(roomService);
@@ -52,7 +52,7 @@ const unavailabilityRouter = new GenericRouter(
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
-app.use("/api/classes", classRouter);
+app.use("/api/schoolClasses", schoolClassRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/courses", courseRouter);
 app.use("/api/subjects", subjectRouter);

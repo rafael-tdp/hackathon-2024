@@ -1,6 +1,6 @@
 const StudyFields = {
-	'IW': 'Ingénierie du Web',
-    'Security': 'Sécurité',
+	'IW': 'IW',
+    'Security': 'Security',
     'Data': 'Data',
     'Mobile': 'Mobile',
     'Cloud': 'Cloud',
