@@ -23,18 +23,17 @@ const passwordSchema = z
     .min(12, { message: "13 caractères minimum" });
 
 const state = reactive({
-    firstName: "",
-    lastName: "",
-    dateOfBirth: "",
-    emailAddress: ref(""),
+    firstname: "",
+    lastname: "",
+    email: ref(""),
     password: ref(""),
     errors: {},
 });
 
 const register = async () => {
-    const parsedEmail = emailSchema.safeParse(state.emailAddress);
+    const parsedEmail = emailSchema.safeParse(state.email);
     if (!parsedEmail.success) {
-        state.errors.emailAddress = parsedEmail.error.issues[0].message;
+        state.errors.email = parsedEmail.error.issues[0].message;
     }
 
     // Validation du mot de passe
@@ -44,10 +43,9 @@ const register = async () => {
     }
 
     if (
-        !state.lastName ||
-        !state.firstName ||
-        !state.dateOfBirth ||
-        !state.emailAddress ||
+        !state.lastname ||
+        !state.firstname ||
+        !state.email ||
         !state.password
     ) {
         state.errors.message = "Tous les champs sont obligatoires.";
@@ -55,17 +53,18 @@ const register = async () => {
     }
 
     // Vérifications supplémentaires
-    if (!validateName(state.firstName) || !validateName(state.lastName)) {
+    if (!validateName(state.firstname) || !validateName(state.lastname)) {
         state.errors.message =
             "Le nom et le prénom ne doivent pas contenir de chiffres ou de caractères spéciaux.";
         return;
     }
 
     try {
-        const response = await axiosInstance.post(`/api/users/register`, state);
+        const response = await axiosInstance.post(`/api/auth/register`, state);
+        
         router.push("/login");
         showToast(
-            "Votre compte a été crée avec succès, veuillez consulter votre email pour activer votre compte "
+            "Votre compte a été crée avec succès, veuillez vous connecter ! "
         );
     } catch (e) {
         console.error(
@@ -110,48 +109,39 @@ const validateName = (name) => {
                 <form novalidate class="space-y-6">
                     <div class="space-y-4">
                         <div>
-                            <label for="firstName" class="block mb-2 text-sm text-gray-700">Nom</label>
+                            <label for="firstname" class="block mb-2 text-sm text-gray-700">Nom</label>
                             <input
-                                v-model="state.firstName"
+                                v-model="state.firstname"
                                 type="text"
-                                name="firstName"
-                                id="firstName"
+                                name="firstname"
+                                id="firstname"
                                 placeholder="Votre nom"
                                 class="w-full px-4 py-2 border rounded-md border-gray-300 bg-gray-50 text-gray-700"
                             />
                         </div>
                         <div>
-                            <label for="lastName" class="block mb-2 text-sm text-gray-700">Prénom</label>
+                            <label for="lastname" class="block mb-2 text-sm text-gray-700">Prénom</label>
                             <input
-                                v-model="state.lastName"
+                                v-model="state.lastname"
                                 type="text"
-                                name="lastName"
-                                id="lastName"
+                                name="lastname"
+                                id="lastname"
                                 placeholder="Votre prénom"
                                 class="w-full px-4 py-2 border rounded-md border-gray-300 bg-gray-50 text-gray-700"
                             />
                         </div>
-                        <div>
-                            <label for="dateOfBirth" class="block mb-2 text-sm text-gray-700">Date de naissance</label>
-                            <input
-                                v-model="state.dateOfBirth"
-                                type="date"
-                                name="dateOfBirth"
-                                id="dateOfBirth"
-                                class="w-full px-4 py-2 border rounded-md border-gray-300 bg-gray-50 text-gray-700"
-                            />
-                        </div>
+                     
                         <div>
                             <label for="email" class="block mb-2 text-sm text-gray-700">Adresse email</label>
                             <input
-                                v-model="state.emailAddress"
+                                v-model="state.email"
                                 type="email"
                                 name="email"
                                 id="email"
                                 placeholder="Votre adresse email"
                                 class="w-full px-4 py-2 border rounded-md border-gray-300 bg-gray-50 text-gray-700"
                             />
-                            <small v-if="state.errors.emailAddress" class="error">{{ state.errors.emailAddress }}</small>
+                            <small v-if="state.errors.email" class="error">{{ state.errors.email }}</small>
                         </div>
                         <div>
                             <label for="password" class="block mb-2 text-sm text-gray-700">Mot de passe</label>
