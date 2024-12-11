@@ -30,7 +30,7 @@ const login = async () => {
     });
     localStorage.setItem("token", response.data.token);
     useMainStore().setUser(response.data.user);
-    router.push("/test");
+    router.push("/dashboard");
   } catch (err) {
     console.error("Error during login:", err);
     const errorMessage = err.response?.data?.message || "Erreur inconnue";

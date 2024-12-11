@@ -1,8 +1,7 @@
 import { createApp } from "vue";
+import App from './App.vue';  // Assurez-vous que cette ligne est présente une seule fois
+import router from './router';  // Assurez-vous que cette ligne est présente une seule fois
 import { createPinia } from "pinia";
-
-import App from "./App.vue";
-import router from "./router";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";

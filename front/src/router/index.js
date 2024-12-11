@@ -10,7 +10,7 @@ import Students from '../components/Students.vue';
 import Rooms from '../components/Rooms.vue';
 
 const routes = [
-  {  path: '/', redirect: '/login' }, 
+  { path: '/', redirect: '/login' }, 
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
   { path: "/planification", name: "Planification", component: Planification },
@@ -19,8 +19,9 @@ const routes = [
   { path: '/classes', component: Classes },
   { path: '/professors', component: Professors },
   { path: '/students', component: Students },
-  { path: '/rooms', component: Rooms }
-]
+  { path: '/rooms', component: Rooms },
+  { path: '/dashboard', name: 'Dashboard', component: Dashboard }
+];
 
 const router = createRouter({
   history: createWebHistory(),
