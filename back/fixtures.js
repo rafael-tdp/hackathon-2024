@@ -41,7 +41,7 @@ const createGraduatingClasses = async (tabSubjects) => {
             const graduatingSubjects = tabSubjects.filter(subject => subject.studyField === studyField && subject.graduating ===  `${indexAnnee}A`);
             if (graduatingSubjects.length > 0) { //Si la filière a des matières pour cette année
                 const graduatingClass = {
-                    name: `${indexAnnee}-${studyField}`,
+                    name: `${indexAnnee}A-${studyField}`,
                     subjects: subjects.filter(subject => graduatingSubjects.find(graduatingSubject => graduatingSubject.name === subject.name && graduatingSubject.requiredHours === subject.requiredHours)),
                     studyField: studyField,
                     level: `${indexAnnee}A`,
@@ -64,7 +64,7 @@ const createClasses = async () => {
         const graduatingClass = graduatingClasses[indexGradiatingClass];
         const nbClasses = faker.number.int({ min: 1, max: 3 });
         for (let indexClasse = 1; indexClasse <= nbClasses; indexClasse++) {
-            const className = `${graduatingClass.name}`;
+            const className = `${graduatingClass.name}-${indexClasse}`;
             const weekClasses1 = [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49];
             const weekClasses2 = [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50];
             const weekClasses3 = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48];
