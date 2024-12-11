@@ -3,7 +3,7 @@ import axios from "axios";
 import { ref, reactive } from "vue";
 import { z } from "zod";
 import { useRouter } from "vue-router";
-// import axiosInstance from "@/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
 import { showToast } from "@/utils/toast";
 
 const router = useRouter();
@@ -62,8 +62,8 @@ const register = async () => {
     }
 
     try {
-        // const response = await axiosInstance.post(`/auth/register`, state);
-        // router.push("/login");
+        const response = await axiosInstance.post(`/api/users/register`, state);
+        router.push("/login");
         showToast(
             "Votre compte a été crée avec succès, veuillez consulter votre email pour activer votre compte "
         );
