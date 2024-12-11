@@ -75,6 +75,7 @@
 <script setup>
 import { ref, watch } from "vue";
 
+// Props passés depuis le parent
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -96,15 +97,21 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+  entityData: {
+    type: Object,
+    default: () => ({})
+  },
 });
 
+// Emission pour la mise à jour de la visibilité de la modal
 const emit = defineEmits(["update:visible"]);
 
-const formData = ref({});
+// Données du formulaire
+const formData = ref({ ...props.entityData });
 
 watch(() => props.visible, (newVisible) => {
   if (newVisible) {
-    formData.value = {};
+    formData.value = { ...props.entityData }; // Réinitialiser ou pré-remplir les données en fonction de l'entité
   }
 });
 
