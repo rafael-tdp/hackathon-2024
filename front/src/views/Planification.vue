@@ -1,4 +1,5 @@
 <template>
+  <LayoutAuthenticated>
     <div class="p-6 bg-gray-100 min-h-screen">
       <!-- En-tête -->
       <div class="flex justify-between items-center mb-6">
@@ -30,18 +31,22 @@
         @update="updateEvent"
       />
     </div>
+    </LayoutAuthenticated>
   </template>
+  
   
   <script>
   import { ref } from "vue";
   import AdvancedCalendar from "../components/Calendar.vue";
   import ScheduleModal from "../components/ScheduleModal.vue";
+  import LayoutAuthenticated from "../layouts/LayoutAuthenticated.vue";
   
   export default {
     name: "Planification",
     components: {
       AdvancedCalendar,
       ScheduleModal,
+      LayoutAuthenticated,
     },
     setup() {
       const isModalVisible = ref(false);
