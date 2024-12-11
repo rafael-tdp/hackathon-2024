@@ -11,7 +11,6 @@ const Room = require("./models/room");
 const Course = require("./models/course");
 const Subject = require("./models/subject");
 const Unavailability = require("./models/unavailability");
-const WeekClass = require("./models/weekClass");
 const GenericService = require("./services/genericServices");
 const GenericController = require("./controllers/genericController");
 
@@ -50,10 +49,6 @@ const unavailabilityController = new GenericController(unavailabilityService);
 const unavailabilityRouter = new GenericRouter(
 	unavailabilityController
 ).getRouter();
-// WeekClass
-const weekClassService = new GenericService(WeekClass);
-const weekClassController = new GenericController(weekClassService);
-const weekClassRouter = new GenericRouter(weekClassController).getRouter();
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
@@ -62,7 +57,6 @@ app.use("/api/rooms", roomRouter);
 app.use("/api/courses", courseRouter);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/unavailabilities", unavailabilityRouter);
-app.use("/api/weekclasses", weekClassRouter);
 
 mongoose
 	.connect(process.env.MONGO_URI, {})
