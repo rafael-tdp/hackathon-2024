@@ -1,4 +1,5 @@
 <template>
+  <LayoutAuthenticated>
   <div class="min-h-screen py-12 px-6">
     <div class="flex justify-between items-center mb-8">
       <h2 class="text-4xl font-bold text-gray-800">Courses</h2>
@@ -76,6 +77,7 @@
       :onConfirm="deleteCourse"
     />
   </div>
+</LayoutAuthenticated>
 </template>
 
 <script setup>
@@ -85,6 +87,7 @@ import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
 import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
+import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 
 const router = useRouter();
 
