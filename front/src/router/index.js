@@ -5,6 +5,7 @@ import Planification from "../views/Planification.vue";
 import Classes from "../views/classes/Classes.vue";
 import Courses from "../views/courses/Courses.vue";
 import Users from "../views/admin/Users.vue";
+import Profile from "../views/Profile.vue";
 
 import Home from "../views/Home.vue";
 
@@ -16,6 +17,8 @@ const routes = [
 	{ path: "/classes", name: "Classes", component: Classes },
 	{ path: "/courses", name: "Courses", component: Courses },
   { path: "/users", name: "Users", component: Users },
+  { path: "/profile", name: "Profil", component: Profile },
+
 ];
 
 const router = createRouter({

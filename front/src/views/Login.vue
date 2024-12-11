@@ -79,12 +79,6 @@ const login = async () => {
                 <label for="password" class="text-sm text-gray-700">
                   Mot de passe
                 </label>
-                <a
-                  rel="noopener noreferrer"
-                  href="/reset-password"
-                  class="text-xs hover:underline text-gray-500"
-                  >Mot de passe oublié?</a
-                >
               </div>
               <input
                 v-model="form.password"

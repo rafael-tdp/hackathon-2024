@@ -262,9 +262,9 @@ const toggleLargeSidebar = () => {
             <li class="mt-auto -mx-2">
               <hr class="mx-2 mb-3" />
               <a
-                href="/dash/profile"
+                href="/profile"
                 :class="[
-                  router.currentRoute.value.path === '/dash/profile'
+                  router.currentRoute.value.path === '/profile'
                     ? 'text-gray-900 bg-green-50 font-semibold'
                     : 'hover:bg-gray-100',
                   'group flex gap-x-3 rounded-md py-2 px-3 text-sm leading-6 font-medium hover:bg-gray-100 text-gray-700',
@@ -274,7 +274,7 @@ const toggleLargeSidebar = () => {
                   class="h-5 w-5 shrink-0"
                   aria-hidden="true"
                   :class="
-                    router.currentRoute.value.path === '/dash/profile'
+                    router.currentRoute.value.path === '/profile'
                       ? 'text-green-700'
                       : 'text-gray-700'
                   "
@@ -310,7 +310,7 @@ const toggleLargeSidebar = () => {
         <span class="sr-only">Ouvrir la barre</span>
         <Bars3Icon class="h-6 w-6" aria-hidden="true" />
       </button>
-      <a href="/dash/profile">
+      <a href="/profile">
         <span class="sr-only">Votre profil</span>
         <UserIcon class="h-6 w-6 shrink-0 text-white" aria-hidden="true" />
       </a>
