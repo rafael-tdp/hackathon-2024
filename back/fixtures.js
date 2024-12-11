@@ -4,7 +4,6 @@ const User = require("./models/user");
 const Class = require("./models/class");
 const ClassRoom = require("./models/classRoom");
 const Course = require("./models/course");
-const StudyField = require("./models/studyField");
 const Subject = require("./models/subject");
 const Unavailability = require("./models/unavailability");
 const WeekClass = require("./models/weekClass");
@@ -60,16 +59,6 @@ const createCourses = async () => {
     await Course.deleteMany();
     await Course.insertMany(courses);
     console.log("Courses created!");
-};
-
-const createPrograms = async () => {
-    const programs = [
-        { name: "Program 1" },
-        { name: "Program 2" },
-    ];
-    await StudyField.deleteMany();
-    await StudyField.insertMany(programs);
-    console.log("StudyField created!");
 };
 
 const createUnavailabilities = async () => {

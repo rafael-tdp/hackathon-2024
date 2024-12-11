@@ -39,8 +39,7 @@ class GenericService {
 
     async create(req, res, next) {
         try {
-            const id = uuidv7();
-            const model = new this.Model({ id, ...req.body });
+            const model = new this.Model({ ...req.body });
             await model.save();
             return res.status(201).json(model);
         } catch (error) {
