@@ -1,44 +1,31 @@
 <template>
   <LayoutAuthenticated>
-    <div class="flex justify-center items-center min-h-screen">
-      <div class="w-full max-w-lg p-6 bg-white">
-        <h2 class="text-2xl font-semibold mb-4">Définir une Indisponibilité</h2>
-        <form @submit.prevent="handleSubmit" class="space-y-4">
-          <div>
-            <label
-              for="startTime"
-              class="block text-sm font-medium text-gray-700"
-              >Date et Heure de Début</label
-            >
-            <input
-              id="startTime"
-              type="datetime-local"
-              v-model="form.startTime"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div>
-            <label for="endTime" class="block text-sm font-medium text-gray-700"
-              >Date et Heure de Fin</label
-            >
-            <input
-              id="endTime"
-              type="datetime-local"
-              v-model="form.endTime"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="flex justify-center mt-6">
-            <NewItemButton
-              @click="handleSubmit"
-              text="Ajouter l'Indisponibilité"
-            />
-          </div>
-        </form>
-        <p v-if="message" :class="messageClass" class="mt-4">{{ message }}</p>
+    <div class="min-h-screen py-12 px-6 flex flex-col items-center">
+      <PageTitle text="Gestion des Indisponibilités" />
+
+      <div class="flex justify-end w-full max-w-4xl mb-4">
+        <NewItemButton @click="openModal" text="Ajouter une indisponibilité" />
       </div>
+
+      <div class="w-full max-w-4xl bg-transparent p-6">
+        <DynamicTable
+          :columns="[
+            { key: 'startTime', label: 'Début' },
+            { key: 'endTime', label: 'Fin' },
+          ]"
+          :data="unavailabilities"
+          :hasActions="false"
+          class="bg-transparent border-none shadow-none rounded-none"
+        />
+      </div>
+
+      <Modal
+        v-model:visible="isModalVisible"
+        title="Ajouter une Indisponibilité"
+        :fields="modalFields"
+        :onSubmit="handleSubmit"
+        submitText="Confirmer"
+      />
     </div>
   </LayoutAuthenticated>
 </template>
@@ -48,24 +35,39 @@ import { ref, onMounted } from "vue";
 import axiosInstance from "@/utils/axiosInstance";
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import NewItemButton from "../../components/NewItemButton.vue";
+import DynamicTable from "@/components/DynamicTable.vue";
+import Modal from "@/components/Modal.vue";
+import PageTitle from "@/components/PageTitle.vue";
 import { showToast } from "@/utils/toast";
 
-const form = ref({
-  startTime: "",
-  endTime: "",
-});
-
-const message = ref("");
-const messageClass = ref("");
+const isModalVisible = ref(false);
 const teacherId = ref("");
+const unavailabilities = ref([]);
 
-// Getting user infos from localStorage
+const modalFields = [
+  {
+    name: "startTime",
+    label: "Date et Heure de Début",
+    type: "date",
+    placeholder: "Sélectionner une date et une heure",
+    required: true,
+  },
+  {
+    name: "endTime",
+    label: "Date et Heure de Fin",
+    type: "date",
+    placeholder: "Sélectionner une date et une heure",
+    required: true,
+  },
+];
+
+const openModal = () => {
+  isModalVisible.value = true;
+};
+
 const getUserData = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  if (user && user.email) {
-    return user.email;
-  }
-  return null;
+  return user?.email || null;
 };
 
 const fetchTeacherId = async () => {
@@ -80,52 +82,85 @@ const fetchTeacherId = async () => {
         type: "error",
       });
       console.error(
-        "Une erreur est survenue lors de la récupération des infos du user connecté"
+        "Erreur lors de la récupération des infos du user connecté"
       );
     }
   }
 };
 
-const handleSubmit = async () => {
+const fetchUnavailabilities = async () => {
+  try {
+    const response = await axiosInstance.get(
+      `/api/unavailabilities?teacher=${teacherId.value}`
+    );
+
+    const formatDateWithA = (dateString) => {
+      const date = new Date(dateString);
+      const optionsDate = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      const optionsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+      const formattedDate = new Intl.DateTimeFormat('fr-FR', optionsDate).format(date);
+      const formattedTime = new Intl.DateTimeFormat('fr-FR', optionsTime).format(date);
+
+      return `${formattedDate} à ${formattedTime}`;
+    };
+
+    unavailabilities.value = response.data.data.map((item) => ({
+      startTime: formatDateWithA(item.startTime),
+      endTime: formatDateWithA(item.endTime),
+    }));
+  } catch (error) {
+    showToast({
+      message: "Erreur lors du chargement des indisponibilités.",
+      type: "error",
+    });
+    console.error(error);
+  }
+};
+
+const handleSubmit = async (formData) => {
   if (!teacherId.value) {
     showToast({
-        message: "Une erreur est survenue, veuillez réeassyer plus tard",
-        type: "error",
-      });
+      message: "Une erreur est survenue, veuillez réessayer plus tard",
+      type: "error",
+    });
     return;
   }
 
-  if (new Date(form.value.endTime) <= new Date(form.value.startTime)) {
+  if (new Date(formData.endTime) <= new Date(formData.startTime)) {
     showToast({
-        message: "L'heure de fin doit être après l'heure de début",
-        type: "error",
-      });
+      message: "L'heure de fin doit être après l'heure de début",
+      type: "error",
+    });
     return;
   }
 
   try {
     const response = await axiosInstance.post("/api/unavailabilities", {
-      startTime: form.value.startTime,
-      endTime: form.value.endTime,
+      startTime: formData.startTime,
+      endTime: formData.endTime,
       teacher: teacherId.value,
     });
 
-    showToast({
-        message: "Indisponibilité ajoutée avec succès",
-        type: "success",
-      });
+    console.log("response ===", response);
 
-    form.value.startTime = "";
-    form.value.endTime = "";
-  } catch (error) {    
     showToast({
-        message: "Une erreur est survenue. Veuillez réessayer plus tard.",
-        type: "error",
-      });
+      message: "Indisponibilité ajoutée avec succès",
+      type: "success",
+    });
+
+    isModalVisible.value = false;
+    await fetchUnavailabilities();
+  } catch (error) {
+    showToast({
+      message: "Une erreur est survenue. Veuillez réessayer plus tard.",
+      type: "error",
+    });
   }
 };
 
 onMounted(async () => {
   await fetchTeacherId();
+  await fetchUnavailabilities();
 });
 </script>
