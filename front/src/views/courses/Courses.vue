@@ -162,7 +162,7 @@ const courseToDelete = ref(null);
 const fetchCourses = async () => {
   try {
     const response = await axiosInstance.get("/api/courses");
-    const coursesData = response.data.map((course) => ({
+    const coursesData = response.data.data.map((course) => ({
       ...course,
       startTime: formatDate(course.startTime),
       endTime: formatDate(course.endTime),
@@ -184,7 +184,7 @@ const fetchCourses = async () => {
 const fetchTeachers = async () => {
   try {
     const response = await axiosInstance.get("/api/users");
-    const teachers = response.data.filter((user) => user.role === "teacher");
+    const teachers = response.data.data.filter((user) => user.role === "teacher");
     teachersMap.value = teachers.reduce((map, teacher) => {
       map[teacher._id] = `${teacher.firstname} ${teacher.lastname}`;
       return map;
@@ -202,7 +202,7 @@ const fetchTeachers = async () => {
 const fetchSubjects = async () => {
   try {
     const response = await axiosInstance.get("/api/subjects");
-    subjectsMap.value = response.data.reduce((map, subject) => {
+    subjectsMap.value = response.data.data.reduce((map, subject) => {
       map[subject._id] = subject.name;
       return map;
     }, {});
@@ -248,13 +248,13 @@ const handleSubmit = async (formData) => {
     } else {
       // Création d'un nouveau cours
       const response = await axiosInstance.post("/api/courses", formData);
-      courses.value.push(response.data);
+      courses.value.push(response.data.data);
       showToast({
         message: "Nouveau cours créé avec succès.",
         type: "success",
       });
     }
-    isModalVisible.value = false; // Fermer le modal après mise à jour
+    isModalVisible.value = false; 
   } catch (error) {
     console.error("Erreur lors de la création ou de la mise à jour :", error);
     showToast({

@@ -65,7 +65,7 @@ const userFields = [
 const fetchUsers = async () => {
   try {
     const response = await axiosInstance.get("/api/users");
-    users.value = response.data.map((user) => ({
+    users.value = response.data.data.map((user) => ({
       ...user,
       className: classesMap.value[user.classId] || "-",
       roleLabel: getRoleLabel(user.role),
@@ -83,7 +83,7 @@ const fetchUsers = async () => {
 const fetchClasses = async () => {
   try {
     const response = await axiosInstance.get("/api/schoolClasses");
-    classesMap.value = response.data.reduce((map, cls) => {
+    classesMap.value = response.data.data.reduce((map, cls) => {
       map[cls._id] = cls.name;
       return map;
     }, {});
@@ -144,9 +144,9 @@ const updateUser = async (formData) => {
       // Ajouter un nouvel utilisateur
       const response = await axiosInstance.post("/api/users", formData);
       users.value.push({
-        ...response.data,
-        className: classesMap.value[response.data.classId] || "Non attribuée",
-        roleLabel: getRoleLabel(response.data.role),
+        ...response.data.data,
+        className: classesMap.value[response.data.data.classId] || "Non attribuée",
+        roleLabel: getRoleLabel(response.data.data.role),
       });
       showToast("Nouvel utilisateur ajouté avec succès", "success");
     }
