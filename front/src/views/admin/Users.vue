@@ -6,21 +6,21 @@ import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
-import NewItemButton from "../../components/NewItemButton.vue";
-import PageTitle from "../../components/PageTitle.vue";
-import axiosInstance from "@/utils/axiosInstance"; // Axios configuré avec une base URL
-import { showToast } from "@/utils/toast"; // Notifications Toast
+import NewItemButton from "@/components/NewItemButton.vue";
+import PageTitle from "@/components/PageTitle.vue";
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
 
 const router = useRouter();
 
 // Liste des utilisateurs et classes
-const users = ref([]); // Liste des utilisateurs
-const classesMap = ref({}); // Mapping des classes (id -> nom)
+const users = ref([]);
+const classesMap = ref({});
 
-const isModalVisible = ref(false); // Contrôle du modal d'édition
-const isDeleteModalVisible = ref(false); // Contrôle du modal de suppression
-const userToEdit = ref(null); // Utilisateur en cours d'édition
-const userToDelete = ref(null); // Utilisateur à supprimer
+const isModalVisible = ref(false);
+const isDeleteModalVisible = ref(false);
+const userToEdit = ref(null);
+const userToDelete = ref(null);
 
 // Champs du formulaire d'utilisateur
 const userFields = [

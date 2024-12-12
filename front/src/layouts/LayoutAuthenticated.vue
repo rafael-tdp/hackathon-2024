@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import {
-  Dialog,
-  DialogPanel,
-  TransitionChild,
-  TransitionRoot,
-} from "@headlessui/vue";
+import { useRouter } from "vue-router";
 import {
   Bars3Icon,
   UserIcon,
@@ -22,11 +17,27 @@ import {
   UserPlusIcon,
   CalendarIcon,
 } from "@heroicons/vue/24/outline";
-
-import { useRouter } from "vue-router";
+import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
 
 const router = useRouter();
-const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+// Récupérer les informations de l'utilisateur depuis le localStorage
+const user = ref({
+  firstname: "",
+  lastname: "",
+});
+
+onMounted(() => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    user.value = {
+      firstname: parsedUser.firstname || "",
+      lastname: parsedUser.lastname || "",
+    };
+  }
+});
+
 const navigation = [
   {
     name: "Accueil",
@@ -145,33 +156,8 @@ const toggleLargeSidebar = () => {
             leave-to="-translate-x-full"
           >
             <DialogPanel class="relative mr-16 flex w-full max-w-xs flex-1">
-              <TransitionChild
-                as="template"
-                enter="ease-in-out duration-300"
-                enter-from="opacity-0"
-                enter-to="opacity-100"
-                leave="ease-in-out duration-300"
-                leave-from="opacity-100"
-                leave-to="opacity-0"
-              >
-                <div
-                  class="absolute left-full top-0 flex w-16 justify-center pt-5"
-                >
-                  <button
-                    type="button"
-                    class="-m-2.5 p-2.5"
-                    @click="sidebarOpen = false"
-                  >
-                    <span class="sr-only">Close sidebar</span>
-                    <XMarkIcon class="h-6 w-6 text-white" aria-hidden="true" />
-                  </button>
-                </div>
-              </TransitionChild>
-
-              <!-- Sidebar component, swap this element with another sidebar if you like -->
-              <div
-                class="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-2 ring-1 ring-white/10 bg-gray-50 relative z-10"
-              >
+              <!-- Sidebar content -->
+              <div class="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-2 ring-1 ring-white/10 bg-gray-50 relative z-10">
                 <XMarkIcon
                   class="h-6 w-6 absolute rigth-5 top-5 cursor-pointer hover:bg-gray-100"
                   @click="sidebarOpen = false"

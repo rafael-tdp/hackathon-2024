@@ -1,24 +1,35 @@
 <template>
   <LayoutAuthenticated>
-    <div class="min-h-screen py-12 px-6 flex flex-col items-center">
+		<div class="min-h-screen py-12 px-6">
+      <div class="flex justify-between items-center mb-8">
       <PageTitle text="Gestion des Indisponibilités" />
+      </div>
 
       <div class="flex justify-end w-full max-w-4xl mb-4">
         <NewItemButton @click="openModal" text="Ajouter une indisponibilité" />
       </div>
 
-      <div class="w-full max-w-4xl bg-transparent p-6">
+      <div class="w-full max-w-4xl bg-white shadow-md rounded-lg overflow-hidden">
+        <!-- Tableau des Indisponibilités -->
         <DynamicTable
           :columns="[
             { key: 'startTime', label: 'Début' },
-            { key: 'endTime', label: 'Fin' },
+            { key: 'endTime', label: 'Fin' }
           ]"
           :data="unavailabilities"
           :hasActions="false"
-          class="bg-transparent border-none shadow-none rounded-none"
-        />
+          class="table-auto w-full border-collapse text-sm text-gray-600"
+        >
+          <template #default="{ row }">
+            <tr class="hover:bg-gray-100">
+              <td class="px-4 py-2 border-b text-left">{{ row.startTime }}</td>
+              <td class="px-4 py-2 border-b text-left">{{ row.endTime }}</td>
+            </tr>
+          </template>
+        </DynamicTable>
       </div>
 
+      <!-- Modal pour Ajouter Indisponibilité -->
       <Modal
         v-model:visible="isModalVisible"
         title="Ajouter une Indisponibilité"
@@ -81,9 +92,7 @@ const fetchTeacherId = async () => {
         message: "Veuillez vous connecter pour accéder à cette page",
         type: "error",
       });
-      console.error(
-        "Erreur lors de la récupération des infos du user connecté"
-      );
+      console.error("Erreur lors de la récupération des infos du user connecté");
     }
   }
 };
@@ -141,8 +150,6 @@ const handleSubmit = async (formData) => {
       endTime: formData.endTime,
       teacher: teacherId.value,
     });
-
-    console.log("response ===", response);
 
     showToast({
       message: "Indisponibilité ajoutée avec succès",
