@@ -46,7 +46,10 @@
               :required="field.required"
             />
             <div v-if="field.type === 'date'">
-              <Datepicker v-model="formData[field.name]" :format="'yyyy-MM-dd HH:mm:ss'"/>
+              <Datepicker
+                v-model="formData[field.name]"
+                :format="'yyyy-MM-dd HH:mm:ss'"
+              />
             </div>
             <select
               v-if="field.type === 'select'"
