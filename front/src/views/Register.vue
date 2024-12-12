@@ -61,11 +61,7 @@ const register = async () => {
 
     try {
         const response = await axiosInstance.post(`/api/auth/register`, state);
-        
         router.push("/login");
-        showToast(
-            "Votre compte a été crée avec succès, veuillez vous connecter ! "
-        );
     } catch (e) {
         console.error(
             "Erreur lors de la création de l'utilisateur:",
