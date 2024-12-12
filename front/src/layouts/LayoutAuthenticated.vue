@@ -42,19 +42,19 @@ const navigation = [
 	},
 	{
 		name: "Enseignants",
-		href: "/enseignants", // Lien pour les enseignants
+		href: "/enseignants",
 		icon: UsersIcon,
 		current: router.currentRoute.value.path === "/enseignants",
 	},
 	{
 		name: "Etudiants",
-		href: "/etudiants", // Lien pour les étudiants
+		href: "/etudiants",
 		icon: UserGroupIcon,
-		current: router.currentRoute.value.path === "/etudiants",
+		current: router.currentRoute.value.path === "/students",
 	},
 	{
 		name: "Messages",
-		href: "/messages", // Lien pour les messages
+		href: "/messages",
 		icon: EnvelopeIcon,
 		current: router.currentRoute.value.path === "/messages",
 	},

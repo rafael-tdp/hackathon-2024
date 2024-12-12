@@ -6,6 +6,8 @@ import Classes from "../views/classes/Classes.vue";
 import Courses from "../views/courses/Courses.vue";
 import Users from "../views/admin/Users.vue";
 import Profile from "../views/Profile.vue";
+import Teahers from "../views/admin/Teachers.vue";
+import Students from "../views/students/Students.vue";
 
 import Home from "../views/Home.vue";
 
@@ -18,6 +20,8 @@ const routes = [
 	{ path: "/courses", name: "Courses", component: Courses },
  	{ path: "/users", name: "Users", component: Users },
   	{ path: "/profile", name: "Profil", component: Profile },
+	{ path: "/enseignants", name: "Teahers", component: Teahers },
+	{ path: "/etudiants", name: "Students", component: Students }
 ];
 
 const router = createRouter({
