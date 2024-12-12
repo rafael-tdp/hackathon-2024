@@ -53,7 +53,6 @@
           >
             {{ row.status === "pending" ? "En attente" : row.status }}
           </button>
-          <div v-if="true">{{ console.log("Status:", row.status) }}</div>
         </template>
       </DynamicTable>
 
@@ -102,9 +101,6 @@ const subjectsMap = ref({});
 
 const formatDate = (dateString) => {
   try {
-    console.log(
-      format(new Date(dateString), "dd/MM/yyyy 'à' HH:mm", { locale: fr })
-    );
     return format(new Date(dateString), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
   } catch (error) {
     console.error("Erreur lors du formatage de la date :", error);
