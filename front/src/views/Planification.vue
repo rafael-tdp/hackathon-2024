@@ -30,7 +30,7 @@ const fetchEvents = async () => {
 			usersResponse,
 			classesResponse,
 		] = await Promise.all([
-			axios.get(`${BASE_URL}/api/courses`),
+			axios.get(`${BASE_URL}/api/courses/populated`),
 			axios.get(`${BASE_URL}/api/subjects`),
 			axios.get(`${BASE_URL}/api/users`),
 			axios.get(`${BASE_URL}/api/schoolClasses`),

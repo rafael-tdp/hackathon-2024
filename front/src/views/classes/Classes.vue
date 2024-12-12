@@ -95,8 +95,8 @@ const fetchSubjects = async (subjectsIds) => {
 const openEditModal = async (classItem) => {
   classToEdit.value = { ...classItem };
 
-  if (classItem.graduatingId) {
-    const graduatingInfo = await fetchGraduatingInfo(classItem.graduatingId);
+  if (classItem.graduating) {
+    const graduatingInfo = await fetchGraduatingInfo(classItem.graduating);
     classToEdit.value.studyField = graduatingInfo.studyField;
     classToEdit.value.level = graduatingInfo.level;
   }

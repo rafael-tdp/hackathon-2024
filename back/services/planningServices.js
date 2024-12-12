@@ -40,7 +40,7 @@ const getSubjectsFromClass = async (classId) => {
 	if (!classId) throw new Error("classId is required");
 
 	const classToCheck = await SchoolClass.findById(classId).populate({
-		path: "graduatingId",
+		path: "graduating",
 		model: "Graduating",
 		populate: {
 			path: "subjects",
@@ -52,11 +52,11 @@ const getSubjectsFromClass = async (classId) => {
 		throw new Error(`Class with id ${classId} not found`);
 	}
 
-	if (!classToCheck.graduatingId || !classToCheck.graduatingId.subjects) {
+	if (!classToCheck.graduating || !classToCheck.graduating.subjects) {
 		throw new Error(`No subjects found for classId: ${classId}`);
 	}
 
-	return classToCheck.graduatingId.subjects;
+	return classToCheck.graduating.subjects;
 };
 
 const getTeachersFromSubjects = async (subjectsIds) => {

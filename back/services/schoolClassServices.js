@@ -12,7 +12,7 @@ class SchoolClassService extends GenericService {
             const models = await this.Model.find(filters)
                 .skip(offset)
                 .limit(limit)
-                .populate("graduatingId");
+                .populate("graduating");
 
             const countTotal = await this.Model.countDocuments(filters);
             res.set('X-Total-Count', countTotal);
