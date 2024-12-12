@@ -37,7 +37,17 @@
 								:row="row"
 							/>
 						</div>
-						<div v-else>{{ row[col.key] || "N/A" }}</div>
+						<div v-else
+            :class="{
+              'rounded-full': col.key === 'status',
+              'text-center': col.key === 'status',
+              'text-xs': col.key === 'status',
+              'bg-red-600': col.key === 'status' && row[col.key] === 'Annulé',
+              'bg-green-600': col.key === 'status' && row[col.key] === 'Passé',
+              'bg-blue-600': col.key === 'status' && row[col.key] === 'En cours',
+              'bg-yellow-500': col.key === 'status' && row[col.key] === 'En attente',
+            }"
+            >{{ row[col.key] || "N/A" }}</div>
 					</td>
 					<!-- Affichage des actions uniquement si la ligne est survolée -->
 					<td v-if="hasActions" class="px-6 py-2">

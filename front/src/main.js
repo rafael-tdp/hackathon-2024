@@ -29,7 +29,7 @@ app.component("FontAwesomeIcon", FontAwesomeIcon);
 // styleStore.setStyle("basic");
 
 /* Default title tag */
-const defaultDocumentTitle = "Admin One Vue 3 Tailwind";
+const defaultDocumentTitle = "Hackathon";
 
 /* Set document title from route meta */
 router.afterEach((to) => {
