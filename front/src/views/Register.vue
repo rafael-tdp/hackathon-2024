@@ -65,7 +65,7 @@ const register = async () => {
     } catch (e) {
         console.error(
             "Erreur lors de la création de l'utilisateur:",
-            e.response.data
+            e.response.data.data
         );
         state.errors.message =
             "Une erreur est survenue lors de la création de l'utilisateur.";
