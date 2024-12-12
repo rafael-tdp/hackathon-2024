@@ -8,7 +8,7 @@
       :class="{ 'scale-100 opacity-100': visible }"
     >
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-2xl font-semibold text-gray-800">{{ title }}</h3>
+        <h3 class="text-2xl font-semibold text-secondary">{{ title }}</h3>
         <button
           @click="closeModal"
           class="text-gray-600 hover:text-gray-800 transition-colors"
@@ -75,13 +75,13 @@
           <button
             type="button"
             @click="closeModal"
-            class="px-6 py-3 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
+            class="px-6 py-3 bg-gray-300 text-black rounded-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
             Annuler
           </button>
           <button
             type="submit"
-            class="px-8 py-3 font-semibold rounded-full bg-black text-white w-full sm:w-auto"
+            class="px-8 py-3 rounded-sm bg-primary text-white w-full sm:w-auto hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/500 "
           >
             {{ submitText }}
           </button>

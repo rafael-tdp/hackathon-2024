@@ -1,15 +1,12 @@
 <template>
   <LayoutAuthenticated>
-    <div class="p-6 bg-gray-100 min-h-screen">
-      <!-- En-tête -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-700">Planification Académique</h1>
-        <button
+    <div class="min-h-screen py-12 px-6">
+			<div class="flex justify-between items-center mb-8">
+        <PageTitle text="Planification Académique" />
+        <NewItemButton
           @click="addEvent"
-          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Ajouter un cours
-        </button>
+          text="Nouveau Cours"
+        />
       </div>
   
       <!-- Calendrier -->
@@ -40,6 +37,8 @@
   import AdvancedCalendar from "../components/Calendar.vue";
   import ScheduleModal from "../components/ScheduleModal.vue";
   import LayoutAuthenticated from "../layouts/LayoutAuthenticated.vue";
+  import NewItemButton from "../components/NewItemButton.vue";
+  import PageTitle from "../components/PageTitle.vue";
   
   export default {
     name: "Planification",
@@ -47,6 +46,8 @@
       AdvancedCalendar,
       ScheduleModal,
       LayoutAuthenticated,
+      NewItemButton,
+      PageTitle,
     },
     setup() {
       const isModalVisible = ref(false);
