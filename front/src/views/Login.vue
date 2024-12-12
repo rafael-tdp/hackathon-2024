@@ -28,6 +28,9 @@ const login = async () => {
       },
     });
 
+    const { email, firstname, lastname } = response.data.data;
+    localStorage.setItem("user", JSON.stringify({ email, firstname, lastname }));
+
     router.push("/");
   } catch (err) {
     console.error("Error during login:", err);
@@ -120,3 +123,4 @@ const login = async () => {
     </div>
   </div>
 </template>
+

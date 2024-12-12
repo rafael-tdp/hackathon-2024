@@ -8,20 +8,20 @@ import ConfirmationModal from "@/components/ConfirmationModal.vue";
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import NewItemButton from "../../components/NewItemButton.vue";
 import PageTitle from "../../components/PageTitle.vue";
-import axiosInstance from "@/utils/axiosInstance"; // Axios configuré avec une base URL
-import { showToast } from "@/utils/toast"; // Notifications Toast
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
 
 const router = useRouter();
 
-// Liste des élèves
+// Liste des étudiants
 const students = ref([]);
 
-const isModalVisible = ref(false); // Contrôle du modal d'édition
-const isDeleteModalVisible = ref(false); // Contrôle du modal de suppression
-const studentToEdit = ref(null); // Élève en cours d'édition
-const studentToDelete = ref(null); // Élève à supprimer
+const isModalVisible = ref(false); 
+const isDeleteModalVisible = ref(false);
+const studentToEdit = ref(null); 
+const studentToDelete = ref(null);
 
-// Champs du formulaire d'élève
+// Students columns dashboard
 const studentFields = [
   {
     name: "firstname",
@@ -50,7 +50,7 @@ const fetchStudents = async () => {
   try {
     const response = await axiosInstance.get("/api/users");
     students.value = response.data.data
-      .filter(user => user.role === 'student') 
+      .filter((user) => user.role === "student")
       .map((user) => ({
         ...user,
         roleLabel: "Étudiant",
@@ -64,7 +64,7 @@ const fetchStudents = async () => {
   }
 };
 
-// Ouvrir le modal pour éditer un élève
+// Update student
 const openEditModal = (studentItem) => {
   studentToEdit.value = {
     ...studentItem,
@@ -72,13 +72,13 @@ const openEditModal = (studentItem) => {
   isModalVisible.value = true;
 };
 
-// Ouvrir le modal de suppression pour un élève
+// Delete a student
 const openDeleteModal = (studentItem) => {
   studentToDelete.value = studentItem;
   isDeleteModalVisible.value = true;
 };
 
-// Mettre à jour ou ajouter un élève
+// Add or Update a student
 const updateStudent = async (formData) => {
   try {
     if (formData._id) {
@@ -87,7 +87,7 @@ const updateStudent = async (formData) => {
       if (index !== -1) {
         students.value[index] = {
           ...formData,
-          roleLabel: "Élève", // Assigner le label de rôle
+          roleLabel: "Élève",
         };
       }
       showToast({
@@ -95,11 +95,10 @@ const updateStudent = async (formData) => {
         type: "success",
       });
     } else {
-      // Ajouter un nouvel élève
       const response = await axiosInstance.post("/api/users", formData);
       students.value.push({
         ...response.data.data,
-        roleLabel: "Élève", // Assigner le label de rôle
+        roleLabel: "Élève",
       });
       showToast("Nouvel élève ajouté avec succès", "success");
     }
@@ -113,11 +112,13 @@ const updateStudent = async (formData) => {
   }
 };
 
-// Supprimer un élève
+// Delete a student
 const deleteStudent = async () => {
   try {
     await axiosInstance.delete(`/api/users/${studentToDelete.value._id}`);
-    students.value = students.value.filter((u) => u._id !== studentToDelete.value._id);
+    students.value = students.value.filter(
+      (u) => u._id !== studentToDelete.value._id
+    );
     isDeleteModalVisible.value = false;
     showToast({
       message: "Élève supprimé avec succès.",
@@ -132,7 +133,6 @@ const deleteStudent = async () => {
   }
 };
 
-// Initialisation des données au montage
 onMounted(async () => {
   await fetchStudents();
 });
@@ -143,10 +143,7 @@ onMounted(async () => {
     <div class="min-h-screen py-12 px-6">
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Étudiants" />
-        <NewItemButton
-          @click="openEditModal"
-          text="Nouvel Élève"
-        />
+        <NewItemButton @click="openEditModal" text="Nouvel Élève" />
       </div>
 
       <DynamicTable
@@ -154,7 +151,7 @@ onMounted(async () => {
           { key: 'firstname', label: 'Prénom' },
           { key: 'lastname', label: 'Nom' },
           { key: 'email', label: 'Email' },
-          { key: 'roleLabel', label: 'Rôle' }
+          { key: 'roleLabel', label: 'Rôle' },
         ]"
         :data="students"
         :hasActions="true"
