@@ -1,4 +1,5 @@
 <script>
+import { ref, watch } from "vue";
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -13,16 +14,16 @@ export default {
   props: {
     events: {
       type: Array,
-      required: true, 
+      required: true,
     },
     weekends: {
       type: Boolean,
       default: true,
     },
   },
-  emits: ["select", "eventClick", "eventDrop", "eventResize"], 
+  emits: ["select", "eventClick", "eventDrop", "eventResize", "createEvent"],
   setup(props, { emit }) {
-    const calendarOptions = {
+    const calendarOptions = ref({
       plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin],
       initialView: "dayGridMonth",
       headerToolbar: {
@@ -41,11 +42,28 @@ export default {
       editable: true,
       selectable: true,
       events: props.events,
-      select: (arg) => emit("select", arg), 
-      eventClick: (arg) => emit("eventClick", arg.event), 
-      eventDrop: (arg) => emit("eventDrop", arg.event), 
-      eventResize: (arg) => emit("eventResize", arg.event), 
-    };
+      eventContent: (arg) => {
+        return { html: arg.event.title };
+      },
+      select: (arg) => {
+        emit("createEvent", {
+          start: arg.startStr,
+          end: arg.endStr,
+          allDay: arg.allDay,
+        });
+      },
+      eventClick: (arg) => emit("eventClick", arg.event),
+      eventDrop: (arg) => emit("eventDrop", arg.event),
+      eventResize: (arg) => emit("eventResize", arg.event),
+    });
+
+    watch(
+      () => props.events,
+      (newEvents) => {
+        calendarOptions.value.events = newEvents;
+      },
+      { deep: true }
+    );
 
     return {
       calendarOptions,
@@ -61,5 +79,4 @@ export default {
 </template>
 
 <style scoped>
-/* Ajoutez des styles spécifiques ici */
 </style>
