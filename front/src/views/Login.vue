@@ -5,7 +5,6 @@ import axios from "axios";
 import { useMainStore } from "@/stores/main";
 import { showToast } from "@/utils/toast";
 
-
 const form = reactive({
   email: "",
   password: "",
@@ -28,13 +27,16 @@ const login = async () => {
         password: form.password,
       },
     });
-    localStorage.setItem("token", response.data.token);
-    useMainStore().setUser(response.data.user);
-    router.push("/test");
+
+    router.push("/");
   } catch (err) {
     console.error("Error during login:", err);
     const errorMessage = err.response?.data?.message || "Erreur inconnue";
-    showToast(errorMessage);
+    showToast({
+      message: errorMessage,
+      type: "error",
+      transition: "flip",
+    });
   }
 };
 </script>
@@ -52,7 +54,9 @@ const login = async () => {
 
     <!-- Section Formulaire -->
     <div class="w-full flex items-center justify-center bg-gray-100 py-12 px-6">
-      <div class="w-full sm:w-4/5 md:w-1/2 lg:w-1/3 max-w-md p-6 rounded-md bg-white shadow-xl h-[500px] relative z-10 min-w-[435px]">
+      <div
+        class="w-full sm:w-4/5 md:w-1/2 lg:w-1/3 max-w-md p-6 rounded-md bg-white shadow-xl h-[500px] relative z-10 min-w-[435px]"
+      >
         <div class="mb-8 text-center">
           <h1 class="my-3 text-4xl font-bold text-black">Se connecter</h1>
           <p class="text-sm text-gray-500">
@@ -116,5 +120,3 @@ const login = async () => {
     </div>
   </div>
 </template>
-
-  
