@@ -127,13 +127,13 @@ const courseFields = [
 	{
 		name: "startTime",
 		label: "Date de début",
-		type: "datetime-local",
+		type: "date",
 		required: true,
 	},
 	{
 		name: "endTime",
 		label: "Date de fin",
-		type: "datetime-local",
+		type: "date",
 		required: true,
 	},
 	{
@@ -164,6 +164,8 @@ const fetchCourses = async () => {
     const response = await axiosInstance.get("/api/courses");
     const coursesData = response.data.data.map((course) => ({
       ...course,
+      rawStartTime: course.startTime, 
+      rawEndTime: course.endTime,
       startTime: formatDate(course.startTime),
       endTime: formatDate(course.endTime),
       teacherName: teachersMap.value[course.teacherId] || "Inconnu",
@@ -179,6 +181,7 @@ const fetchCourses = async () => {
     });
   }
 };
+
 
 // Fetch teachers
 const fetchTeachers = async () => {
@@ -219,6 +222,8 @@ const openEditModal = (courseItem) => {
   courseToEdit.value = { ...courseItem,
     teacher: courseItem.teacherName,
     subject: courseItem.subjectName,
+    startTime: courseItem.rawStartTime,
+    endTime: courseItem.rawEndTime, 
     status: courseItem.status
    }; // Pré-remplir les données du formulaire
   
@@ -234,9 +239,14 @@ const openDeleteModal = (courseItem) => {
 // Créer ou mettre à jour un cours
 const handleSubmit = async (formData) => {
   try {
+    const payload = {
+      ...formData,
+      startTime: new Date(formData.startTime).toISOString(), // Assurez-vous que le format ISO est utilisé
+      endTime: new Date(formData.endTime).toISOString(),
+    };
+
     if (formData._id) {
-      // Mise à jour d'un cours existant
-      await axiosInstance.put(`/api/courses/${formData._id}`, formData);
+      await axiosInstance.put(`/api/courses/${formData._id}`, payload);
       const index = courses.value.findIndex((c) => c._id === formData._id);
       if (index !== -1) {
         courses.value[index] = { ...formData };
@@ -246,15 +256,14 @@ const handleSubmit = async (formData) => {
         type: "success",
       });
     } else {
-      // Création d'un nouveau cours
-      const response = await axiosInstance.post("/api/courses", formData);
+      const response = await axiosInstance.post("/api/courses", payload);
       courses.value.push(response.data.data);
       showToast({
         message: "Nouveau cours créé avec succès.",
         type: "success",
       });
     }
-    isModalVisible.value = false; 
+    isModalVisible.value = false;
   } catch (error) {
     console.error("Erreur lors de la création ou de la mise à jour :", error);
     showToast({
@@ -263,6 +272,7 @@ const handleSubmit = async (formData) => {
     });
   }
 };
+
 
 // Supprimer un cours
 const deleteCourse = async () => {

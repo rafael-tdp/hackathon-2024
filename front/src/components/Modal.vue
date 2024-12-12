@@ -46,10 +46,7 @@
               :required="field.required"
             />
             <div v-if="field.type === 'date'">
-              <v-date-picker
-                v-model="formData[field.name]"
-                :format="'YYYY-MM-DD'"
-              />
+              <Datepicker v-model="formData[field.name]" :format="'yyyy-MM-dd HH:mm:ss'"/>
             </div>
             <select
               v-if="field.type === 'select'"
@@ -81,7 +78,7 @@
           </button>
           <button
             type="submit"
-            class="px-8 py-3 rounded-sm bg-primary text-white w-full sm:w-auto hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/500 "
+            class="px-8 py-3 rounded-sm bg-primary text-white w-full sm:w-auto hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/500"
           >
             {{ submitText }}
           </button>
@@ -93,6 +90,8 @@
 
 <script setup>
 import { ref, watch } from "vue";
+import Datepicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 // Props passés depuis le parent
 const props = defineProps({
@@ -169,5 +168,4 @@ const submitForm = () => {
 .shadow-2xl {
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 5px 5px rgba(0, 0, 0, 0.1);
 }
-
 </style>
