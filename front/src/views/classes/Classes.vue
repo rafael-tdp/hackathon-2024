@@ -115,7 +115,7 @@ const deleteClass = () => {
 
       <!-- Slot pour les actions -->
       <template #actions="{ row }">
-        <button @click="openEditModal(row)" class="text-blue-600 hover:text-blue-800">
+        <button @click="openEditModal(row)" class="text-primary hover:text-primary/90">
           <PencilIcon class="h-5 w-5" />
         </button>
         <button @click="openDeleteModal(row)" class="text-red-600 hover:text-red-800">
