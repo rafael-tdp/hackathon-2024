@@ -6,7 +6,7 @@
 
 				<!-- Button to open the modal for adding a new course -->
 				<NewItemButton
-					@open-edit-modal="openEditModal"
+					@click="openEditModal"
 					text="Nouveau cours"
 				/>
 			</div>

@@ -122,7 +122,7 @@ const deleteUser = () => {
 			<div class="flex justify-between items-center mb-8">
 				<PageTitle text="Utilisateurs" />
 				<NewItemButton
-					@open-edit-modal="openEditModal"
+					@click="openEditModal"
 					text="Nouvel Utilisateur"
 				/>
 			</div>
