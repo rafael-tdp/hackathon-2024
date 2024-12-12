@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const classSchema = new mongoose.Schema(
+const subjectClassSchema = new mongoose.Schema(
 {
         plannedHours: {
             type: Number,
@@ -21,4 +21,4 @@ const classSchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model('SubjectClass', classSchema);
+module.exports = mongoose.model('SubjectClass', subjectClassSchema);
