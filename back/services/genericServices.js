@@ -1,4 +1,5 @@
 const { uuidv7 } = require("uuidv7");
+const ApiResponse = require("../models/apiResponse");
 
 class GenericService {
     constructor(model) {
@@ -8,7 +9,7 @@ class GenericService {
     async getAll(req, res) {
         const { page: reqPage, limit: reqLimit, startDate, endDate, ...filters } = req.query;
         const page = parseInt(reqPage) || 1;
-        const limit = parseInt(reqLimit) || 10;
+        const limit = parseInt(reqLimit);
         const offset = (page - 1) * limit;
 
         if (startDate) {
@@ -25,10 +26,16 @@ class GenericService {
 
             const countTotal = await this.Model.countDocuments(filters);
             res.set('X-Total-Count', countTotal);
-            return res.status(200).json(models);
+            return res.status(200).json(new ApiResponse({
+                success: true,
+                data: models,
+            }));
         } catch (error) {
             console.error("Une erreur s'est produite :", error);
-            return res.status(500).json({ error: "Erreur interne du serveur" });
+            return res.status(500).json(new ApiResponse({
+                success: false,
+                error: "Erreur interne du serveur",
+            }));
         }
     }
 
@@ -36,11 +43,17 @@ class GenericService {
         const id = req.params.id;
         try {
             const model = await this.Model.findById(id);
-            if (model) return res.status(200).json(model);
+            if (model) return res.status(200).json(new ApiResponse({
+                success: true,
+                data: model,
+            }));
             return res.sendStatus(404);
         } catch (error) {
             console.error("Une erreur s'est produite :", error);
-            return res.status(500).json({ error: "Erreur interne du serveur" });
+            return res.status(500).json(new ApiResponse({
+                success: false,
+                error: "Erreur interne du serveur",
+            }));
         }
     }
 
@@ -48,7 +61,10 @@ class GenericService {
         try {
             const model = new this.Model({ ...req.body });
             await model.save();
-            return res.status(201).json(model);
+            return res.status(201).json(new ApiResponse({
+                success: true,
+                data: model,
+            }));
         } catch (error) {
             next(error);
         }
@@ -59,7 +75,10 @@ class GenericService {
             const id = req.params.id;
             const updatedItem = await this.Model.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
             if (updatedItem) {
-                return res.status(200).json(updatedItem);
+                return res.status(200).json(new ApiResponse({
+                    success: true,
+                    data: updatedItem,
+                }));
             } else {
                 return res.sendStatus(404);
             }
@@ -73,7 +92,10 @@ class GenericService {
             const id = req.params.id;
             const updatedItem = await this.Model.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
             if (updatedItem) {
-                return res.status(200).json(updatedItem);
+                return res.status(200).json(new ApiResponse({
+                    success: true,
+                    data: updatedItem,
+                }));
             } else {
                 return res.sendStatus(404);
             }
@@ -90,7 +112,10 @@ class GenericService {
             return res.sendStatus(404);
         } catch (error) {
             console.error("Une erreur s'est produite :", error);
-            return res.status(500).json({ error: "Erreur interne du serveur" });
+            return res.status(500).json(new ApiResponse({
+                success: false,
+                error: "Erreur interne du serveur",
+            }));
         }
     }
 }
