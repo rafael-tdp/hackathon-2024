@@ -28,7 +28,7 @@
         <template #actions="{ row }">
           <button
             @click="openEditModal(row)"
-            class="text-blue-600 hover:text-blue-800"
+            class="text-secondary hover:text-secondary/80"
           >
             <PencilIcon class="h-5 w-5" />
           </button>

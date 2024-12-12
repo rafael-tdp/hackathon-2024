@@ -23,7 +23,7 @@
 				<tr
 					v-for="(row, rowIndex) in data"
 					:key="rowIndex"
-					class="border-b hover:bg-gray-50 transition duration-200 ease-in-out"
+					class="border-b hover:bg-gray-50 hover:text-primary h-14"
 					@mouseenter="hoveredRowIndex = rowIndex"
 					@mouseleave="hoveredRowIndex = null"
 				>
@@ -40,7 +40,7 @@
 						<div v-else>{{ row[col.key] || "N/A" }}</div>
 					</td>
 					<!-- Affichage des actions uniquement si la ligne est survolée -->
-					<td v-if="hasActions" class="px-6 py-4">
+					<td v-if="hasActions" class="px-6 py-2">
 						<div v-if="hoveredRowIndex === rowIndex">
 							<slot name="actions" :row="row" />
 						</div>

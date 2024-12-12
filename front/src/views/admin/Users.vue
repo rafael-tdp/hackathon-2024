@@ -143,7 +143,7 @@ const deleteUser = () => {
 				<template #actions="{ row }">
 					<button
 						@click="openEditModal(row)"
-						class="text-primary hover:text-primary/90"
+						class="text-secondary hover:text-secondary/80"
 					>
 						<PencilIcon class="h-5 w-5" />
 					</button>
