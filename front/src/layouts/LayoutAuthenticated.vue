@@ -76,6 +76,12 @@ const navigation = [
 		icon: BookOpenIcon,
 		current: router.currentRoute.value.path === "/courses",
 	},
+	{
+		name: "Classes",
+		href: "/classes",
+		icon: BookOpenIcon,
+		current: router.currentRoute.value.path === "/classes",
+	},
 ];
 
 const logout = () => {
