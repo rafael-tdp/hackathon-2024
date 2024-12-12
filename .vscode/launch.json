@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "type": "node-terminal",
+            "name": "back",
+            "request": "launch",
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}\\back"
+        },
+        {
+            "type": "node-terminal",
+            "name": "front",
+            "request": "launch",
+            "command": "npm run dev",
+            "cwd": "${workspaceFolder}\\front"
+        }
+    ]
+}
