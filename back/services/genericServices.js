@@ -6,10 +6,17 @@ class GenericService {
     }
 
     async getAll(req, res) {
-        const { page: reqPage, limit: reqLimit, ...filters } = req.query;
+        const { page: reqPage, limit: reqLimit, startDate, endDate, ...filters } = req.query;
         const page = parseInt(reqPage) || 1;
         const limit = parseInt(reqLimit) || 10;
         const offset = (page - 1) * limit;
+
+        if (startDate) {
+            filters.startTime = { ...filters.startTime, $gte: new Date(startDate) };
+        }
+        if (endDate) {
+            filters.startTime = { ...filters.startTime, $lte: new Date(endDate) };
+        }
 
         try {
             const models = await this.Model.find(filters)

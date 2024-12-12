@@ -5,6 +5,8 @@ import AdvancedCalendar from "../components/Calendar.vue";
 import ScheduleModal from "../components/ScheduleModal.vue";
 import LayoutAuthenticated from "../layouts/LayoutAuthenticated.vue";
 import EventFilters from "../components/EventFilters.vue";
+import NewItemButton from "../components/NewItemButton.vue";
+import PageTitle from "../components/PageTitle.vue";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -15,6 +17,8 @@ export default {
     ScheduleModal,
     LayoutAuthenticated,
     EventFilters,
+    NewItemButton,
+    PageTitle,
   },
   setup() {
     const isModalVisible = ref(false);
@@ -175,18 +179,13 @@ export default {
 
 <template>
   <LayoutAuthenticated>
-    <div class="p-6 bg-gray-100 min-h-screen">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-700">Planification Académique</h1>
-        <div class="flex items-center">
-          <button
-            @click="addEvent"
-            class="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Ajouter un cours
-          </button>
-        </div>
+    <div class="min-h-screen py-12 px-6">
+			<div class="flex justify-between items-center mb-8">
+        <PageTitle text="Planification Académique" />
+        <NewItemButton
+          @click="addEvent"
+          text="Ajouter un cours"
+        />
       </div>
 
       <!-- Filters -->
