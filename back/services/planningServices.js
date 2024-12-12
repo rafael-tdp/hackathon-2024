@@ -8,7 +8,7 @@ const getSubjectClassesFromClass = async (classId) => {
 	if (!classId) throw new Error("classId is required");
 
 	const subjectClasses = await SubjectClass.find({ classId }).populate({
-		path: "subjectId",
+		path: "subject",
 		model: "Subject",
 	});
 
