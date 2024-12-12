@@ -10,11 +10,11 @@ const classSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
-        classId: {
+        schoolClass: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Class'
+            ref: 'SchoolClass'
         },
-        subjectId: {
+        subject: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Subject'
         },

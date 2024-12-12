@@ -10,7 +10,7 @@ const unavailabilitySchema = new mongoose.Schema(
             type: Date,
             required: true
         },
-        teacherId: {
+        teacher: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true

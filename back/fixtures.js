@@ -72,7 +72,7 @@ const createClasses = async () => {
                 name: className,
                 nbStudents: faker.number.int({ min: 15, max: 40 }),
                 year: 2024,
-                graduatingId: graduatingClass._id,
+                graduating: graduatingClass._id,
                 weekClasses: faker.helpers.arrayElement([weekClasses1, weekClasses2, weekClasses3])
             };
             classes.push(classData);
@@ -110,9 +110,9 @@ const createTeacherSubjects = async () => {
         const teacher = teachers[i];
         const graduatingClass = graduatingClasses[i % graduatingClasses.length];
         const teacherSubject = {
-            userId: teacher._id,
+            user: teacher._id,
             subjects: faker.helpers.shuffle(subjects).slice(0, faker.number.int({ min: 1, max: 5 })).map(subject => subject._id),
-            graduatingId: graduatingClass._id,
+            graduating: graduatingClass._id,
         };
         teacherSubjects.push(teacherSubject);
     }
@@ -147,10 +147,10 @@ const createCourses = async () => {
         const endTime = new Date(2024, 11, week, endHour, 0);
 
         const course = {
-            subjectId: subject._id,
-            teacherId: teacher._id,
+            subject: subject._id,
+            teacher: teacher._id,
             classRoom: classRoom.name,
-            classId: schoolClass._id,
+            schoolClass: schoolClass._id,
             startTime: startTime,
             endTime: endTime,
         };
@@ -167,15 +167,15 @@ const createSubjectClass = async () => {
     const subjectClasses = [];
 
     for(let i = 0; i < schoolClass.length; i++){// Pour chaque classe
-        const graduating = await Graduating.findOne({ _id: schoolClass[i].graduatingId }).populate("subjects");
+        const graduating = await Graduating.findOne({ _id: schoolClass[i].graduating }).populate("subjects");
         const subjectsOfSchoolClass = graduating.subjects
         for(let j = 0; j < subjectsOfSchoolClass.length; j++){//Pour chaque matière
-            const courses = await Course.find({ classId: schoolClass[i]._id, subjectId: subjectsOfSchoolClass[j]._id });
+            const courses = await Course.find({ schoolClass: schoolClass[i]._id, subject: subjectsOfSchoolClass[j]._id });
             const courseDuration = courses.reduce((acc, course) => acc + (course.endTime - course.startTime), 0);
             const courseDurationInHours = courseDuration / 3600000;
             const subjectClass = {
-                subjectId: subjectsOfSchoolClass[j]._id,
-                classId: schoolClass[i]._id,
+                subject: subjectsOfSchoolClass[j]._id,
+                schoolClass: schoolClass[i]._id,
                 completedHours: courseDurationInHours,
                 plannedHours: 0,
             }
@@ -192,10 +192,10 @@ const createUnavailabilities = async () => {
     const teachers = await User.find({ role: UserRoles.TEACHER });
     const unavailabilities = [];
     for (const teacher of teachers) {
-        const teacherSubjects = await TeacherSubject.find({ userId: teacher._id }).populate("subjects");
+        const teacherSubjects = await TeacherSubject.find({ user: teacher._id }).populate("subjects");
         const classes = []
         for(const teacherSubject of teacherSubjects){
-            const classe = await SchoolClass.find({ graduatingId: teacherSubject.graduatingId });
+            const classe = await SchoolClass.find({ graduating: teacherSubject.graduating });
             classes.push(classe);
         }
         const weekClasses = classes[0].map(classe => classe.weekClasses).flat()
@@ -216,7 +216,7 @@ const createUnavailabilities = async () => {
             const unavailability = {
                 startTime: startTime,
                 endTime: endTime,
-                teacherId: teacher._id
+                teacher: teacher._id
             };
             unavailabilities.push(unavailability);
         }

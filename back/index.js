@@ -17,6 +17,7 @@ const Graduating = require("./models/graduating");
 const GenericService = require("./services/genericServices");
 const SchoolClassService = require("./services/schoolClassServices");
 const GenericController = require("./controllers/genericController");
+const courseRouterCustom = require("./routes/courseRoutes");
 
 dotenv.config();
 
@@ -67,6 +68,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/schoolClasses", schoolClassRouter);
 app.use("/api/rooms", roomRouter);
+app.use("/api/courses/populated", courseRouterCustom);
 app.use("/api/courses", courseRouter);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);

@@ -3,12 +3,12 @@ const CourseStatus = require("../enum/courseStatus");
 
 const courseSchema = new mongoose.Schema(
     {
-        subjectId: {
+        subject: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Subject',
             required: true
         },
-        teacherId: {
+        teacher: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
@@ -25,9 +25,9 @@ const courseSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        classId: {
+        schoolClass: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Class',
+            ref: 'SchoolClass',
             required: true
         },
         status: {

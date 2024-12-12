@@ -26,9 +26,9 @@ const userSchema = new mongoose.Schema(
 			default: UserRoles.STUDENT,
 			enum: [UserRoles.ADMIN, UserRoles.TEACHER, UserRoles.STUDENT],
 		},
-		classId: {
+		schoolClass: {
 			type: mongoose.Schema.Types.ObjectId,
-			ref: "Class",
+			ref: "SchoolClass",
 		},
 	},
 	{ timestamps: true }
