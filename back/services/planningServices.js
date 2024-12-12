@@ -306,7 +306,7 @@ const getRoomUnavailabilities = async () => {
 const getCapacitedRooms = async (classId) => {
 	const schoolClass = await SchoolClass.findById(classId);
 	const nbStudents = schoolClass.students;
-	const rooms = await Room.find({ capacity: { $gte: nbStudents } });
+	const rooms = await ClassRoom.find({ capacity: { $gte: nbStudents } });
 	return rooms;
 };
 

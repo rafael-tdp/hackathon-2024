@@ -18,7 +18,7 @@
         <div class="form-group">
           <label for="course">Cours</label>
           <select id="course" v-model="course" class="input">
-            <option v-for="c in courses" :key="c._id" :value="c.name">{{ c.name }}</option>
+            <option v-for="c in subjects" :key="c._id" :value="c.name">{{ c.name }}</option>
           </select>
         </div>
 
@@ -35,7 +35,7 @@
         <div class="form-group">
           <label for="classRoom">Salle de classe</label>
           <select id="classRoom" v-model="classRoom" class="input">
-            <option v-for="room in classRooms" :key="room" :value="room">{{ room }}</option>
+            <option v-for="room in classRooms" :key="room._id" :value="room.name">{{ room.name }}</option>
           </select>
         </div>
 
@@ -82,7 +82,7 @@ export default {
     teachers: Array,
     classRooms: Array,
     classes: Array,
-    courses: Array, // Ajout de la prop courses
+    subjects: Array, // Ajout de la prop subjects
   },
   emits: ["close", "update", "delete"],
   setup(props, { emit }) {

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { reactive, onMounted, ref } from "vue";
 import axios from "axios";
 import AdvancedCalendar from "../components/Calendar.vue";
 import ScheduleModal from "../components/ScheduleModal.vue";
@@ -10,137 +10,137 @@ import PageTitle from "../components/PageTitle.vue";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const isModalVisible = ref(false);
-const selectedEvent = ref(null);
-const events = ref([]);
-const filteredEvents = ref([]);
-const showWeekends = ref(true);
+// Déclaration de l'état global
+const state = reactive({
+	isModalVisible: false,
+	selectedEvent: null,
+	events: [],
+	showWeekends: true,
+	teachers: [],
+	classRooms: [],
+	schoolClasses: [],
+	status: [],
+	selectedFilters: {},
+});
+
+// Variables réactives pour les filtres
 const teachers = ref([]);
 const classRooms = ref([]);
-const classes = ref([]);
-const courses = ref([]);
-const statuses = ref([]);
-const selectedFilters = ref({});
+const schoolClasses = ref([]);
+const status = ref([]);
+const subjects = ref([]);
+
+const fetchFilters = async () => {
+	try {
+		const [usersResponse, classRoomsResponse, schoolClassesResponse, subjectsResponse] =
+			await Promise.all([
+				axios.get(`${BASE_URL}/api/users`),
+				axios.get(`${BASE_URL}/api/rooms`),
+				axios.get(`${BASE_URL}/api/schoolClasses`),
+				axios.get(`${BASE_URL}/api/subjects`),
+			]);
+
+		teachers.value = usersResponse.data.data.filter(
+			(user) => user.role === "teacher"
+		);
+		classRooms.value = classRoomsResponse.data.data;
+		schoolClasses.value = schoolClassesResponse.data.data;
+		subjects.value = subjectsResponse.data.data;
+
+		const uniqueStatuses = new Set(
+			state.events.map((event) => event.status)
+		);
+		status.value = Array.from(uniqueStatuses);
+	} catch (error) {
+		console.error("Erreur lors de la récupération des filtres :", error);
+	}
+};
 
 const fetchEvents = async () => {
 	try {
-		const [
-			coursesResponse,
-			subjectsResponse,
-			usersResponse,
-			classesResponse,
-		] = await Promise.all([
-			axios.get(`${BASE_URL}/api/courses/populated`),
-			axios.get(`${BASE_URL}/api/subjects`),
-			axios.get(`${BASE_URL}/api/users`),
-			axios.get(`${BASE_URL}/api/schoolClasses`),
-		]);
+		const filters = {};
 
-		const coursesData = coursesResponse.data.data;
-		const subjects = subjectsResponse.data.data;
-		const users = usersResponse.data.data.filter(
-			(user) => user.role === "teacher"
-		);
-		const classesData = classesResponse.data.data;
+		if (
+			state.selectedFilters.teacherId &&
+			state.selectedFilters.teacherId !== ""
+		) {
+			filters.teacherId = state.selectedFilters.teacherId;
+		}
+		if (
+			state.selectedFilters.classRoom &&
+			state.selectedFilters.classRoom !== ""
+		) {
+			filters.classRoomId = state.selectedFilters.classRoom;
+		}
+		if (
+			state.selectedFilters.classId &&
+			state.selectedFilters.classId !== ""
+		) {
+			filters.schoolClassId = state.selectedFilters.classId;
+		}
+		if (
+			state.selectedFilters.status &&
+			state.selectedFilters.status !== ""
+		) {
+			filters.status = state.selectedFilters.status;
+		}
 
-		const subjectsMap = new Map(
-			subjects.map((subject) => [subject._id, subject.name])
-		);
-		const usersMap = new Map(
-			users.map((user) => [
-				user._id,
-				`${user.firstname} ${user.lastname}`,
-			])
-		);
-		const classesMap = new Map(
-			classesData.map((cls) => [cls._id, cls.name])
-		);
+		const response = await axios.get(`${BASE_URL}/api/courses/populated`, {
+			params: filters,
+		});
 
-		events.value = coursesData.map((course) => {
-			const subjectName = subjectsMap.get(course.subjectId) || "Inconnu";
-			const teacherName =
-				usersMap.get(course.teacherId) || "Professeur inconnu";
-			const className =
-				classesMap.get(course.classId) || "Classe inconnue";
+		const courses = response.data.data;
 
+		state.events = courses.map((course) => {
 			return {
 				id: course._id,
-				title: `Classe: ${className}<br>Cours: ${subjectName}<br>Prof: ${teacherName}<br>Salle: ${course.classRoom}`,
+				title: `Classe: ${
+					course.schoolClass?.name || "Inconnue"
+				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
+					course.teacher?.firstname || "Professeur inconnu"
+				} ${course.teacher?.lastname || ""}<br>Salle: ${
+					course.classRoom.name || "Non attribuée"
+				}`,
 				start: course.startTime,
 				end: course.endTime,
 				classRoom: course.classRoom,
-				teacher: teacherName,
-				subject: subjectName,
-				className: className,
+				teacher: course.teacher,
+				subject: course.subject,
+				schoolClass: course.schoolClass,
 				status: course.status,
 			};
 		});
-
-		teachers.value = users;
-		classRooms.value = [
-			...new Set(coursesData.map((course) => course.classRoom)),
-		];
-		statuses.value = [
-			...new Set(coursesData.map((course) => course.status)),
-		];
-		classes.value = classesData;
-
-		courses.value = subjects.map((subject) => ({
-			_id: subject._id.$oid,
-			name: subject.name,
-		}));
-
-		filterEvents(selectedFilters.value);
 	} catch (error) {
 		console.error("Erreur lors de la récupération des événements :", error);
 	}
 };
 
-const filterEvents = (filters) => {
-	selectedFilters.value = filters;
-	filteredEvents.value = events.value.filter((event) => {
-		const matchesTeacher =
-			!filters.teacherId || event.teacherId === filters.teacherId;
-		const matchesClassRoom =
-			!filters.classRoom || event.classRoom === filters.classRoom;
-		const matchesClass =
-			!filters.classId || event.classId === filters.classId;
-		const matchesStatus =
-			!filters.status || event.status === filters.status;
-		return (
-			matchesTeacher && matchesClassRoom && matchesClass && matchesStatus
-		);
-	});
-};
-
 const addEvent = () => {
 	const title = prompt("Titre de cours :");
 	if (title) {
-		events.value.push({
+		state.events.push({
 			id: Date.now(),
 			title,
 			start: new Date().toISOString().split("T")[0],
 		});
-		filterEvents(selectedFilters.value);
 	}
 };
 
 const handleSelect = (arg) => {
 	const title = prompt("Titre du cours :");
 	if (title) {
-		events.value.push({
+		state.events.push({
 			id: Date.now(),
 			title,
 			start: arg.startStr,
 			end: arg.endStr,
 			allDay: arg.allDay,
 		});
-		filterEvents(selectedFilters.value);
 	}
 };
 
 const handleEventClick = (event) => {
-	selectedEvent.value = {
+	state.selectedEvent = {
 		id: event.id,
 		title: event.title,
 		start: event.start.toISOString().slice(0, 16),
@@ -149,25 +149,23 @@ const handleEventClick = (event) => {
 		teacher: event.teacher,
 		className: event.className,
 	};
-	isModalVisible.value = true;
+	state.isModalVisible = true;
 };
 
 const updateEvent = (updatedEvent) => {
-	const index = events.value.findIndex((e) => e.id === updatedEvent._id);
+	const index = state.events.findIndex((e) => e.id === updatedEvent._id);
 	if (index !== -1) {
-		events.value[index] = { ...events.value[index], ...updatedEvent };
-		filterEvents(selectedFilters.value);
+		state.events[index] = { ...state.events[index], ...updatedEvent };
 	}
-	isModalVisible.value = false;
+	state.isModalVisible = false;
 };
 
 const handleDeleteEvent = (sessionId) => {
-	events.value = events.value.filter((event) => event.id !== sessionId);
-	filterEvents(selectedFilters.value);
+	state.events = state.events.filter((event) => event.id !== sessionId);
 };
 
 onMounted(() => {
-	fetchEvents();
+	fetchEvents().then(() => fetchFilters());
 });
 </script>
 
@@ -179,19 +177,27 @@ onMounted(() => {
 				<NewItemButton @click="addEvent" text="Ajouter un cours" />
 			</div>
 
-			<div class="flex justify-center items-center mb-10 mt-20 w-full text-sm">
+			<div
+				class="flex justify-center items-center mb-10 mt-20 w-full text-sm"
+			>
 				<EventFilters
 					:teachers="teachers"
 					:classRooms="classRooms"
-					:classes="classes"
-					:statuses="statuses"
-					@filter="filterEvents"
+					:classes="schoolClasses"
+					:statusList="status"
+					@filter="
+						(filters) => {
+							console.log(filters);
+							state.selectedFilters = filters;
+							fetchEvents();
+						}
+					"
 				/>
 			</div>
 
 			<AdvancedCalendar
-				:events="filteredEvents"
-				:weekends="showWeekends"
+				:events="state.events"
+				:weekends="state.showWeekends"
 				@select="handleSelect"
 				@eventClick="handleEventClick"
 				@eventDrop="updateEvent"
@@ -199,14 +205,14 @@ onMounted(() => {
 			/>
 
 			<ScheduleModal
-				v-if="isModalVisible"
-				:visible="isModalVisible"
-				:session="selectedEvent"
+				v-if="state.isModalVisible"
+				:visible="state.isModalVisible"
+				:session="state.selectedEvent"
 				:teachers="teachers"
 				:classRooms="classRooms"
-				:classes="classes"
-				:courses="courses"
-				@close="isModalVisible = false"
+				:classes="schoolClasses"
+				:subjects="subjects"
+				@close="state.isModalVisible = false"
 				@update="updateEvent"
 				@delete="handleDeleteEvent"
 			/>

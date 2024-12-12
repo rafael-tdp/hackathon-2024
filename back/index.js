@@ -8,7 +8,7 @@ const cors = require("cors");
 const GenericRouter = require("./routes/genericRouter");
 const User = require("./models/user");
 const Class = require("./models/schoolClass");
-const Room = require("./models/room");
+const ClassRoom = require("./models/classRoom");
 const Course = require("./models/course");
 const Subject = require("./models/subject");
 const Unavailability = require("./models/unavailability");
@@ -36,8 +36,8 @@ const userRouter = new GenericRouter(userController).getRouter();
 const schoolClassService = new SchoolClassService(Class);
 const schoolClassController = new GenericController(schoolClassService);
 const schoolClassRouter = new GenericRouter(schoolClassController).getRouter();
-// Room
-const roomService = new GenericService(Room);
+// ClassRoom
+const roomService = new GenericService(ClassRoom);
 const roomController = new GenericController(roomService);
 const roomRouter = new GenericRouter(roomController).getRouter();
 // Course

@@ -23,7 +23,7 @@ const courseSchema = new mongoose.Schema(
         },
         classRoom: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Room',
+            ref: 'ClassRoom',
             required: true
         },
         schoolClass: {

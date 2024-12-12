@@ -26,8 +26,8 @@
 				class="ml-2 p-3 border rounded"
 			>
 				<option value="">Toutes les salles</option>
-				<option v-for="room in classRooms" :key="room" :value="room">
-					{{ room }}
+				<option v-for="room in classRooms" :key="room._id" :value="room._id">
+					{{ room.name }}
 				</option>
 			</select>
 
@@ -51,7 +51,7 @@
 			>
 				<option value="">Tous les statuts</option>
 				<option
-					v-for="status in statuses"
+					v-for="status in statusList"
 					:key="status"
 					:value="status"
 				>
@@ -77,8 +77,13 @@ const props = defineProps({
 	teachers: Array,
 	classRooms: Array,
 	classes: Array,
-	statuses: Array,
+	statusList: Array,
 });
+
+console.log("status", props.statusList);
+console.log("teachers", props.teachers);
+console.log("classRooms", props.classRooms);
+console.log("classes", props.classes);
 
 // Emits
 const emit = defineEmits(["filter"]);
