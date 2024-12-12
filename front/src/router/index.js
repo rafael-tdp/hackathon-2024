@@ -12,6 +12,11 @@ import Unavailability from "../views/teachers/Unavailability.vue";
 
 import Home from "../views/Home.vue";
 
+// Importation des vues de messagerie
+import Inbox from "../views/Inbox.vue";
+import NewMessage from "../views/NewMessage.vue";
+import MessageDetail from "../views/MessageDetail.vue";
+
 const routes = [
   { path: "/", name: "Home", component: Home },
   { path: "/login", name: "Login", component: Login },

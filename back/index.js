@@ -18,6 +18,7 @@ const GenericService = require("./services/genericServices");
 const SchoolClassService = require("./services/schoolClassServices");
 const GenericController = require("./controllers/genericController");
 const courseRouterCustom = require("./routes/courseRoutes");
+const notificationsRouter = require("./routes/notificationsRoutes");
 
 dotenv.config();
 
@@ -62,9 +63,9 @@ const graduatingController = new GenericController(graduatingService);
 const graduatingRouter = new GenericRouter(graduatingController).getRouter();
 
 
-app.use("/api/auth", authRouter);
 // app.use("/api/planning", planningRouter);
 
+app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/schoolClasses", schoolClassRouter);
 app.use("/api/rooms", roomRouter);
@@ -74,6 +75,8 @@ app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);
 app.use("/api/unavailabilities", unavailabilityRouter);
 app.use("/api/graduating", graduatingRouter);
+app.use("/api/notifications", notificationsRouter);
+
 
 mongoose
 	.connect(process.env.MONGO_URI, {})
