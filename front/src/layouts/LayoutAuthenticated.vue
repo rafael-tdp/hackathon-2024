@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed} from "vue";
 import { useRouter } from "vue-router";
 import {
   Bars3Icon,
@@ -17,7 +17,12 @@ import {
   UserPlusIcon,
   CalendarIcon,
 } from "@heroicons/vue/24/outline";
-import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
+import {
+  Dialog,
+  DialogPanel,
+  TransitionChild,
+  TransitionRoot,
+} from "@headlessui/vue";
 
 const router = useRouter();
 
@@ -25,6 +30,7 @@ const router = useRouter();
 const user = ref({
   firstname: "",
   lastname: "",
+  role: "",
 });
 
 onMounted(() => {
@@ -34,6 +40,7 @@ onMounted(() => {
     user.value = {
       firstname: parsedUser.firstname || "",
       lastname: parsedUser.lastname || "",
+      role: parsedUser.role || "",
     };
   }
 });
@@ -44,6 +51,12 @@ const navigation = [
     href: "/",
     icon: HomeIcon,
     current: router.currentRoute.value.path === "/",
+  },
+  {
+    name: "Utilisateurs",
+    href: "/users",
+    icon: UserPlusIcon,
+    current: router.currentRoute.value.path === "/users",
   },
   {
     name: "Planning",
@@ -64,24 +77,6 @@ const navigation = [
     current: router.currentRoute.value.path === "/students",
   },
   {
-    name: "Messages",
-    href: "/messages",
-    icon: EnvelopeIcon,
-    current: router.currentRoute.value.path === "/messages",
-  },
-  {
-    name: "Alertes",
-    href: "/alertes", // Lien pour envoyer une alerte
-    icon: BellAlertIcon,
-    current: router.currentRoute.value.path === "/alertes",
-  },
-  {
-    name: "Utilisateurs",
-    href: "/users",
-    icon: UserPlusIcon,
-    current: router.currentRoute.value.path === "/users",
-  },
-  {
     name: "Cours",
     href: "/courses",
     icon: BookOpenIcon,
@@ -94,6 +89,12 @@ const navigation = [
     current: router.currentRoute.value.path === "/classes",
   },
   {
+    name: "Alertes",
+    href: "/alertes",
+    icon: BellAlertIcon,
+    current: router.currentRoute.value.path === "/alertes",
+  },
+  {
     name: "Indisponibilités",
     href: "/unavailabilities",
     icon: BookOpenIcon,
@@ -101,8 +102,34 @@ const navigation = [
   },
 ];
 
+const filteredNavigation = computed(() => {
+  const role = user.value.role;
+
+
+  return navigation.filter((item) => {
+    if (role === "admin") {
+      return true;
+    }
+
+    if (role === "student") {
+
+      return ![
+        "Utilisateurs",
+        "Classes",
+        "Indisponibilités",
+        "Alertes",
+        "Enseignants",
+      ].includes(item.name);
+    }
+
+    if (role === "teacher") {
+      return !["Utilisateurs", "Enseignants"].includes(item.name);
+    }
+    return false;
+  });
+});
+
 const logout = () => {
-  localStorage.removeItem("token");
   localStorage.removeItem("user");
   if (typeof window !== "undefined") {
     window.location.href = "/login";
@@ -157,7 +184,9 @@ const toggleLargeSidebar = () => {
           >
             <DialogPanel class="relative mr-16 flex w-full max-w-xs flex-1">
               <!-- Sidebar content -->
-              <div class="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-2 ring-1 ring-white/10 bg-gray-50 relative z-10">
+              <div
+                class="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-2 ring-1 ring-white/10 bg-gray-50 relative z-10"
+              >
                 <XMarkIcon
                   class="h-6 w-6 absolute rigth-5 top-5 cursor-pointer hover:bg-gray-100"
                   @click="sidebarOpen = false"
@@ -167,25 +196,33 @@ const toggleLargeSidebar = () => {
                   <h1 class="text-2xl font-bold text-green-700">Hackathon</h1>
                 </RouterLink>
                 <nav class="flex flex-1 flex-col">
-                  <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                  <ul
+                    role="list"
+                    class="flex flex-1 flex-col gap-y-7 text-gray-700"
+                  >
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
-                        <li v-for="item in navigation" :key="item.name">
+                        <li v-for="item in filteredNavigation" :key="item.name">
                           <a
                             :href="item.href"
                             :class="[
                               item.current
-                                ? 'text-secondary'
-                                : 'hover:bg-secondary/20',
-                              'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
+                                ? 'text-secondary font-semibold bg-primary/20'
+                                : '',
+                              'group flex gap-x-3 rounded-md py-2 px-3 text-sm leading-6 font-medium hover:bg-secondary/20',
                             ]"
                           >
                             <component
                               :is="item.icon"
-                              class="h-6 w-6 shrink-0"
+                              class="h-5 w-5 shrink-0"
                               aria-hidden="true"
+                              :class="
+                                item.current
+                                  ? 'text-green-700'
+                                  : 'text-gray-700'
+                              "
                             />
-                            {{ item.name }}
+                            {{ !sidebarLarge ? "" : item.name }}
                           </a>
                         </li>
                       </ul>
@@ -236,7 +273,7 @@ const toggleLargeSidebar = () => {
           <ul role="list" class="flex flex-1 flex-col gap-y-7 text-gray-700">
             <li>
               <ul role="list" class="-mx-2 space-y-1">
-                <li v-for="item in navigation" :key="item.name">
+                <li v-for="item in filteredNavigation" :key="item.name">
                   <a
                     :href="item.href"
                     :class="[

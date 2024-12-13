@@ -28,8 +28,8 @@ const login = async () => {
       },
     });
 
-    const { email, firstname, lastname } = response.data.data;
-    localStorage.setItem("user", JSON.stringify({ email, firstname, lastname }));
+    const { email, firstname, lastname, role } = response.data.data;
+    localStorage.setItem("user", JSON.stringify({ email, firstname, lastname, role }));
 
     router.push("/");
   } catch (err) {
