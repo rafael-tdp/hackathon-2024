@@ -8,6 +8,7 @@ import EventFilters from "../components/EventFilters.vue";
 import NewItemButton from "../components/NewItemButton.vue";
 import PageTitle from "../components/PageTitle.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
+import DraggableEvents from "../components/DraggableEvents.vue";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -291,6 +292,7 @@ const handleDeleteEvent = (sessionId) => {
 	state.events = state.events.filter((event) => event.id !== sessionId);
 };
 
+
 onMounted(() => {
 	fetchEvents().then(() => fetchFilters());
 });
@@ -325,17 +327,41 @@ onMounted(() => {
 					* Selectionnez un professeur pour générer des cours
 				</small>
 			</div>
+			<button
+				@click="generateCourses"
+				class="px-5 py-3 bg-blue-500 text-white hover:bg-blue-700 text-sm rounded rounded-xs"
+			>
+				Générer les cours
+			</button>
 
-			<AdvancedCalendar
-				:events="state.events"
-				:weekends="state.showWeekends"
-				@select="handleSelect"
-				@eventClick="handleEventClick"
-				@eventDrop="updateEvent"
-				@eventResize="updateEvent"
-			/>
+			<div class="flex flex space-x-4">
 
-			<LoadingSpinner :isVisible="isLoading" />
+			<!-- Composant des événements externes -->
+			    <div class="w-1/4 p-4 ">
+					<DraggableEvents
+						:schoolClasses="schoolClasses"
+						:classRooms="classRooms"
+						:teachers="teachers"
+						:subjects="subjects"
+					/>
+
+				</div>
+                
+				<div class="w-3/4 p-4">
+					<AdvancedCalendar
+						:events="state.events"
+						:weekends="state.showWeekends"
+						@select="handleSelect"
+						@eventClick="handleEventClick"
+						@eventDrop="updateEvent"
+						@eventResize="updateEvent"
+						@createEvent="handleCreateEvent"
+					/>
+			   </div>
+		    </div>
+
+		   <LoadingSpinner :isVisible="isLoading" />
+		   
 			<ScheduleModal
 				v-if="state.isModalVisible"
 				:visible="state.isModalVisible"

@@ -5,6 +5,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
+import { Draggable } from "@fullcalendar/interaction";
 
 export default {
   name: "AdvancedCalendar",
@@ -41,6 +42,7 @@ export default {
       weekends: props.weekends,
       editable: true,
       selectable: true,
+      droppable: true,
       events: props.events,
       eventContent: (arg) => {
         return { html: arg.event.title };
@@ -55,6 +57,14 @@ export default {
       eventClick: (arg) => emit("eventClick", arg.event),
       eventDrop: (arg) => emit("eventDrop", arg.event),
       eventResize: (arg) => emit("eventResize", arg.event),
+      drop: (info) => {
+      const eventData = JSON.parse(info.draggedEl.dataset.event);
+      emit("createEvent", {
+        ...eventData,
+        start: info.dateStr,
+        allDay: info.allDay,
+       });
+    },
     });
 
     watch(
