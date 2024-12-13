@@ -64,7 +64,11 @@ router.get("/status/:status", async (req, res) => {
 	try {
 		const { status } = req.params;
 
-		const courses = await Course.find({ status }).exec();
+		const courses = await Course.find({ status })
+			.populate("teacher")
+			.populate("classRoom")
+			.populate("schoolClass")
+			.populate("subject");
 
 		res.json(
 			new ApiResponse({

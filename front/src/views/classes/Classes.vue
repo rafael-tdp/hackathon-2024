@@ -81,7 +81,6 @@ const fetchClasses = async () => {
       };
     });
 
-    console.log("Données classes après transformation:", classesData);
     classes.value = classesData;
   } catch (error) {
     showToast("Erreur lors du chargement des classes", "error");

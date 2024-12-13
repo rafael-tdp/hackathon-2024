@@ -8,6 +8,7 @@ import EventFilters from "../components/EventFilters.vue";
 import NewItemButton from "../components/NewItemButton.vue";
 import PageTitle from "../components/PageTitle.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
+import { Draggable } from "@fullcalendar/interaction";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -15,7 +16,7 @@ const BASE_URL = import.meta.env.VITE_API_URL;
 const state = reactive({
 	isModalVisible: false,
 	selectedEvent: null,
-	events: [],
+	courses: [], // Liste des événements
 	showWeekends: true,
 	teachers: [],
 	classRooms: [],
@@ -23,6 +24,7 @@ const state = reactive({
 	status: [],
 	selectedFilters: {},
 	generatedCourses: [],
+	coursesToReplace: [],
 });
 
 // Variables réactives pour les filtres
@@ -33,6 +35,9 @@ const status = ref([]);
 const subjects = ref([]);
 const isValidationModalVisible = ref(false);
 const isLoading = ref(false);
+const isListVisible = ref(false);
+const showList = ref(localStorage.getItem("showList") === "true");
+const eventsToReplace = ref([]);
 
 const validateGeneratedCourses = async () => {
 	try {
@@ -42,7 +47,8 @@ const validateGeneratedCourses = async () => {
 		);
 		alert("Les cours générés ont été validés avec succès !");
 		isValidationModalVisible.value = false;
-		state.generatedCourses = []; // Optionnel : Réinitialiser les cours générés après validation
+		state.generatedCourses = [];
+		fetchCourses();
 	} catch (error) {
 		console.error("Erreur lors de la validation des cours :", error);
 		alert("Une erreur s'est produite lors de la validation.");
@@ -57,6 +63,22 @@ watch(
 			isValidationModalVisible.value = true;
 		}
 	}
+);
+
+watch(
+	() => showList.value,
+	(newValue) => {
+		localStorage.setItem("showList", newValue);
+	}
+);
+
+// surveiller les changements dans les filtres
+watch(
+	() => state.selectedFilters,
+	() => {
+		fetchCourses().then(() => fetchCoursesToReplace());
+	},
+	{ deep: true }
 );
 
 const fetchFilters = async () => {
@@ -81,7 +103,7 @@ const fetchFilters = async () => {
 		subjects.value = subjectsResponse.data.data;
 
 		const uniqueStatuses = new Set(
-			state.events.map((event) => event.status)
+			state.courses.map((event) => event.status)
 		);
 		status.value = Array.from(uniqueStatuses);
 	} catch (error) {
@@ -89,7 +111,7 @@ const fetchFilters = async () => {
 	}
 };
 
-const fetchEvents = async () => {
+const fetchCourses = async () => {
 	try {
 		const filters = {};
 
@@ -124,7 +146,7 @@ const fetchEvents = async () => {
 
 		const courses = response.data.data;
 
-		state.events = courses.map((course) => {
+		state.courses = courses.map((course) => {
 			return {
 				id: course._id,
 				title: `Classe: ${
@@ -142,7 +164,7 @@ const fetchEvents = async () => {
 				schoolClass: course.schoolClass,
 				status: course.status,
 				backgroundColor:
-					course.status === "cancelled" ? "red" : "#4b866b",
+					course.status === "cancelled" ? "rgb(239 68 68)" : "#4b866b",
 				display: {
 					backgroundColor:
 						course.status === "cancelled" ? "red" : "green",
@@ -159,7 +181,6 @@ const enrichGeneratedCourse = (course) => {
 		(c) => c._id === course.schoolClass.id
 	);
 
-	console.log(classRooms.value, course.classRoom);
 	const classRoom = classRooms.value.find(
 		(r) => r._id === course.classRoom.id
 	);
@@ -179,37 +200,16 @@ const generateCourses = async () => {
 	isLoading.value = true;
 	try {
 		const response = await axios.get(
-			`${BASE_URL}/api/planning/${state.selectedFilters.teacherId}`
+			`${BASE_URL}/api/planning/${state.selectedFilters.schoolClassId}`
 		);
 		const rawGeneratedCourses = response.data.data.potentialWorkHours;
 
 		// Enrichir les données des cours générés
 		state.generatedCourses = rawGeneratedCourses.map(enrichGeneratedCourse);
 
-		for (const course of state.generatedCourses) {
-			const event = {
-				id: "to-be-generated",
-				title: `Classe: ${
-					course.schoolClass?.name || "Inconnue"
-				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
-					course.teacher?.firstname || "Professeur inconnu"
-				} ${course.teacher?.lastname || ""}<br>Salle: ${
-					course.classRoom?.name || "Non attribuée"
-				}`,
-				start: course.startTime,
-				end: course.endTime,
-				classRoom: course.classRoom,
-				teacher: course.teacher,
-				subject: course.subject,
-				schoolClass: course.schoolClass,
-				status: course.status,
-			};
-			console.log(event);
-		}
-
 		// Ajouter les cours générés à la liste des événements
-		state.events = [
-			...state.events,
+		state.courses = [
+			...state.courses,
 			...state.generatedCourses.map((course) => ({
 				id: `generated-${Math.random().toString(36).substring(2)}`,
 				title: `Classe: ${
@@ -227,7 +227,7 @@ const generateCourses = async () => {
 				schoolClass: course.schoolClass,
 				status: course.status,
 				backgroundColor:
-					course.status === "cancelled" ? "red" : "#b8c130",
+					course.status === "cancelled" ? "rgb(239 68 68)" : "#b8c130",
 				display: {
 					backgroundColor:
 						course.status === "cancelled" ? "red" : "green",
@@ -245,7 +245,7 @@ const generateCourses = async () => {
 const addEvent = () => {
 	const title = prompt("Titre de cours :");
 	if (title) {
-		state.events.push({
+		state.courses.push({
 			id: Date.now(),
 			title,
 			start: new Date().toISOString().split("T")[0],
@@ -256,7 +256,7 @@ const addEvent = () => {
 const handleSelect = (arg) => {
 	const title = prompt("Titre du cours :");
 	if (title) {
-		state.events.push({
+		state.courses.push({
 			id: Date.now(),
 			title,
 			start: arg.startStr,
@@ -279,20 +279,113 @@ const handleEventClick = (event) => {
 	state.isModalVisible = true;
 };
 
-const updateEvent = (updatedEvent) => {
-	const index = state.events.findIndex((e) => e.id === updatedEvent._id);
-	if (index !== -1) {
-		state.events[index] = { ...state.events[index], ...updatedEvent };
-	}
-	state.isModalVisible = false;
+const updateEvent = async (updatedEvent) => {
+	const event = state.courses.find((e) => e.id === updatedEvent.id);
+
+	event.start = updatedEvent.start;
+	event.end = updatedEvent.end;
+
+	axios
+		.patch(`${BASE_URL}/api/courses/${updatedEvent.id}`, {
+			startTime: updatedEvent.start,
+			endTime: updatedEvent.end,
+			status: updatedEvent.status,
+		})
+		.then(() => {
+			state.isModalVisible = false;
+			fetchCourses();
+		})
+		.catch((error) => {
+			console.error(
+				"Erreur lors de la mise à jour de l'événement :",
+				error
+			);
+			alert(
+				"Une erreur s'est produite lors de la mise à jour de l'événement."
+			);
+		});
 };
 
 const handleDeleteEvent = (sessionId) => {
-	state.events = state.events.filter((event) => event.id !== sessionId);
+	state.courses = state.courses.filter((event) => event.id !== sessionId);
+};
+
+const fetchCoursesToReplace = () => {
+	try {
+		state.coursesToReplace = state.courses.filter(
+			(course) => course.status === "cancelled"
+		);
+
+		if (state.coursesToReplace) {
+			eventsToReplace.value = state.coursesToReplace.map((course) => ({
+				id: course.id,
+				title: `Classe: ${course.schoolClass.name || "Inconnue"}<br>
+		        Cours: ${course.subject.name || "Inconnu"}<br>
+		        Prof: ${course.teacher.firstname || "Inconnu"} ${
+					course.teacher.lastname || ""
+				}<br>
+		        Salle: ${course.classRoom.name || "Non attribuée"}`,
+				start: course.startTime,
+				end: course.endTime,
+				classRoom: course.classRoom,
+				teacher: course.teacher,
+				subject: course.subject,
+				schoolClass: course.schoolClass,
+				status: course.status,
+				backgroundColor: "#b8c130",
+				display: {
+					backgroundColor:
+						course.status === "cancelled" ? "red" : "green",
+				},
+			}));
+		}
+	} catch (error) {
+		console.error(
+			"Erreur lors de la récupération des événements externes :",
+			error
+		);
+	}
+};
+
+const setupDraggable = () => {
+	// Attendez que les événements soient correctement chargés avant d'initialiser Draggable
+	const container = document.getElementById("draggable-events-container");
+
+	if (container) {
+		// Attendez que les événements soient rendus avant de les rendre "draggables"
+		const events = container.querySelectorAll(".fc-event");
+
+		// Initialisez Draggable pour chaque événement
+		new Draggable(container, {
+			itemSelector: ".fc-event",
+			eventData: (eventEl) => {
+				const eventData = eventEl.getAttribute("data-event");
+				return eventData ? JSON.parse(eventData) : {}; // Assurez-vous que les données sont bien présentes
+			},
+		});
+	}
+};
+
+const handleEventDrop = (from, event) => {
+	if (from === "fromCalendar") updateEvent(event);
+	else if (from === "fromList") {
+		eventsToReplace.value = eventsToReplace.value.filter(
+			(e) => e.id !== event.id
+		);
+		const updatedEvent = {
+			...event,
+			status: "accepted",
+		};
+		updateEvent(updatedEvent);
+	}
 };
 
 onMounted(() => {
-	fetchEvents().then(() => fetchFilters());
+	fetchCourses().then(() => {
+		fetchFilters();
+		fetchCoursesToReplace();
+		setupDraggable();
+	});
 });
 </script>
 
@@ -301,9 +394,9 @@ onMounted(() => {
 		<div class="min-h-screen py-12 px-6">
 			<div class="flex justify-between items-center mb-8">
 				<PageTitle text="Planification Académique" />
-				<NewItemButton @click="addEvent" text="Ajouter un cours" />
+				<!-- <NewItemButton @click="addEvent" text="Ajouter un cours" /> -->
 			</div>
-			<div class="mt-12 mb-10">
+			<div class="mt-12 mb-2">
 				<div
 					class="flex justify-center items-center w-full text-sm text-gray-600 space-x-4"
 				>
@@ -315,27 +408,76 @@ onMounted(() => {
 						@filter="
 							(filters) => {
 								state.selectedFilters = filters;
-								fetchEvents();
+								fetchCourses();
 							}
 						"
 						@generateCourses="generateCourses"
 					/>
 				</div>
-				<small class="text-gray-500 mt-2 block">
-					* Selectionnez un professeur pour générer des cours
+				<small class="text-gray-500 mt-2 block text-xs mb-12">
+					* Selectionnez une classe pour générer des cours
 				</small>
+
+				<!-- Bouton pour ouvrir les cours à replacer -->
+				<button
+					@click="showList = !showList"
+					class="relative p-2 border rounded border-1 shadow-sm rounded-md bg-primary text-white hover:bg-primary/80 text-xs"
+				>
+					<div class="flex items-center space-x-2">
+						<span v-if="!showList"
+							>Afficher les cours à replacer</span
+						>
+						<span v-else>Masquer les cours à replacer</span>
+						<div
+							class="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold absolute -top-2 -right-2"
+							v-if="state.coursesToReplace.length > 0"
+						>
+							{{ state.coursesToReplace.length }}
+						</div>
+					</div>
+				</button>
 			</div>
 
-			<AdvancedCalendar
-				:events="state.events"
-				:weekends="state.showWeekends"
-				@select="handleSelect"
-				@eventClick="handleEventClick"
-				@eventDrop="updateEvent"
-				@eventResize="updateEvent"
-			/>
+			<div class="flex space-x-4">
+				<!-- Liste des cours à replacer -->
+				<div
+					v-show="showList"
+					id="draggable-events-container"
+					class="mt-5 p-4 bg-gray-100 rounded-md shadow max-h-172 overflow-y-auto mr-5 border border-gray-200"
+					style="margin-top: 4rem;"
+				>
+					<div
+						v-for="(event, index) in eventsToReplace"
+						:key="index"
+						class="text-white px-3 py-2 mb-2 rounded cursor-pointer text-xs bg-red-500 fc-event"
+						:data-event="JSON.stringify(event)"
+					>
+						<span v-html="event.title"></span>
+					</div>
+					<div
+						v-if="eventsToReplace.length === 0"
+						class="text-gray-500 text-sm text-center"
+					>
+						Aucun cours à repositionner
+					</div>
+				</div>
+				<div class="w-full">
+					<AdvancedCalendar
+						:events="state.courses"
+						:weekends="state.showWeekends"
+						@eventDrop="handleEventDrop"
+						@select="handleSelect"
+						@eventClick="handleEventClick"
+						@eventResize="updateEvent"
+					/>
+
+					<!-- @eventDrop="updateEvent" -->
+					<!-- @createEvent="handleCreateEvent"  -->
+				</div>
+			</div>
 
 			<LoadingSpinner :isVisible="isLoading" />
+
 			<ScheduleModal
 				v-if="state.isModalVisible"
 				:visible="state.isModalVisible"
@@ -358,7 +500,12 @@ onMounted(() => {
 			</p>
 			<div class="flex justify-end mt-4">
 				<button
-					@click="isValidationModalVisible = false"
+					@click="
+						{
+							isValidationModalVisible = false;
+							state.generatedCourses = [];
+						}
+					"
 					class="bg-gray-300 text-white py-1 px-4 rounded ml-2 hover:bg-gray-400 transition mr-2"
 				>
 					Annuler
