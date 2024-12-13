@@ -11,12 +11,11 @@ import axiosInstance from "@/utils/axiosInstance"; // Axios configuré avec une 
 import { showToast } from "@/utils/toast"; // Notifications Toast
 
 const classes = ref([]);
-const subjects = ref([]);
 const classToEdit = ref(null);
-const classToDelete = ref(null);
+const classToDelete = ref(null); // Stocker la classe sélectionnée pour suppression
 
 const isModalVisible = ref(false);
-const isDeleteModalVisible = ref(false);
+const isDeleteModalVisible = ref(false); // État de la modal de suppression
 
 const classFields = [
   {
@@ -54,79 +53,65 @@ const classFields = [
     placeholder: "Niveau",
     required: false,
   },
-  {
-    name: "subjects",
-    label: "Matières",
-    type: "select",
-    options: subjects.value,
-    required: false,
-  },
 ];
+
+// Fonction utilitaire pour extraire `studyField` et `level` depuis `name`
+const parseClassName = (name) => {
+  if (!name) return { studyField: "", level: "" };
+
+  const parts = name.split(" ");
+  const studyField = parts[0] || ""; // Première partie pour `studyField`
+  const level = parts[1] || ""; // Deuxième partie pour `level`
+
+  return { studyField, level };
+};
 
 // Récupérer les classes
 const fetchClasses = async () => {
   try {
-    const response = await axiosInstance.get("/api/schoolClasses");
-    classes.value = response.data.data;
+    const response = await axiosInstance.get("/api/courses/populated");
+
+    const classesData = response.data.data.map((classes) => {
+      const { studyField, level } = parseClassName(classes.schoolClass.name);
+
+      return {
+        name: classes.schoolClass.name,
+        nbStudents: classes.schoolClass.nbStudents,
+        year: classes.schoolClass.year,
+        studyField, // Extraire depuis le nom de la classe
+        level, // Extraire depuis le nom de la classe
+        id: classes.schoolClass._id,
+      };
+    });
+
+    classes.value = classesData;
   } catch (error) {
     showToast("Erreur lors du chargement des classes", "error");
     console.error(error);
   }
 };
 
-// Récupérer les matières
-const fetchSubjects = async (subjectsIds) => {
-  try {
-    if (!Array.isArray(subjectsIds)) {
-      throw new Error("subjectsIds doit être un tableau");
-    }
-    const promises = subjectsIds.map((id) =>
-      axiosInstance.get(`/api/subjects/${id}`)
-    );
-    const responses = await Promise.all(promises);
-    return responses.map((response) => response.data.data.name);
-  } catch (error) {
-    showToast("Erreur lors du chargement des matières", "error");
-    console.error(error);
-    return []; 
-  }
-};
-
-const openEditModal = async (classItem) => {
+// Ouvrir la modal pour modifier une classe
+const openEditModal = (classItem) => {
   classToEdit.value = { ...classItem };
-
-  if (classItem.graduating) {
-    const graduatingInfo = await fetchGraduatingInfo(classItem.graduating);
-    classToEdit.value.studyField = graduatingInfo.studyField;
-    classToEdit.value.level = graduatingInfo.level;
-  }
-
-  const subjectsInfo = await fetchSubjects(classItem.subjects);
-  classToEdit.value.subjects = subjectsInfo;
-
   isModalVisible.value = true;
 };
 
-// TO DO
-const fetchGraduatingInfo = async (graduatingId) => {
-  try {
-    const response = await axiosInstance.get(`/api/graduatings/${graduatingId}`);
-    return response.data.data;
-  } catch (error) {
-    showToast("Erreur lors du chargement des informations de formation", "error");
-    console.error(error);
-  }
+// Ouvrir la modal de suppression
+const openDeleteModal = (classItem) => {
+  classToDelete.value = classItem; // Stocker la classe sélectionnée
+  isDeleteModalVisible.value = true; // Afficher la modal de suppression
 };
 
 // Supprimer une classe
 const deleteClass = async () => {
   try {
-    await axiosInstance.delete(`/api/schoolClasses/${classToDelete.value._id}`);
+    await axiosInstance.delete(`/api/schoolClasses/${classToDelete.value.id}`);
     classes.value = classes.value.filter(
-      (c) => c._id !== classToDelete.value._id
+      (c) => c.id !== classToDelete.value.id
     );
     showToast("Classe supprimée avec succès", "success");
-    isDeleteModalVisible.value = false;
+    isDeleteModalVisible.value = false; // Fermer la modal de suppression
   } catch (error) {
     showToast("Erreur lors de la suppression de la classe", "error");
     console.error(error);
@@ -136,12 +121,12 @@ const deleteClass = async () => {
 // Ajouter ou mettre à jour une classe
 const updateClass = async (formData) => {
   try {
-    const response = formData._id
-      ? await axiosInstance.put(`/api/schoolClasses/${formData._id}`, formData)
+    const response = formData.id
+      ? await axiosInstance.put(`/api/schoolClasses/${formData.id}`, formData)
       : await axiosInstance.post("/api/schoolClasses", formData);
 
-    if (formData._id) {
-      const index = classes.value.findIndex((c) => c._id === formData._id);
+    if (formData.id) {
+      const index = classes.value.findIndex((c) => c.id === formData.id);
       if (index !== -1) {
         classes.value[index] = response.data.data;
       }
@@ -157,10 +142,9 @@ const updateClass = async (formData) => {
   }
 };
 
-// Charger les classes et les matières au montage du composant
+// Charger les classes au montage du composant
 onMounted(async () => {
   await fetchClasses();
-  await fetchSubjects([]);
 });
 </script>
 
@@ -179,24 +163,21 @@ onMounted(async () => {
           { key: 'year', label: 'Année' },
           { key: 'studyField', label: 'Formation' },
           { key: 'level', label: 'Niveau' },
-          { key: 'subjects', label: 'Matières' },
         ]"
         :data="classes"
         :hasActions="true"
       >
-        <template #subjects="{ row }">
-          <ul class="list-disc pl-6">
-            <li v-for="subject in row.subjects" :key="subject">
-              {{ subject }}
-            </li>
-          </ul>
-        </template>
-
         <template #actions="{ row }">
-          <button @click="openEditModal(row)" class="text-blue-600 hover:text-blue-800">
+          <button
+            @click="openEditModal(row)"
+            class="text-blue-600 hover:text-blue-800"
+          >
             <PencilIcon class="h-5 w-5" />
           </button>
-          <button @click="openDeleteModal(row)" class="text-red-600 hover:text-red-800">
+          <button
+            @click="openDeleteModal(row)"
+            class="text-red-600 hover:text-red-800"
+          >
             <TrashIcon class="h-5 w-5" />
           </button>
         </template>

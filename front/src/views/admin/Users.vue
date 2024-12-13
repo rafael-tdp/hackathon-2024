@@ -13,7 +13,6 @@ import { showToast } from "@/utils/toast";
 
 const router = useRouter();
 
-// Liste des utilisateurs et classes
 const users = ref([]);
 const classesMap = ref({});
 
@@ -22,7 +21,6 @@ const isDeleteModalVisible = ref(false);
 const userToEdit = ref(null);
 const userToDelete = ref(null);
 
-// Champs du formulaire d'utilisateur
 const userFields = [
   {
     name: "firstname",
@@ -61,7 +59,6 @@ const userFields = [
   },
 ];
 
-// Fonction pour récupérer les utilisateurs depuis l'API
 const fetchUsers = async () => {
   try {
     const response = await axiosInstance.get("/api/users");
@@ -79,7 +76,6 @@ const fetchUsers = async () => {
   }
 };
 
-// Fonction pour récupérer les classes disponibles
 const fetchClasses = async () => {
   try {
     const response = await axiosInstance.get("/api/schoolClasses");
@@ -108,7 +104,6 @@ const getRoleLabel = (role) => {
   }
 };
 
-// Ouvrir le modal pour éditer un utilisateur
 const openEditModal = (userItem) => {
   userToEdit.value = {
     ...userItem,
@@ -117,13 +112,11 @@ const openEditModal = (userItem) => {
   isModalVisible.value = true;
 };
 
-// Ouvrir le modal de suppression pour un utilisateur
 const openDeleteModal = (userItem) => {
   userToDelete.value = userItem;
   isDeleteModalVisible.value = true;
 };
 
-// Mettre à jour ou ajouter un utilisateur
 const updateUser = async (formData) => {
   try {
     if (formData._id) {
@@ -141,7 +134,6 @@ const updateUser = async (formData) => {
       type: "success",
     });
     } else {
-      // Ajouter un nouvel utilisateur
       const response = await axiosInstance.post("/api/users", formData);
       users.value.push({
         ...response.data.data,
@@ -160,7 +152,6 @@ const updateUser = async (formData) => {
   }
 };
 
-// Supprimer un utilisateur
 const deleteUser = async () => {
   try {
     await axiosInstance.delete(`/api/users/${userToDelete.value._id}`);
@@ -179,7 +170,6 @@ const deleteUser = async () => {
   }
 };
 
-// Initialisation des données au montage
 onMounted(async () => {
   await fetchClasses();
   await fetchUsers();

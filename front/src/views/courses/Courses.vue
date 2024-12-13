@@ -240,7 +240,7 @@ const deleteCourse = async () => {
     if (courseToDelete.value) {
       await axiosInstance.delete(`/api/courses/${courseToDelete.value.id}`);
       courses.value = courses.value.filter(
-        (c) => c._id !== courseToDelete.value._id
+        (c) => c.id !== courseToDelete.value.id 
       );
       showToast({
         message: "Cours supprimé avec succès.",
