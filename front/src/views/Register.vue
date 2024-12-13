@@ -96,10 +96,10 @@ const validateName = (name) => {
         </div>
       
         <!-- Section Formulaire -->
-        <div class="w-full flex items-center justify-center bg-gray-100 py-12 px-6">
+        <div class="w-full flex items-center justify-center bg-white py-12 px-6">
             <div class="w-full sm:w-4/5 md:w-1/2 lg:w-1/3 max-w-md p-6 rounded-md bg-white shadow-xl relative z-10 min-w-[435px]">
                 <div class="mb-8 text-center">
-                    <h1 class="my-3 text-4xl font-bold">Inscription</h1>
+                    <h1 class="my-3 text-4xl font-bold text-secondary">Inscription</h1>
                     <p class="text-sm text-gray-500">Inscrivez-vous pour accéder à notre site</p>
                 </div>
                 <form novalidate class="space-y-6">
@@ -155,14 +155,14 @@ const validateName = (name) => {
                     <div class="flex justify-center mt-6">
                         <button
                             @click.prevent="register"
-                            class="px-8 py-3 font-semibold rounded-full bg-black text-white w-full sm:w-auto"
+                            class="px-8 py-3 font-semibold rounded-full bg-secondary text-white w-full sm:w-auto"
                             >
                             Inscription
                         </button>
                     </div>
                     <p class="px-6 text-sm text-center text-gray-500">
                         Vous avez déjà un compte ?
-                        <a href="/login" class="hover:underline text-black">Connectez-vous</a>.
+                        <a href="/login" class="hover:underline text-secondary">Connectez-vous</a>.
                     </p>
                 </form>
             </div>
