@@ -4,8 +4,12 @@
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Cours" />
 
-        <!-- Button to open the modal for adding a new course -->
-        <NewItemButton @click="openEditModal" text="Nouveau cours" />
+        <!-- Affichage du bouton 'Nouveau cours' seulement si l'utilisateur est admin ou teacher -->
+        <NewItemButton
+          v-if="role === 'admin' || role === 'teacher'"
+          @click="openEditModal"
+          text="Nouveau cours"
+        />
       </div>
 
       <!-- Dynamic Table -->
@@ -19,16 +23,19 @@
           { key: 'status', label: 'Statut' },
         ]"
         :data="courses"
-        :hasActions="true"
+        :hasActions="role === 'admin' || role === 'teacher'"
       >
         <template #actions="{ row }">
+          <!-- Afficher les actions (éditer, supprimer) uniquement si l'utilisateur est admin ou teacher -->
           <button
+            v-if="role === 'admin' || role === 'teacher'"
             @click="openEditModal(row)"
             class="text-secondary hover:text-secondary/80"
           >
             <PencilIcon class="h-5 w-5" />
           </button>
           <button
+            v-if="role === 'admin' || role === 'teacher'"
             @click="openDeleteModal(row)"
             class="text-red-600 hover:text-red-800"
           >
@@ -80,17 +87,17 @@ import ConfirmationModal from "@/components/ConfirmationModal.vue";
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import axiosInstance from "@/utils/axiosInstance";
 import { showToast } from "@/utils/toast";
-import { format } from "date-fns"; // Importer la fonction format
-import { fr } from "date-fns/locale"; // Importer la locale française
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import NewItemButton from "../../components/NewItemButton.vue";
 import PageTitle from "../../components/PageTitle.vue";
 
 const router = useRouter();
 
-// Liste des cours / intervenants
 const courses = ref([]);
 const teachersMap = ref({});
 const subjectsMap = ref({});
+const role = ref(null);
 
 const formatDate = (dateString) => {
   try {
@@ -145,13 +152,11 @@ const courseFields = [
   },
 ];
 
-// Gestion des modals
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
 const courseToEdit = ref({});
 const courseToDelete = ref(null);
 
-// Fetch courses
 const fetchCourses = async () => {
   try {
     const response = await axiosInstance.get("/api/courses/populated");
@@ -236,7 +241,7 @@ const deleteCourse = async () => {
     if (courseToDelete.value) {
       await axiosInstance.delete(`/api/courses/${courseToDelete.value.id}`);
       courses.value = courses.value.filter(
-        (c) => c.id !== courseToDelete.value.id 
+        (c) => c.id !== courseToDelete.value.id
       );
       showToast({
         message: "Cours supprimé avec succès.",
@@ -263,6 +268,11 @@ const normalizeStatus = (status) => {
 };
 
 onMounted(async () => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    role.value = parsedUser.role;
+  }
   await fetchCourses();
 });
 </script>

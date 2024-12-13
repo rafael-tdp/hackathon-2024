@@ -14,10 +14,11 @@ import { showToast } from "@/utils/toast";
 const router = useRouter();
 
 const students = ref([]);
+const role = ref(null);
 
-const isModalVisible = ref(false); 
+const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
-const studentToEdit = ref(null); 
+const studentToEdit = ref(null);
 const studentToDelete = ref(null);
 
 // Students columns dashboard
@@ -133,6 +134,11 @@ const deleteStudent = async () => {
 };
 
 onMounted(async () => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    role.value = parsedUser.role;
+  }
   await fetchStudents();
 });
 </script>
@@ -142,7 +148,11 @@ onMounted(async () => {
     <div class="min-h-screen py-12 px-6">
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Étudiants" />
-        <NewItemButton @click="openEditModal" text="Nouvel Élève" />
+        <NewItemButton
+          v-if="role === 'admin' || role === 'teacher'"
+          @click="openEditModal"
+          text="Nouvel Élève"
+        />
       </div>
 
       <DynamicTable
@@ -153,16 +163,18 @@ onMounted(async () => {
           { key: 'roleLabel', label: 'Rôle' },
         ]"
         :data="students"
-        :hasActions="true"
+        :hasActions="role === 'admin' || role === 'teacher'"
       >
         <template #actions="{ row }">
           <button
+            v-if="role === 'admin' || role === 'teacher'"
             @click="openEditModal(row)"
             class="text-blue-600 hover:text-blue-800"
           >
             <PencilIcon class="h-5 w-5" />
           </button>
           <button
+            v-if="role === 'admin' || role === 'teacher'"
             @click="openDeleteModal(row)"
             class="text-red-600 hover:text-red-800"
           >
