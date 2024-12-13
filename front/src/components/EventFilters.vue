@@ -1,13 +1,11 @@
 <template>
-	<div
-		class="filters border border-gray-200 p-8 w-full rounded rounded-md bg-white"
-	>
-		<div class="flex w-full items-center text-sm text-gray-600">
+	<div class="filters w-full flex justify-between items-center">
+		<div class="flex w-full items-center text-xs text-gray-600 space-x-4">
 			<select
 				id="teacherFilter"
 				v-model="selectedTeacher"
 				@change="applyFilters"
-				class="p-3 border rounded"
+				class="p-2 border rounded border-1 shadow-sm rounded-md custom-select"
 			>
 				<option value="">Tous les professeurs</option>
 				<option
@@ -23,10 +21,14 @@
 				id="classRoomFilter"
 				v-model="selectedClassRoom"
 				@change="applyFilters"
-				class="ml-2 p-3 border rounded"
+				class="p-2 border rounded border-1 shadow-sm rounded-md custom-select"
 			>
 				<option value="">Toutes les salles</option>
-				<option v-for="room in classRooms" :key="room._id" :value="room._id">
+				<option
+					v-for="room in classRooms"
+					:key="room._id"
+					:value="room._id"
+				>
 					{{ room.name }}
 				</option>
 			</select>
@@ -35,7 +37,7 @@
 				id="classFilter"
 				v-model="selectedClass"
 				@change="applyFilters"
-				class="ml-2 p-3 border rounded"
+				class="p-2 border rounded border-1 shadow-sm rounded-md custom-select"
 			>
 				<option value="">Toutes les classes</option>
 				<option v-for="cls in classes" :key="cls._id" :value="cls._id">
@@ -47,7 +49,7 @@
 				id="statusFilter"
 				v-model="selectedStatus"
 				@change="applyFilters"
-				class="ml-2 p-3 border rounded"
+				class="p-2 border rounded border-1 shadow-sm rounded-md custom-select"
 			>
 				<option value="">Tous les statuts</option>
 				<option
@@ -61,9 +63,21 @@
 
 			<button
 				@click="resetFilters"
-				class="ml-4 px-5 py-3 bg-gray-500 text-white hover:bg-gray-700 text-sm rounded rounded-xs"
+				class="px-4 py-2 bg-transparent rounded rounded-md text-gray-600 border border-gray-200 hover:bg-gray-100 border-dashed"
 			>
 				Réinitialiser
+			</button>
+			<button
+				@click="generateCourses"
+				class="ml-4 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/80 px-4 py-2 bg-primary rounded rounded-md text-white text-xs"
+				:disabled="!selectedTeacher"
+				:title="
+					!selectedTeacher
+						? 'Veuillez sélectionner un professeur pour générer les cours'
+						: ''
+				"
+			>
+				Générer les cours
 			</button>
 		</div>
 	</div>
@@ -81,7 +95,7 @@ const props = defineProps({
 });
 
 // Emits
-const emit = defineEmits(["filter"]);
+const emit = defineEmits(["filter", "generateCourses"]);
 
 // Reactive variables
 const selectedTeacher = ref("");
@@ -99,6 +113,10 @@ const applyFilters = () => {
 	});
 };
 
+const generateCourses = () => {
+	emit("generateCourses");
+};
+
 // Reset filters
 const resetFilters = () => {
 	selectedTeacher.value = "";
@@ -114,3 +132,14 @@ watch(
 	applyFilters
 );
 </script>
+
+<style scoped>
+.custom-select {
+	padding-right: 2rem; /* Ajustez la valeur pour plus d'espace */
+	background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"%3E%3Cpolyline points="6 9 12 15 18 9"%3E%3C/polyline%3E%3C/svg%3E')
+		no-repeat;
+	background-position: right 0.5rem center;
+	background-size: 1rem; /* Taille de la flèche */
+	appearance: none; /* Supprime l'apparence par défaut */
+}
+</style>

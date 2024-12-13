@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted, ref } from "vue";
+import { reactive, onMounted, ref, watch } from "vue";
 import axios from "axios";
 import AdvancedCalendar from "../components/Calendar.vue";
 import ScheduleModal from "../components/ScheduleModal.vue";
@@ -157,9 +157,9 @@ const generateCourses = async () => {
 		// Enrichir les données des cours générés
 		state.generatedCourses = rawGeneratedCourses.map(enrichGeneratedCourse);
 
-		for(const course of state.generatedCourses) {
+		for (const course of state.generatedCourses) {
 			const event = {
-				id: 'to-be-generated',
+				id: "to-be-generated",
 				title: `Classe: ${
 					course.schoolClass?.name || "Inconnue"
 				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
@@ -176,13 +176,13 @@ const generateCourses = async () => {
 				status: course.status,
 			};
 			console.log(event);
-		} 
+		}
 
 		// Ajouter les cours générés à la liste des événements
 		state.events = [
 			...state.events,
 			...state.generatedCourses.map((course) => ({
-				id: 'to-be-generated',
+				id: "to-be-generated",
 				title: `Classe: ${
 					course.schoolClass?.name || "Inconnue"
 				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
@@ -271,30 +271,28 @@ onMounted(() => {
 				<PageTitle text="Planification Académique" />
 				<NewItemButton @click="addEvent" text="Ajouter un cours" />
 			</div>
-
-			<div
-				class="flex justify-center items-center mb-10 mt-20 w-full text-sm"
-			>
-				<EventFilters
-					:teachers="teachers"
-					:classRooms="classRooms"
-					:classes="schoolClasses"
-					:statusList="status"
-					@filter="
-						(filters) => {
-							state.selectedFilters = filters;
-							fetchEvents();
-						}
-					"
-				/>
+			<div class="mt-12 mb-10">
+				<div
+					class="flex justify-center items-center w-full text-sm text-gray-600 space-x-4"
+				>
+					<EventFilters
+						:teachers="teachers"
+						:classRooms="classRooms"
+						:classes="schoolClasses"
+						:statusList="status"
+						@filter="
+							(filters) => {
+								state.selectedFilters = filters;
+								fetchEvents();
+							}
+						"
+						@generateCourses="generateCourses"
+					/>
+				</div>
+				<small class="text-gray-500 mt-2 block">
+					* Selectionnez un professeur pour générer des cours
+				</small>
 			</div>
-
-			<button
-				@click="generateCourses"
-				class="px-5 py-3 bg-blue-500 text-white hover:bg-blue-700 text-sm rounded rounded-xs"
-			>
-				Générer les cours
-			</button>
 
 			<AdvancedCalendar
 				:events="state.events"
@@ -320,3 +318,14 @@ onMounted(() => {
 		</div>
 	</LayoutAuthenticated>
 </template>
+
+<style scoped>
+.custom-select {
+	padding-right: 2rem; /* Ajustez la valeur pour plus d'espace */
+	background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"%3E%3Cpolyline points="6 9 12 15 18 9"%3E%3C/polyline%3E%3C/svg%3E')
+		no-repeat;
+	background-position: right 0.5rem center;
+	background-size: 1rem; /* Taille de la flèche */
+	appearance: none; /* Supprime l'apparence par défaut */
+}
+</style>
