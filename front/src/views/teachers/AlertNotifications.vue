@@ -27,7 +27,6 @@ const notifications = ref([]);
 const role = ref(null);
 const teacherId = ref("");
 
-// Colonnes du tableau
 const tableColumns = computed(() => {
   const baseColumns = [
     { key: "courseName", label: "Cours" },
@@ -40,31 +39,51 @@ const tableColumns = computed(() => {
 
 const fetchNotifications = async () => {
   try {
+    let response;
     if (role.value === "teacher") {
-      const response = await axiosInstance.get(
-        `/api/notifications/${teacherId.value}`
-      );
-      notifications.value = response.data.data.map((notification) => ({
-        courseName: notification.course?.name || "Inconnu",
-        teacher: notification.teacher || null,
-        message: notification.message,
-        status: "Ouvert",
-      }));
+      response = await axiosInstance.get(`/api/notifications/${teacherId.value}`);
     } else if (role.value === "admin") {
-      const response = await axiosInstance.get("/api/notifications");
-
-      notifications.value = response.data.data.map((notification) => ({
-        courseName: notification.course?.name || "Inconnu",
-        teacher: notification.teacher || null,
-        message: notification.message,
-        status: "Délivré",
-      }));
+      response = await axiosInstance.get("/api/notifications");
     }
+
+    notifications.value = await Promise.all(
+      response.data.data.map(async (notification) => {
+        let courseName = "Inconnu";
+
+        if (notification.course) {
+          try {
+            let courseResponse;
+            if(role.value === "teacher"){
+                courseResponse= await axiosInstance.get(`/api/courses/${notification.course}`);
+            }else{
+                courseResponse = await axiosInstance.get(`/api/courses/${notification.course._id}`);
+            }
+            const subjectId = courseResponse.data.data.subject;
+            if (subjectId) {
+              const subject = await axiosInstance.get(`/api/subjects/${subjectId}`);
+              courseName = subject.data.data.name;
+            }
+          } catch (error) {
+            console.error(`Erreur lors de la récupération du cours: ${notification.course}`, error);
+          }
+        }
+
+        const teacherName = notification.teacher
+          ? `${notification.teacher.firstname} ${notification.teacher.lastname}`
+          : "Inconnu";
+
+        return {
+          courseName,
+          teacherName, // Nom complet de l'enseignant
+          message: notification.message,
+          status: role.value === "teacher" ? "Ouvert" : "Délivré", // Statut basé sur le rôle
+        };
+      })
+    );
   } catch (error) {
     console.error("Erreur lors de la récupération des notifications :", error);
     showToast({
-      message:
-        "Impossible de récupérer les notifications. Réessayez plus tard.",
+      message: "Impossible de récupérer les notifications. Réessayez plus tard.",
       type: "error",
     });
   }
