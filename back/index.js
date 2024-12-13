@@ -18,6 +18,9 @@ const GenericService = require("./services/genericServices");
 const SchoolClassService = require("./services/schoolClassServices");
 const GenericController = require("./controllers/genericController");
 const courseRouterCustom = require("./routes/courseRoutes");
+const unavailabilitiesRouterCustom = require("./routes/unavailabilitiesRoutes");
+
+
 const notificationsRouter = require("./routes/notificationsRoutes");
 const statsRouter = require("./routes/statsRoutes");
 
@@ -64,7 +67,6 @@ const graduatingController = new GenericController(graduatingService);
 const graduatingRouter = new GenericRouter(graduatingController).getRouter();
 
 
-app.use("/api/auth", authRouter);
 app.use("/api/planning", planningRouter);
 
 app.use("/api/auth", authRouter);
@@ -89,7 +91,16 @@ app.use("/api/courses", courseRouter); // Routes génériques pour le reste
 
 app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);
+
+app.use("/api/unavailabilities", (req, res, next) => {
+	if (req.method === "POST") {
+		return unavailabilitiesRouterCustom(req, res, next);
+	}
+	next();
+});
+
 app.use("/api/unavailabilities", unavailabilityRouter);
+
 app.use("/api/graduating", graduatingRouter);
 app.use("/api/notifications", notificationsRouter);
 
