@@ -47,7 +47,7 @@ const login = async () => {
 <template>
   <div class="flex flex-col md:flex-row min-h-screen bg-white">
     <!-- Section Image -->
-    <div class="hidden md:block w-1/2 bg-black">
+    <div class="hidden md:block w-1/2">
       <img
         src="../assets/login.png"
         alt="Image de connexion"
@@ -56,12 +56,12 @@ const login = async () => {
     </div>
 
     <!-- Section Formulaire -->
-    <div class="w-full flex items-center justify-center bg-gray-100 py-12 px-6">
+    <div class="w-full flex items-center justify-center bg-white py-12 px-6">
       <div
         class="w-full sm:w-4/5 md:w-1/2 lg:w-1/3 max-w-md p-6 rounded-md bg-white shadow-xl h-[500px] relative z-10 min-w-[435px]"
       >
         <div class="mb-8 text-center">
-          <h1 class="my-3 text-4xl font-bold text-black">Se connecter</h1>
+          <h1 class="my-3 text-4xl font-bold text-secondary">Se connecter</h1>
           <p class="text-sm text-gray-500">
             Connectez-vous pour accéder à votre compte
           </p>
@@ -103,7 +103,7 @@ const login = async () => {
             <button
               @click.prevent="login"
               type="button"
-              class="px-8 py-3 font-semibold rounded-full bg-black text-white w-full sm:w-auto"
+              class="px-8 py-3 font-semibold rounded-full bg-secondary text-white w-full sm:w-auto"
             >
               Connexion
             </button>
@@ -114,7 +114,7 @@ const login = async () => {
             <a
               rel="noopener noreferrer"
               href="/register"
-              class="hover:underline text-black"
+              class="hover:underline text-secondary"
               >Inscrivez-vous</a
             >.
           </p>

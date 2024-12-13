@@ -19,6 +19,7 @@ const SchoolClassService = require("./services/schoolClassServices");
 const GenericController = require("./controllers/genericController");
 const courseRouterCustom = require("./routes/courseRoutes");
 const notificationsRouter = require("./routes/notificationsRoutes");
+const statsRouter = require("./routes/statsRoutes");
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/schoolClasses", schoolClassRouter);
 app.use("/api/rooms", roomRouter);
+app.use("/api/stats", statsRouter);
 
 app.use("/api/courses", (req, res, next) => {
 	if (req.method === "POST" && req.path === "/validation") {

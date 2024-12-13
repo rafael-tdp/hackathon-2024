@@ -26,7 +26,6 @@
         :hasActions="role === 'admin' || role === 'teacher'"
       >
         <template #actions="{ row }">
-          <!-- Afficher les actions (éditer, supprimer) uniquement si l'utilisateur est admin ou teacher -->
           <button
             v-if="role === 'admin' || role === 'teacher'"
             @click="openEditModal(row)"
