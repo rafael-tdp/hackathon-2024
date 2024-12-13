@@ -2,7 +2,7 @@
 const CourseStatus = {
     PENDING: "pending",
     ACCEPTED: "accepted",
-    CANCELED: "canceled",
+    CANCELLED: "cancelled",
 }
 
 module.exports = CourseStatus;

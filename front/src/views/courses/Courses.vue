@@ -261,7 +261,7 @@ const deleteCourse = async () => {
 const normalizeStatus = (status) => {
   const statusMap = {
     pending: "En attente",
-    canceled: "Annulé",
+    cancelled: "Annulé",
     accepted: "Passé",
   };
   return statusMap[status] || "Inconnu";

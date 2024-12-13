@@ -34,7 +34,7 @@ const courseSchema = new mongoose.Schema(
         status: {
             type: String,
             default: CourseStatus.PENDING,
-            enum: [CourseStatus.PENDING, CourseStatus.ACCEPTED, CourseStatus.CANCELED]
+            enum: [CourseStatus.PENDING, CourseStatus.ACCEPTED, CourseStatus.CANCELLED]
         }
     }
 );

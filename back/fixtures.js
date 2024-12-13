@@ -306,7 +306,7 @@ const createCourses = async () => {
                             endTime,
                             classRoom: room._id,
                             schoolClass: schoolClass._id,
-                            status: startTime < new Date() ? Math.random() < 0.9 ? CourseStatus.ACCEPTED : CourseStatus.CANCELED : CourseStatus.PENDING,
+                            status: startTime < new Date() ? Math.random() < 0.9 ? CourseStatus.ACCEPTED : CourseStatus.CANCELLED : CourseStatus.PENDING,
                         });
 
                         subjectHoursTracker[subject._id] = (subjectHoursTracker[subject._id] || 0) + duration;
