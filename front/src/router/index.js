@@ -9,13 +9,10 @@ import Profile from "../views/Profile.vue";
 import Teachers from "../views/admin/Teachers.vue";
 import Students from "../views/students/Students.vue";
 import Unavailability from "../views/teachers/Unavailability.vue";
+import AlertNotifications from "../views/teachers/AlertNotifications.vue";
 
 import Home from "../views/Home.vue";
 
-// Importation des vues de messagerie
-import Inbox from "../views/Inbox.vue";
-import NewMessage from "../views/NewMessage.vue";
-import MessageDetail from "../views/MessageDetail.vue";
 
 const routes = [
   { path: "/", name: "Home", component: Home },
@@ -33,6 +30,8 @@ const routes = [
     name: "Indisponibilités",
     component: Unavailability,
   },
+  { path: "/alertes", name: "Alertes", component: AlertNotifications },
+
 ];
 
 const router = createRouter({

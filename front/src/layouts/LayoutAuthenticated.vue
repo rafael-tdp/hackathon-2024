@@ -71,9 +71,9 @@ const navigation = [
   },
   {
     name: "Alertes",
-    href: "/alerte", // Lien pour envoyer une alerte
+    href: "/alertes", // Lien pour envoyer une alerte
     icon: BellAlertIcon,
-    current: router.currentRoute.value.path === "/alerte",
+    current: router.currentRoute.value.path === "/alertes",
   },
   {
     name: "Utilisateurs",
