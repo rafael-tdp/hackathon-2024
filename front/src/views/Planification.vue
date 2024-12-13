@@ -182,7 +182,7 @@ const generateCourses = async () => {
 		state.events = [
 			...state.events,
 			...state.generatedCourses.map((course) => ({
-				id: "to-be-generated",
+				id: `generated-${Math.random().toString(36).substring(2)}`,
 				title: `Classe: ${
 					course.schoolClass?.name || "Inconnue"
 				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
