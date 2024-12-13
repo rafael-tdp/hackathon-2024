@@ -70,8 +70,18 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/schoolClasses", schoolClassRouter);
 app.use("/api/rooms", roomRouter);
-app.use("/api/courses/populated", courseRouterCustom);
-app.use("/api/courses", courseRouter);
+
+app.use("/api/courses", (req, res, next) => {
+	if (req.method === "POST" && req.path === "/validation") {
+		return courseRouterCustom(req, res, next); // Utilise la route custom pour POST
+	}
+	if (req.method === "GET" && req.path === "/populated") {
+		return courseRouterCustom(req, res, next); // Utilise la route custom pour GET
+	}
+	next();
+});
+app.use("/api/courses", courseRouter); // Routes génériques pour le reste
+
 app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);
 app.use("/api/unavailabilities", unavailabilityRouter);

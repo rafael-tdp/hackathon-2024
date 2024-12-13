@@ -7,6 +7,7 @@ import LayoutAuthenticated from "../layouts/LayoutAuthenticated.vue";
 import EventFilters from "../components/EventFilters.vue";
 import NewItemButton from "../components/NewItemButton.vue";
 import PageTitle from "../components/PageTitle.vue";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -30,6 +31,33 @@ const classRooms = ref([]);
 const schoolClasses = ref([]);
 const status = ref([]);
 const subjects = ref([]);
+const isValidationModalVisible = ref(false);
+const isLoading = ref(false);
+
+const validateGeneratedCourses = async () => {
+	try {
+		await axios.post(
+			`${BASE_URL}/api/courses/validation`,
+			state.generatedCourses
+		);
+		alert("Les cours générés ont été validés avec succès !");
+		isValidationModalVisible.value = false;
+		state.generatedCourses = []; // Optionnel : Réinitialiser les cours générés après validation
+	} catch (error) {
+		console.error("Erreur lors de la validation des cours :", error);
+		alert("Une erreur s'est produite lors de la validation.");
+	}
+};
+
+// Surveillez les changements dans les cours générés
+watch(
+	() => state.generatedCourses,
+	(newVal) => {
+		if (newVal.length > 0) {
+			isValidationModalVisible.value = true;
+		}
+	}
+);
 
 const fetchFilters = async () => {
 	try {
@@ -148,6 +176,7 @@ const enrichGeneratedCourse = (course) => {
 };
 
 const generateCourses = async () => {
+	isLoading.value = true;
 	try {
 		const response = await axios.get(
 			`${BASE_URL}/api/planning/${state.selectedFilters.teacherId}`
@@ -207,6 +236,9 @@ const generateCourses = async () => {
 		];
 	} catch (error) {
 		console.error("Erreur lors de la génération des cours :", error);
+		alert("Une erreur s'est produite lors de la génération des cours.");
+	} finally {
+		isLoading.value = false;
 	}
 };
 
@@ -303,6 +335,7 @@ onMounted(() => {
 				@eventResize="updateEvent"
 			/>
 
+			<LoadingSpinner :isVisible="isLoading" />
 			<ScheduleModal
 				v-if="state.isModalVisible"
 				:visible="state.isModalVisible"
@@ -315,6 +348,28 @@ onMounted(() => {
 				@update="updateEvent"
 				@delete="handleDeleteEvent"
 			/>
+		</div>
+		<div
+			v-if="isValidationModalVisible"
+			class="fixed bottom-4 right-4 bg-white shadow-lg p-4 rounded-md border border-gray-300 z-50"
+		>
+			<p class="text-gray-800">
+				Des cours ont été générés. Voulez-vous les valider ?
+			</p>
+			<div class="flex justify-end mt-4">
+				<button
+					@click="isValidationModalVisible = false"
+					class="bg-gray-300 text-white py-1 px-4 rounded ml-2 hover:bg-gray-400 transition mr-2"
+				>
+					Annuler
+				</button>
+				<button
+					@click="validateGeneratedCourses"
+					class="bg-primary text-white py-1 px-4 rounded hover:bg-primary/80 transition"
+				>
+					Valider
+				</button>
+			</div>
 		</div>
 	</LayoutAuthenticated>
 </template>
