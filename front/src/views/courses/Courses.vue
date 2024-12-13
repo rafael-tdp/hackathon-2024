@@ -2,14 +2,11 @@
   <LayoutAuthenticated>
     <div class="min-h-screen py-12 px-6">
       <div class="flex justify-between items-center mb-8">
-				<PageTitle text="Cours" />
+        <PageTitle text="Cours" />
 
-				<!-- Button to open the modal for adding a new course -->
-				<NewItemButton
-					@click="openEditModal"
-					text="Nouveau cours"
-				/>
-			</div>
+        <!-- Button to open the modal for adding a new course -->
+        <NewItemButton @click="openEditModal" text="Nouveau cours" />
+      </div>
 
       <!-- Dynamic Table -->
       <DynamicTable
@@ -110,46 +107,46 @@ const formatDate = (dateString) => {
 
 // Columns
 const courseFields = [
-	{
-		name: "subject",
-		label: "Cours",
-		type: "text",
-		placeholder: "Nom de cours",
-		required: true,
-	},
-	{
-		name: "teacher",
-		label: "Intervenant",
-		type: "text",
-		placeholder: "Intervenant",
-		required: true,
-	},
-	{
-		name: "startTime",
-		label: "Date de début",
-		type: "date",
-		required: true,
-	},
-	{
-		name: "endTime",
-		label: "Date de fin",
-		type: "date",
-		required: true,
-	},
-	{
-		name: "classRoom",
-		label: "Classe",
-		type: "text",
-		placeholder: "Classroom",
-		required: true,
-	},
-	{
-		name: "status",
-		label: "Statut",
-		type: "select",
-		options: ["Passé", "Annulé", "En cours"],
-		required: true,
-	},
+  {
+    name: "subject",
+    label: "Cours",
+    type: "text",
+    placeholder: "Nom de cours",
+    required: true,
+  },
+  {
+    name: "teacher",
+    label: "Intervenant",
+    type: "text",
+    placeholder: "Intervenant",
+    required: true,
+  },
+  {
+    name: "startTime",
+    label: "Date de début",
+    type: "date",
+    required: true,
+  },
+  {
+    name: "endTime",
+    label: "Date de fin",
+    type: "date",
+    required: true,
+  },
+  {
+    name: "classRoom",
+    label: "Classe",
+    type: "text",
+    placeholder: "Classroom",
+    required: true,
+  },
+  {
+    name: "status",
+    label: "Statut",
+    type: "select",
+    options: ["Passé", "Annulé", "En cours"],
+    required: true,
+  },
 ];
 
 // Gestion des modals
@@ -161,17 +158,19 @@ const courseToDelete = ref(null);
 // Fetch courses
 const fetchCourses = async () => {
   try {
-    const response = await axiosInstance.get("/api/courses");
+    const response = await axiosInstance.get("/api/courses/populated");
     const coursesData = response.data.data.map((course) => ({
-      ...course,
-      rawStartTime: course.startTime, 
+      classRoom: course.classRoom.name,
+      rawStartTime: course.startTime,
       rawEndTime: course.endTime,
       startTime: formatDate(course.startTime),
       endTime: formatDate(course.endTime),
-      teacherName: teachersMap.value[course.teacherId] || "Inconnu",
-      subjectName: subjectsMap.value[course.subjectId] || "Inconnu",
+      teacherName: course.teacher.firstname,
+      subjectName: course.subject.name,
       status: normalizeStatus(course.status),
     }));
+    console.log(coursesData);
+
     courses.value = coursesData;
   } catch (error) {
     console.error("Erreur lors de la récupération des cours :", error);
@@ -182,66 +181,29 @@ const fetchCourses = async () => {
   }
 };
 
-
-// Fetch teachers
-const fetchTeachers = async () => {
-  try {
-    const response = await axiosInstance.get("/api/users");
-    const teachers = response.data.data.filter((user) => user.role === "teacher");
-    teachersMap.value = teachers.reduce((map, teacher) => {
-      map[teacher._id] = `${teacher.firstname} ${teacher.lastname}`;
-      return map;
-    }, {});
-  } catch (error) {
-    console.error("Erreur lors de la récupération des enseignants :", error);
-    showToast({
-      message: "Impossible de récupérer les enseignants.",
-      type: "error",
-    });
-  }
-};
-
-// Fetch subjects
-const fetchSubjects = async () => {
-  try {
-    const response = await axiosInstance.get("/api/subjects");
-    subjectsMap.value = response.data.data.reduce((map, subject) => {
-      map[subject._id] = subject.name;
-      return map;
-    }, {});
-  } catch (error) {
-    console.error("Erreur lors de la récupération des sujets :", error);
-    showToast({
-      message: "Impossible de récupérer les sujets.",
-      type: "error",
-    });
-  }
-};
-// Ouvrir le modal d'édition
 const openEditModal = (courseItem) => {
-  courseToEdit.value = { ...courseItem,
+  courseToEdit.value = {
+    ...courseItem,
     teacher: courseItem.teacherName,
     subject: courseItem.subjectName,
     startTime: courseItem.rawStartTime,
-    endTime: courseItem.rawEndTime, 
-    status: courseItem.status
-   }; // Pré-remplir les données du formulaire
-  
+    endTime: courseItem.rawEndTime,
+    status: courseItem.status,
+  };
+
   isModalVisible.value = true;
 };
 
-// Ouvrir le modal de suppression
 const openDeleteModal = (courseItem) => {
-	courseToDelete.value = courseItem; // Enregistrer le cours à supprimer
-	isDeleteModalVisible.value = true;
+  courseToDelete.value = courseItem;
+  isDeleteModalVisible.value = true;
 };
 
-// Créer ou mettre à jour un cours
 const handleSubmit = async (formData) => {
   try {
     const payload = {
       ...formData,
-      startTime: new Date(formData.startTime).toISOString(), // Assurez-vous que le format ISO est utilisé
+      startTime: new Date(formData.startTime).toISOString(),
       endTime: new Date(formData.endTime).toISOString(),
     };
 
@@ -273,7 +235,6 @@ const handleSubmit = async (formData) => {
   }
 };
 
-
 // Supprimer un cours
 const deleteCourse = async () => {
   try {
@@ -301,16 +262,12 @@ const normalizeStatus = (status) => {
   const statusMap = {
     pending: "En attente",
     canceled: "Annulé",
-    completed: "Passé",
-    ongoing: "En cours",
+    accepted: "Passé",
   };
-  return statusMap[status] || "Inconnu"; // Valeur par défaut si le statut n'est pas mappé
+  return statusMap[status] || "Inconnu";
 };
 
-// Charger les cours/intervenants
 onMounted(async () => {
-  await fetchTeachers();
-  await fetchSubjects();
   await fetchCourses();
 });
 </script>
