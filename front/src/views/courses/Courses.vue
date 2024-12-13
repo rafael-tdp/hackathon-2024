@@ -168,8 +168,8 @@ const fetchCourses = async () => {
       teacherName: course.teacher.firstname,
       subjectName: course.subject.name,
       status: normalizeStatus(course.status),
+      id: course._id,
     }));
-    console.log(coursesData);
 
     courses.value = coursesData;
   } catch (error) {
@@ -235,11 +235,10 @@ const handleSubmit = async (formData) => {
   }
 };
 
-// Supprimer un cours
 const deleteCourse = async () => {
   try {
     if (courseToDelete.value) {
-      await axiosInstance.delete(`/api/courses/${courseToDelete.value._id}`);
+      await axiosInstance.delete(`/api/courses/${courseToDelete.value.id}`);
       courses.value = courses.value.filter(
         (c) => c._id !== courseToDelete.value._id
       );
