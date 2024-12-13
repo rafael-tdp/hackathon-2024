@@ -78,6 +78,9 @@ app.use("/api/courses", (req, res, next) => {
 	if (req.method === "GET" && req.path === "/populated") {
 		return courseRouterCustom(req, res, next); // Utilise la route custom pour GET
 	}
+	if (req.method === "GET" && req.path.includes("/status/")) {
+		return courseRouterCustom(req, res, next); // Utilise la route custom pour GET
+	}
 	next();
 });
 app.use("/api/courses", courseRouter); // Routes génériques pour le reste

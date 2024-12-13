@@ -44,7 +44,6 @@ router.get("/populated", async (req, res) => {
 	}
 });
 
-// route pour créer plusieurs cours
 router.post("/validation", async (req, res) => {
 	try {
 		const courses = req.body;
@@ -54,6 +53,23 @@ router.post("/validation", async (req, res) => {
 			new ApiResponse({
 				success: true,
 				data: createdCourses,
+			})
+		);
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+});
+
+router.get("/status/:status", async (req, res) => {
+	try {
+		const { status } = req.params;
+
+		const courses = await Course.find({ status }).exec();
+
+		res.json(
+			new ApiResponse({
+				success: true,
+				data: courses,
 			})
 		);
 	} catch (error) {
