@@ -122,7 +122,7 @@ const createUsers = async () => {
         users.push({
             firstname: faker.person.firstName(),
             lastname: faker.person.lastName(),
-            email: "admin@user.Com",
+            email: "admin@user.com",
             password: "password",
             role: UserRoles.ADMIN,
         });
