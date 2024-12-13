@@ -14,14 +14,13 @@ const sendEmail = async ({ to, subject, text, html }) => {
     });
 
     const mailOptions = {
-      from: '"School Platform" <schooladmin@gmail.com>',
+      from: '"School Platform" <school-platform@gmail.com>',
       to,
       subject,
       text,
       html,
     };
 
-    // Envoi de l'email
     await transporter.sendMail(mailOptions);
     console.log("Email envoyé avec succès !");
   } catch (error) {

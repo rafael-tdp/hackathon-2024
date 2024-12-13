@@ -90,13 +90,12 @@ const modalFieldsDynamic = computed(() => {
     },
   ];
 
-  // Ajouter un select pour les intervenants si admin
   if (role.value === "admin") {
     fields.push({
       name: "teacher",
       label: "Intervenant",
       type: "select",
-      options: teachersList.value, // Liste des intervenants
+      options: teachersList.value,
       required: true,
     });
   }
@@ -205,14 +204,12 @@ const handleSubmit = async (formData) => {
     endTime: formData.endTime,
   };
 
-  // Ajouter automatiquement le teacherId si c'est un teacher
   if (role.value === "teacher") {
     submissionData.teacher = teacherId.value;
   } else if (role.value === "admin") {
     submissionData.teacher = formData.teacher;
   }
 
-  // Validation de l'heure
   if (new Date(submissionData.endTime) <= new Date(submissionData.startTime)) {
     showToast({
       message: "L'heure de fin doit être après l'heure de début",
@@ -221,7 +218,6 @@ const handleSubmit = async (formData) => {
     return;
   }
 
-  // Envoyer les données
   try {
     const response = await axiosInstance.post(
       "/api/unavailabilities",
