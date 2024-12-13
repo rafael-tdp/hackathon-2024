@@ -21,7 +21,6 @@
         :data="courses"
         :hasActions="true"
       >
-        <!-- Slot for actions (edit, delete) -->
         <template #actions="{ row }">
           <button
             @click="openEditModal(row)"
@@ -37,7 +36,6 @@
           </button>
         </template>
 
-        <!-- Slot for status with color-coding -->
         <template #status="{ row }">
           <button
             :class="{
@@ -53,7 +51,6 @@
         </template>
       </DynamicTable>
 
-      <!-- Modal for editing a course -->
       <Modal
         v-model:visible="isModalVisible"
         :title="courseToEdit._id ? 'Modifier le cours' : 'Nouveau cours'"
@@ -63,7 +60,6 @@
         :submitText="courseToEdit._id ? 'Mettre à jour' : 'Créer'"
       />
 
-      <!-- Confirmation Modal for deleting a course -->
       <ConfirmationModal
         v-model:visible="isDeleteModalVisible"
         title="Supprimer un cours"

@@ -8,20 +8,18 @@ import ConfirmationModal from "@/components/ConfirmationModal.vue";
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import NewItemButton from "../../components/NewItemButton.vue";
 import PageTitle from "../../components/PageTitle.vue";
-import axiosInstance from "@/utils/axiosInstance"; // Axios configuré avec une base URL
-import { showToast } from "@/utils/toast"; // Notifications Toast
+import axiosInstance from "@/utils/axiosInstance"; 
+import { showToast } from "@/utils/toast"; 
 
 const router = useRouter();
 
-// Liste des enseignants
 const teachers = ref([]);
 
-const isModalVisible = ref(false); // Contrôle du modal d'édition
-const isDeleteModalVisible = ref(false); // Contrôle du modal de suppression
-const teacherToEdit = ref(null); // Enseignant en cours d'édition
-const teacherToDelete = ref(null); // Enseignant à supprimer
+const isModalVisible = ref(false); 
+const isDeleteModalVisible = ref(false); 
+const teacherToEdit = ref(null); 
+const teacherToDelete = ref(null); 
 
-// Champs du formulaire d'utilisateur
 const teacherFields = [
   {
     name: "firstname",
@@ -46,15 +44,14 @@ const teacherFields = [
   },
 ];
 
-// Fonction pour récupérer les enseignants depuis l'API
 const fetchTeachers = async () => {
   try {
     const response = await axiosInstance.get("/api/users");
     teachers.value = response.data.data
-      .filter(user => user.role === 'teacher') // Filtrer pour n'avoir que les enseignants
+      .filter(user => user.role === 'teacher') 
       .map((user) => ({
         ...user,
-        roleLabel: "Intervenant", // Label pour le rôle
+        roleLabel: "Intervenant",
       }));
   } catch (error) {
     showToast({
@@ -65,7 +62,6 @@ const fetchTeachers = async () => {
   }
 };
 
-// Ouvrir le modal pour éditer un enseignant
 const openEditModal = (teacherItem) => {
   teacherToEdit.value = {
     ...teacherItem,
@@ -73,13 +69,11 @@ const openEditModal = (teacherItem) => {
   isModalVisible.value = true;
 };
 
-// Ouvrir le modal de suppression pour un enseignant
 const openDeleteModal = (teacherItem) => {
   teacherToDelete.value = teacherItem;
   isDeleteModalVisible.value = true;
 };
 
-// Mettre à jour ou ajouter un enseignant
 const updateTeacher = async (formData) => {
   try {
     if (formData._id) {
@@ -88,21 +82,20 @@ const updateTeacher = async (formData) => {
       if (index !== -1) {
         teachers.value[index] = {
           ...formData,
-          roleLabel: "Intervenant", // Assigner le label de rôle
+          roleLabel: "Intervenant",
         };
       }
       showToast({
-        message: "Enseignant mis à jour avec succès.",
+        message: "Intervenant mis à jour avec succès.",
         type: "success",
       });
     } else {
-      // Ajouter un nouvel enseignant
       const response = await axiosInstance.post("/api/users", formData);
       teachers.value.push({
         ...response.data.data,
-        roleLabel: "Intervenant", // Assigner le label de rôle
+        roleLabel: "Intervenant",
       });
-      showToast("Nouvel enseignant ajouté avec succès", "success");
+      showToast("Nouvel intervenant ajouté avec succès", "success");
     }
     isModalVisible.value = false;
   } catch (error) {
@@ -114,26 +107,24 @@ const updateTeacher = async (formData) => {
   }
 };
 
-// Supprimer un enseignant
 const deleteTeacher = async () => {
   try {
     await axiosInstance.delete(`/api/users/${teacherToDelete.value._id}`);
     teachers.value = teachers.value.filter((u) => u._id !== teacherToDelete.value._id);
     isDeleteModalVisible.value = false;
     showToast({
-      message: "Enseignant supprimé avec succès.",
+      message: "Intervenant supprimé avec succès.",
       type: "success",
     });
   } catch (error) {
     showToast({
-      message: "Erreur lors de la suppression de l'enseignant.",
+      message: "Erreur lors de la suppression de l'intervenant.",
       type: "error",
     });
     console.error(error);
   }
 };
 
-// Initialisation des données au montage
 onMounted(async () => {
   await fetchTeachers();
 });

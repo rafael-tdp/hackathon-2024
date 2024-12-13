@@ -13,7 +13,6 @@ import { showToast } from "@/utils/toast";
 
 const router = useRouter();
 
-// Liste des étudiants
 const students = ref([]);
 
 const isModalVisible = ref(false); 
