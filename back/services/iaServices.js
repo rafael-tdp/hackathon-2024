@@ -29,28 +29,54 @@ Based on the input data, generate a JSON object strictly in the following format
         "teacher": Object('id'),
         "subject": Object('id'),
         "status": "pending"
-      }
+      },
+      {
+        "startTime": "",
+        "endTime": "",
+        "classRoom": Object('id'),
+        "schoolClass": Object('id'),
+        "teacher": Object('id'),
+        "subject": Object('id'),
+        "status": "pending"
+      },
+      ...
   ]
 }
 
 ### Input Data:
 - **teacherId**: The ID of the teacher for whom potential work hours are being generated.
 - **unavailabilityHours**: A list of time slots during which the teacher is unavailable. Each unavailability entry is an object containing a \`beginDate\` and \`endDate\`.
-- **schoolWeekClass**: An array of objects defining the school working week for each of the teacher's school classes.
+- **schoolWeekClass**: An array of objects defining the school working week for each of the teacher's school classes (e.g., days and hours).
 - **subjectClass**: An array of objects specifying the required number of hours for each subject of the teacher's school classes (identified by their \`_id\`).
 - **plannedCourses**: A list of already planned courses. Each course contains the following information: \`subject\`, \`teacher\`, \`startTime\`, \`endTime\`, \`classRoom\`, \`schoolClass\`, and \`status\`.
 
 ### Constraints:
-1. **No overlap**: A teacher cannot teach two classes at the same time, and a classroom cannot be used for more than one class at the same time.
-2. **Respect required hours**: Ensure that the total number of hours scheduled for each subject per class matches the required number of hours specified in \`subjectClass\`.
-3. **Respect school weeks**: \`potentialWorkHours\` must only be scheduled during the weeks defined in \`schoolWeekClass\`.
-4. **No weekends**: \`potentialWorkHours\` cannot be scheduled on Saturdays or Sundays.
-5. **Teacher availability**: Ensure that \`potentialWorkHours\` are only generated during the teacher's available hours (excluding \`unavailabilityHours\`).
+1. **No overlap**:
+   - A teacher cannot teach two classes at the same time.
+   - A classroom cannot be used by multiple classes simultaneously.
+   - The new scheduled hours must not overlap with existing planned courses for the same teacher or classroom.
+   
+2. **Respect required hours**:
+   - Ensure the total number of hours scheduled for each subject per class matches the required hours as specified in \`subjectClass\`.
+   
+3. **Respect school weeks**:
+   - Schedule \`potentialWorkHours\` only within the days and hours defined in \`schoolWeekClass\` (do not schedule outside these periods).
+   - Spread the potential work hours across multiple days based on the available days within the \`schoolWeekClass\`, ensuring that courses are not all generated for the same day.
+   
+4. **Variable duration**:
+   - Do not generate only 1-hour slots. Ensure the generated \`potentialWorkHours\` have a variable duration based on the subject's needs, respecting the time slots available for the teacher.
+   
+5. **No weekends**:
+   - Ensure \`potentialWorkHours\` are not scheduled on Saturdays or Sundays.
+   
+6. **Teacher availability**:
+   - Make sure that \`potentialWorkHours\` are only generated during the teacher's available hours (excluding periods in \`unavailabilityHours\`).
 
 ### Example Scenario:
-- A teacher is available from 10:00 to 18:00 on weekdays. 
-- The school operates only on these available hours. 
-- Based on the input data, generate \`potentialWorkHours\` that adhere to these constraints.
+- A teacher is available from 10:00 to 18:00 on weekdays (Monday to Friday).
+- The school operates only during these available hours.
+- Based on the input data, generate multiple \`potentialWorkHours\` that respect the constraints, distribute them across several days as indicated in \`schoolWeekClass\`, and ensure no conflicts with existing courses or teacher availability.
+
 `},
 				{ role: "user", content: prompt },
 			],

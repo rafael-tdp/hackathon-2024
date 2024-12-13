@@ -21,6 +21,7 @@ const state = reactive({
 	schoolClasses: [],
 	status: [],
 	selectedFilters: {},
+	generatedCourses: [],
 });
 
 // Variables réactives pour les filtres
@@ -32,13 +33,17 @@ const subjects = ref([]);
 
 const fetchFilters = async () => {
 	try {
-		const [usersResponse, classRoomsResponse, schoolClassesResponse, subjectsResponse] =
-			await Promise.all([
-				axios.get(`${BASE_URL}/api/users`),
-				axios.get(`${BASE_URL}/api/rooms`),
-				axios.get(`${BASE_URL}/api/schoolClasses`),
-				axios.get(`${BASE_URL}/api/subjects`),
-			]);
+		const [
+			usersResponse,
+			classRoomsResponse,
+			schoolClassesResponse,
+			subjectsResponse,
+		] = await Promise.all([
+			axios.get(`${BASE_URL}/api/users`),
+			axios.get(`${BASE_URL}/api/rooms`),
+			axios.get(`${BASE_URL}/api/schoolClasses`),
+			axios.get(`${BASE_URL}/api/subjects`),
+		]);
 
 		teachers.value = usersResponse.data.data.filter(
 			(user) => user.role === "teacher"
@@ -108,10 +113,100 @@ const fetchEvents = async () => {
 				subject: course.subject,
 				schoolClass: course.schoolClass,
 				status: course.status,
+				backgroundColor:
+					course.status === "cancelled" ? "red" : "#4b866b",
+				display: {
+					backgroundColor:
+						course.status === "cancelled" ? "red" : "green",
+				},
 			};
 		});
 	} catch (error) {
 		console.error("Erreur lors de la récupération des événements :", error);
+	}
+};
+
+const enrichGeneratedCourse = (course) => {
+	const schoolClass = schoolClasses.value.find(
+		(c) => c._id === course.schoolClass.id
+	);
+
+	console.log(classRooms.value, course.classRoom);
+	const classRoom = classRooms.value.find(
+		(r) => r._id === course.classRoom.id
+	);
+	const teacher = teachers.value.find((t) => t._id === course.teacher.id);
+	const subject = subjects.value.find((s) => s._id === course.subject.id);
+
+	return {
+		...course,
+		schoolClass,
+		classRoom,
+		teacher,
+		subject,
+	};
+};
+
+const generateCourses = async () => {
+	try {
+		const response = await axios.get(
+			`${BASE_URL}/api/planning/${state.selectedFilters.teacherId}`
+		);
+		const rawGeneratedCourses = response.data.data.potentialWorkHours;
+
+		// Enrichir les données des cours générés
+		state.generatedCourses = rawGeneratedCourses.map(enrichGeneratedCourse);
+
+		for(const course of state.generatedCourses) {
+			const event = {
+				id: 'to-be-generated',
+				title: `Classe: ${
+					course.schoolClass?.name || "Inconnue"
+				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
+					course.teacher?.firstname || "Professeur inconnu"
+				} ${course.teacher?.lastname || ""}<br>Salle: ${
+					course.classRoom?.name || "Non attribuée"
+				}`,
+				start: course.startTime,
+				end: course.endTime,
+				classRoom: course.classRoom,
+				teacher: course.teacher,
+				subject: course.subject,
+				schoolClass: course.schoolClass,
+				status: course.status,
+			};
+			console.log(event);
+		} 
+
+		// Ajouter les cours générés à la liste des événements
+		state.events = [
+			...state.events,
+			...state.generatedCourses.map((course) => ({
+				id: 'to-be-generated',
+				title: `Classe: ${
+					course.schoolClass?.name || "Inconnue"
+				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
+					course.teacher?.firstname || "Professeur inconnu"
+				} ${course.teacher?.lastname || ""}<br>Salle: ${
+					course.classRoom?.name || "Non attribuée"
+				}`,
+				start: course.startTime,
+				end: course.endTime,
+				classRoom: course.classRoom,
+				teacher: course.teacher,
+				subject: course.subject,
+				schoolClass: course.schoolClass,
+				status: course.status,
+				backgroundColor:
+					course.status === "cancelled" ? "red" : "#b8c130",
+				display: {
+					backgroundColor:
+						course.status === "cancelled" ? "red" : "green",
+				},
+			})),
+		];
+	} catch (error) {
+		console.error("Erreur lors de la génération des cours :", error);
 	}
 };
 
@@ -187,13 +282,19 @@ onMounted(() => {
 					:statusList="status"
 					@filter="
 						(filters) => {
-							console.log(filters);
 							state.selectedFilters = filters;
 							fetchEvents();
 						}
 					"
 				/>
 			</div>
+
+			<button
+				@click="generateCourses"
+				class="px-5 py-3 bg-blue-500 text-white hover:bg-blue-700 text-sm rounded rounded-xs"
+			>
+				Générer les cours
+			</button>
 
 			<AdvancedCalendar
 				:events="state.events"

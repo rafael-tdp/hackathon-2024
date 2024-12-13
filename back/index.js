@@ -65,7 +65,6 @@ const graduatingRouter = new GenericRouter(graduatingController).getRouter();
 
 app.use("/api/auth", authRouter);
 app.use("/api/planning", planningRouter);
-app.use("/api/notifications", notificationsRouter);
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);

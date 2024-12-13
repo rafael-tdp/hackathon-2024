@@ -1,8 +1,8 @@
 <template>
 	<div
-		class="filters border-b border-gray-200 pb-10 w-full "
+		class="filters border border-gray-200 p-8 w-full rounded rounded-md bg-white"
 	>
-		<div class="flex w-full items-center">
+		<div class="flex w-full items-center text-sm text-gray-600">
 			<select
 				id="teacherFilter"
 				v-model="selectedTeacher"
@@ -79,11 +79,6 @@ const props = defineProps({
 	classes: Array,
 	statusList: Array,
 });
-
-console.log("status", props.statusList);
-console.log("teachers", props.teachers);
-console.log("classRooms", props.classRooms);
-console.log("classes", props.classes);
 
 // Emits
 const emit = defineEmits(["filter"]);
