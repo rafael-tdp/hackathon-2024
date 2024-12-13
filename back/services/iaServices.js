@@ -11,7 +11,6 @@ const sendRequest = async (
 	prompt
 ) => {
 	try {
-		console.log("API KEY", process.env.NEW_API_KEY);
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o-mini-2024-07-18",
 			messages: [

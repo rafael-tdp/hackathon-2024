@@ -180,8 +180,6 @@ const fetchUnavailabilities = async () => {
           `${teacher.firstname} ${teacher.lastname}`,
         ])
       );
-      console.log("teachersResponse", teachersResponse);
-      console.log("teachersMap", teachersMap);
 
       unavailabilities.value = response.data.data.map((item) => ({
         startTime: formatDateWithA(item.startTime),
