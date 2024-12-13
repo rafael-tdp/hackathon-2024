@@ -85,15 +85,14 @@ const getTeacherFromClass = async (classId) => {
 const getUnavailabilitiesFromTeacher = async (teacherId) => {
 	if (!teacherId) throw new Error("teacherId is required");
 
-	const unavailabilities = await Unavailability.find({ teacherId });
+	const unavailabilities = await Unavailability.find({ teacher: teacherId });
 
-	if (!unavailabilities || unavailabilities.length === 0) {
-		throw new Error(
-			`No unavailabilities found for teacherId: ${teacherId}`
-		);
-	}
+	if (!unavailabilities || unavailabilities.length === 0)  return [];
 
-	return unavailabilities;
+	return unavailabilities.map((unavailability) => ({
+		startTime: unavailability.startTime,
+		endTime: unavailability.endTime,
+	}));
 };
 
 const getUnavailabilitiesFromTeachers = async (teachersIds) => {
@@ -216,7 +215,8 @@ const getTeachersUnavailabilitiesForClassAndWeeks = async (classId) => {
 };
 
 const getTeacherCourses = async (teacherId) => {
-	return await Course.find({ teacherId });
+	//Récupère tout les cours du professeur après la date actuelle
+	return await Course.find({ teacher: teacherId, startTime: { $gte: new Date() } });
 };
 
 const getTeacherCoursesForWeek = async (teacherId, week) => {
@@ -310,7 +310,54 @@ const getCapacitedRooms = async (classId) => {
 	return rooms;
 };
 
+const getSubjectsByTeacher = async (teacherId) => {
+	const result = await TeacherSubject.findOne({user: teacherId}, 'subjects').populate('subjects');
+	return result.subjects.map((subject) => ({
+		_id: subject._id,
+		requiredHours: subject.requiredHours
+	}))
+}
+
+
+const getShoolClassBySubject = async (subjectId) => {
+	const result = await SubjectClass.find({subject: subjectId}, 'schoolClass').populate('schoolClass');
+	return result.map((subjectClass) => ({
+		_id: subjectClass.schoolClass._id,
+		weekClasses: subjectClass.schoolClass.weekClasses
+	}))
+}
+
+const getTheoreticalScheduleByTeacher = async (teacherId) => {
+	// Récupère les matières enseignées par le professeur (heures requis)
+	const listOfSubjects = await getSubjectsByTeacher(teacherId);
+	// Récupère les indisponibilités du professeur
+	const listOfUnavaibilities = await getUnavailabilitiesFromTeacher(teacherId);
+	// Récupère les classes de l'école (semaine de cours)
+	const listOfSchoolClasses = [];
+	for (const subject of listOfSubjects) {
+		const schoolClasses = await getShoolClassBySubject(subject._id);
+		schoolClasses.forEach((schoolClass) => {
+			// Ajout uniquement si l'objet n'existe pas déjà
+			if (!listOfSchoolClasses.some(existingClass => existingClass._id === schoolClass._id)) {
+				listOfSchoolClasses.push(schoolClass);
+			}
+		});
+	}
+	//Récupère les cours planifiés par le professeur (après la date actuelle)
+	const listOfCourses = await getTeacherCourses(teacherId);
+
+	return {
+		teacherId,
+		subjectClass: listOfSubjects,
+		schoolWeekClass: listOfSchoolClasses,
+		plannedCourses: listOfCourses,
+		unavailabilityHours: listOfUnavaibilities
+	};
+};
+
+
 module.exports = {
+	getTheoreticalScheduleByTeacher,
 	getSubjectClassesFromClass,
 	getSubjectClassesToPlanFromClass,
 	getSubjectsFromClass,

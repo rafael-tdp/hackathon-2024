@@ -2,7 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const authRouter = require("./routes/authRoutes");
-// const planningRouter = require("./routes/planningRoutes");
+const planningRouter = require("./routes/planningRoutes");
+const notificationsRouter = require("./routes/notificationsRoutes");
 const { json, urlencoded } = require("express");
 const cors = require("cors");
 const GenericRouter = require("./routes/genericRouter");
@@ -63,7 +64,9 @@ const graduatingController = new GenericController(graduatingService);
 const graduatingRouter = new GenericRouter(graduatingController).getRouter();
 
 
-// app.use("/api/planning", planningRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/planning", planningRouter);
+app.use("/api/notifications", notificationsRouter);
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);

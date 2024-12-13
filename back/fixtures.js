@@ -93,7 +93,7 @@ const createClasses = async () => {
         for (const graduating of graduatingList) {
             const weekClasses = weekClassesMap[graduating.studyField];
 
-            const nbClasses = Math.floor(Math.random() * 3) + 3;
+            const nbClasses = 2;
             for (let i = 0; i < nbClasses; i++) {
                 const schoolClass = {
                     name: `${graduating.studyField} ${graduating.level} - Class ${i + 1}`,
@@ -221,9 +221,9 @@ const createCourses = async () => {
 
         const courses = [];
         const subjectHoursTracker = {};
-
         const subjectListByClass = {};
 
+        // Générer la liste des matières par classe
         for (const schoolClass of schoolClasses) {
             const promo = await Graduating.findOne({ _id: schoolClass.graduating }).populate("subjects");
             subjectListByClass[schoolClass._id] = promo.subjects;
@@ -235,21 +235,24 @@ const createCourses = async () => {
         const twoMonthsFromNow = new Date();
         twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 2);
 
+        // Suivi des horaires occupés par chaque enseignant
+        const teacherSchedules = {};
+
         for (const schoolClass of schoolClasses) {
             const classWeeks = schoolClass.weekClasses;
             const availableSubjects = subjectListByClass[schoolClass._id];
 
             for (const week of classWeeks) {
                 for (let day = 1; day <= 5; day++) {
-                    const numCourses = Math.floor(Math.random() * 2) + 1;
+                    const numCourses = Math.floor(Math.random() * 2) + 1; // 1 ou 2 cours par jour
 
                     for (let i = 0; i < numCourses; i++) {
-                        const duration = Math.floor(Math.random() * 4) + 1;
+                        const duration = Math.floor(Math.random() * 4) + 1; // Durée du cours
 
                         let startHour;
                         do {
-                            startHour = Math.floor(Math.random() * 9) + 8;
-                        } while (startHour === 12);
+                            startHour = Math.floor(Math.random() * 9) + 8; // Horaire de début entre 8h et 16h
+                        } while (startHour === 12); // Pas de cours à 12h
 
                         const startTime = new Date(schoolYearStart);
                         startTime.setUTCDate(startTime.getUTCDate() + (week - 1) * 7 + day - 1);
@@ -262,6 +265,7 @@ const createCourses = async () => {
 
                         const subject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
 
+                        // Trouver un enseignant pour la matière
                         const teacherSubject = teacherSubjects.find(ts =>
                             ts.subjects.some(subjectItem => subjectItem._id.toString() === subject._id.toString())
                         );
@@ -272,6 +276,26 @@ const createCourses = async () => {
                         }
 
                         const teacher = teacherSubject.user._id;
+
+                        // Vérifier si l'enseignant est déjà occupé pendant ce créneau horaire
+                        if (teacherSchedules[teacher]) {
+                            const isTeacherOccupied = teacherSchedules[teacher].some(occupiedSlot => {
+                                return (
+                                    (startTime >= occupiedSlot.startTime && startTime < occupiedSlot.endTime) ||
+                                    (endTime > occupiedSlot.startTime && endTime <= occupiedSlot.endTime) ||
+                                    (startTime <= occupiedSlot.startTime && endTime >= occupiedSlot.endTime)
+                                );
+                            });
+
+                            if (isTeacherOccupied) {
+                                console.warn(`Teacher ${teacher} is already scheduled for a course at this time.`);
+                                continue; // Skip if the teacher is already busy
+                            }
+                        }
+
+                        // Si l'enseignant est libre, ajouter le cours
+                        teacherSchedules[teacher] = teacherSchedules[teacher] || [];
+                        teacherSchedules[teacher].push({ startTime, endTime });
 
                         const room = rooms[Math.floor(Math.random() * rooms.length)];
 
@@ -291,12 +315,14 @@ const createCourses = async () => {
             }
         }
 
+        // Insertion des cours dans la base de données
         await Course.insertMany(courses);
         console.log("Courses created!");
     } catch (error) {
         console.error("Error creating courses:", error);
     }
 };
+
 
 const createClassSubjects = async () => {
     try {

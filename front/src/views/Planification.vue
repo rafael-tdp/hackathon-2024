@@ -99,7 +99,7 @@ const fetchEvents = async () => {
 				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
 					course.teacher?.firstname || "Professeur inconnu"
 				} ${course.teacher?.lastname || ""}<br>Salle: ${
-					course.classRoom.name || "Non attribuée"
+					course.classRoom?.name || "Non attribuée"
 				}`,
 				start: course.startTime,
 				end: course.endTime,
