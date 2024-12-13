@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import { Draggable } from "@fullcalendar/interaction";
-
 export default {
   name: "DraggableEvents",
   props: {
