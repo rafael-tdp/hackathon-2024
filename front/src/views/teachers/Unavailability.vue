@@ -3,32 +3,24 @@
     <div class="min-h-screen py-12 px-6">
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Gestion des Indisponibilités" />
-      </div>
-
-      <div class="flex justify-end w-full max-w-4xl mb-4">
         <NewItemButton @click="openModal" text="Ajouter une indisponibilité" />
       </div>
-
-      <div
-        class="w-full max-w-4xl bg-white shadow-md rounded-lg overflow-hidden"
+      <DynamicTable
+        :columns="tableColumns"
+        :data="unavailabilities"
+        :hasActions="false"
+        class="table-auto w-full border-collapse text-sm text-gray-600"
       >
-        <DynamicTable
-          :columns="tableColumns"
-          :data="unavailabilities"
-          :hasActions="false"
-          class="table-auto w-full border-collapse text-sm text-gray-600"
-        >
-          <template #default="{ row }">
-            <tr class="hover:bg-gray-100">
-              <td class="px-4 py-2 border-b text-left">{{ row.startTime }}</td>
-              <td class="px-4 py-2 border-b text-left">{{ row.endTime }}</td>
-              <td v-if="role === 'admin'" class="px-4 py-2 border-b text-left">
-                {{ row.teacher || "Inconnu" }}
-              </td>
-            </tr>
-          </template>
-        </DynamicTable>
-      </div>
+        <template #default="{ row }">
+          <tr class="hover:bg-gray-100">
+            <td class="px-4 py-2 border-b text-left">{{ row.startTime }}</td>
+            <td class="px-4 py-2 border-b text-left">{{ row.endTime }}</td>
+            <td v-if="role === 'admin'" class="px-4 py-2 border-b text-left">
+              {{ row.teacher || "Inconnu" }}
+            </td>
+          </tr>
+        </template>
+      </DynamicTable>
 
       <Modal
         v-model:visible="isModalVisible"
@@ -56,8 +48,6 @@ const teacherId = ref("");
 const unavailabilities = ref([]);
 const role = ref(null);
 const teachersList = ref([]);
-
-
 
 const tableColumns = computed(() => {
   const baseColumns = [
@@ -105,7 +95,7 @@ const modalFieldsDynamic = computed(() => {
 
 const openModal = () => {
   if (role.value === "admin") {
-     fetchTeachers();
+    fetchTeachers();
   }
   isModalVisible.value = true;
 };
