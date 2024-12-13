@@ -118,10 +118,13 @@ app.listen(PORT, () => {
 	console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
 });
 
-app.get("/api/stats", async (req, res) => {
+// Route pour obtenir les statistiques
+app.get("/api/statts", async (req, res) => {
 	try {
 	  const coursPlanifies = await Course.countDocuments();
-	  const enseignantsActifs = await User.countDocuments({ role: "teacher" });
+	  const enseignantsActifs = await User.find({ role: "teacher" })
+		.select("firstname lastname email")
+		.exec();
 	  const etudiantsInscrits = await User.countDocuments({ role: "student" });
   
 	  res.status(200).json({
@@ -133,4 +136,4 @@ app.get("/api/stats", async (req, res) => {
 	  console.error("Erreur lors de la récupération des statistiques :", error);
 	  res.status(500).json({ message: "Erreur interne du serveur" });
 	}
-  });  
+  });
