@@ -8,15 +8,12 @@ const openai = new OpenAI({
 });
 
 const sendRequest = async (
-	prompt,
-	model = "gpt-4o-mini-2024-07-18",
-	maxTokens = 100,
-	temperature = 0.1
+	prompt
 ) => {
 	try {
 		console.log("API KEY", process.env.NEW_API_KEY);
 		const response = await openai.chat.completions.create({
-			model,
+			model: "gpt-4o-mini-2024-07-18",
 			messages: [
 				{ role: "system", content: `
 Based on the input data, generate a JSON object strictly in the following format. Do not include any text before or after the JSON object.
@@ -57,8 +54,10 @@ Based on the input data, generate a JSON object strictly in the following format
 `},
 				{ role: "user", content: prompt },
 			],
-			max_tokens: 100,
-			temperature,
+			temperature: 0.1,
+			frequency_penalty: 0,
+			presence_penalty: 0,
+			n: 1,
 		});
 		return response.choices[0].message.content;
 	} catch (error) {

@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const authRouter = require("./routes/authRoutes");
 const planningRouter = require("./routes/planningRoutes");
-const notificationsRouter = require("./routes/notificationsRoutes");
 const { json, urlencoded } = require("express");
 const cors = require("cors");
 const GenericRouter = require("./routes/genericRouter");
