@@ -1,5 +1,6 @@
 const GenericService = require("./genericServices");
 const ApiResponse = require("../models/apiResponse");
+const SchoolClass = require("../models/schoolClass");
 
 class SchoolClassService extends GenericService {
     async getAll(req, res) {
@@ -9,12 +10,12 @@ class SchoolClassService extends GenericService {
         const offset = (page - 1) * limit;
 
         try {
-            const models = await this.Model.find(filters)
+            const models = await SchoolClass.find(filters)
                 .skip(offset)
                 .limit(limit)
                 .populate("graduating");
 
-            const countTotal = await this.Model.countDocuments(filters);
+            const countTotal = await SchoolClass.countDocuments(filters);
             res.set('X-Total-Count', countTotal);
             return res.status(200).json(new ApiResponse({
                 success: true,
