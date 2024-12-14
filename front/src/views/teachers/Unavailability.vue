@@ -29,13 +29,15 @@
         :onSubmit="handleSubmit"
         submitText="Confirmer"
       />
-    </div>
 
     <Pagination
+      class="mt-8"
       :currentPage="currentPage"
       :totalPages="totalPages"
       @update:currentPage="handlePageChange"
     />
+    </div>
+
   </LayoutAuthenticated>
 </template>
 
@@ -149,7 +151,6 @@ const fetchUnavailabilities = async () => {
       const optionsTime = {
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
       };
 
       const formattedDate = new Intl.DateTimeFormat(
@@ -187,7 +188,7 @@ const fetchUnavailabilities = async () => {
     unavailabilities.value = response.data.data.map((item) => ({
       startTime: formatDateWithA(item.startTime),
       endTime: formatDateWithA(item.endTime),
-      teacher: item.teacher || "Inconnu", 
+      teacher: `${item.teacher.firstname} ${item.teacher.lastname}` || "Inconnu",
     }));
 
     totalPages.value = response.data.totalPages; 

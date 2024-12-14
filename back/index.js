@@ -93,9 +93,10 @@ app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);
 
 app.use("/api/unavailabilities", (req, res, next) => {
-	if (req.method === "POST") {
+	if (req.method === "POST" || (req.method === "GET" && req.path === "/")) {
 		return unavailabilitiesRouterCustom(req, res, next);
 	}
+
 	next();
 });
 

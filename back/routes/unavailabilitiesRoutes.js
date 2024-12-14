@@ -4,6 +4,36 @@ const Course = require("../models/course");
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+    try {
+        const { page = 1, limit } = req.query;
+        const pageNum = parseInt(page, 10);
+        const limitNum = parseInt(limit, 10);
+        const skip = (pageNum - 1) * limitNum;
+
+        const total = await Unavailability.countDocuments();
+        const totalPages = Math.ceil(total / limitNum);
+        const data = await Unavailability
+            .find()
+            .populate("teacher")
+            .skip(skip)
+            .limit(limitNum);
+
+        res.json({
+            success: true,
+            data,
+            total,
+            page: pageNum,
+            totalPages,
+        });
+    } catch (error) {
+        console.error("Erreur lors de la récupération des indisponibilités :", error);
+        res.status(500).json({
+            error: "Erreur interne du serveur lors de la récupération des indisponibilités.",
+        });
+    }
+});
+
 router.post("/", async (req, res) => {
     try {
         const { teacher, startTime, endTime } = req.body;
