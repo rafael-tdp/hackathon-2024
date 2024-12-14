@@ -7,6 +7,7 @@ export default {
 				transparent: "transparent",
 				primary: "#b8c130",
 				secondary: "#4b866b",
+				"primary-dark": "#9a9e29"
 			},
 			height: {
 				"128": "32rem",

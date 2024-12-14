@@ -8,11 +8,11 @@ const ClassRoom = require("../models/classRoom");
 const Subject = require("../models/subject");
 const router = express.Router();
 
-
 // teacher
 router.get("/:teacherId", async (req, res) => {
   try {
     const { teacherId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
 
     const teacher = await User.findById(teacherId);
 
@@ -25,15 +25,24 @@ router.get("/:teacherId", async (req, res) => {
       );
     }
 
-    const notifications = await Notification.find({ teacher: teacherId }).sort({
-      date: -1,
+    const notificationsCount = await Notification.countDocuments({
+      teacher: teacherId,
     });
+
+    const totalPages = Math.ceil(notificationsCount / limit);
+
+    const notifications = await Notification.find({ teacher: teacherId })
+      .sort({ date: -1 })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
 
     res.status(200).json(
       new ApiResponse({
         success: true,
         message: "Notifications récupérées avec succès",
         data: notifications,
+        totalPages: totalPages,
+        currentPage: page,
       })
     );
   } catch (error) {
@@ -50,16 +59,25 @@ router.get("/:teacherId", async (req, res) => {
 // admin
 router.get("/", async (req, res) => {
   try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const notificationsCount = await Notification.countDocuments();
+    const totalPages = Math.ceil(notificationsCount / limit);
+
     const notifications = await Notification.find()
       .populate("teacher", "firstname lastname")
       .populate("course", "name")
-      .sort({ date: -1 });
+      .sort({ date: -1 })
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
 
     res.status(200).json(
       new ApiResponse({
         success: true,
         message: "Toutes les notifications récupérées avec succès",
         data: notifications,
+        totalPages: totalPages,
+        currentPage: page,
       })
     );
   } catch (error) {
@@ -72,7 +90,6 @@ router.get("/", async (req, res) => {
     );
   }
 });
-
 
 router.post("/", async (req, res) => {
   try {

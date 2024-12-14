@@ -4,7 +4,6 @@
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Cours" />
 
-        <!-- Affichage du bouton 'Nouveau cours' seulement si l'utilisateur est admin ou teacher -->
         <NewItemButton
           v-if="role === 'admin' || role === 'teacher'"
           @click="openEditModal"
@@ -12,7 +11,6 @@
         />
       </div>
 
-      <!-- Dynamic Table -->
       <DynamicTable
         :columns="[
           { key: 'subjectName', label: 'Cours' },
@@ -73,6 +71,12 @@
         :onConfirm="deleteCourse"
       />
     </div>
+
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>
 
@@ -80,16 +84,20 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+
+import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
+
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
+
 import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
-import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
-import axiosInstance from "@/utils/axiosInstance";
-import { showToast } from "@/utils/toast";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
-import NewItemButton from "../../components/NewItemButton.vue";
-import PageTitle from "../../components/PageTitle.vue";
+import NewItemButton from "@/components/NewItemButton.vue";
+import PageTitle from "@/components/PageTitle.vue";
+import Pagination from "@/components/Pagination.vue";
 
 const router = useRouter();
 
@@ -97,15 +105,14 @@ const courses = ref([]);
 const teachersMap = ref({});
 const subjectsMap = ref({});
 const role = ref(null);
+const totalPages = ref(1);
+const currentPage = ref(1);
+const itemsPerPage = 10;
 
-const formatDate = (dateString) => {
-  try {
-    return format(new Date(dateString), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
-  } catch (error) {
-    console.error("Erreur lors du formatage de la date :", error);
-    return dateString;
-  }
-};
+const isModalVisible = ref(false);
+const isDeleteModalVisible = ref(false);
+const courseToEdit = ref({});
+const courseToDelete = ref(null);
 
 // Columns
 const courseFields = [
@@ -151,14 +158,24 @@ const courseFields = [
   },
 ];
 
-const isModalVisible = ref(false);
-const isDeleteModalVisible = ref(false);
-const courseToEdit = ref({});
-const courseToDelete = ref(null);
+const formatDate = (dateString) => {
+  try {
+    return format(new Date(dateString), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
+  } catch (error) {
+    console.error("Erreur lors du formatage de la date :", error);
+    return dateString;
+  }
+};
 
 const fetchCourses = async () => {
   try {
-    const response = await axiosInstance.get("/api/courses/populated");
+    const response = await axiosInstance.get("/api/courses/populated", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+      },
+    });
+
     const coursesData = response.data.data.map((course) => ({
       classRoom: course.classRoom.name,
       rawStartTime: course.startTime,
@@ -172,6 +189,7 @@ const fetchCourses = async () => {
     }));
 
     courses.value = coursesData;
+    totalPages.value = response.data.data.length;
   } catch (error) {
     console.error("Erreur lors de la récupération des cours :", error);
     showToast({
@@ -179,6 +197,12 @@ const fetchCourses = async () => {
       type: "error",
     });
   }
+};
+
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchCourses();
 };
 
 const openEditModal = (courseItem) => {

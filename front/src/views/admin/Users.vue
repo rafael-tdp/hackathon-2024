@@ -2,19 +2,24 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
+
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
+import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
+
 import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
-import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import NewItemButton from "@/components/NewItemButton.vue";
 import PageTitle from "@/components/PageTitle.vue";
-import axiosInstance from "@/utils/axiosInstance";
-import { showToast } from "@/utils/toast";
+import Pagination from "@/components/Pagination.vue";
 
 const router = useRouter();
 
 const users = ref([]);
-const classesMap = ref({});
+const totalPages = ref(1);
+const currentPage = ref(1); 
+const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
@@ -50,44 +55,25 @@ const userFields = [
     options: ["admin", "teacher", "student"],
     required: true,
   },
-  {
-    name: "classId",
-    label: "Classe",
-    type: "select",
-    options: Object.entries(classesMap.value).map(([id, name]) => ({ id, name })),
-    required: true,
-  },
 ];
 
 const fetchUsers = async () => {
   try {
-    const response = await axiosInstance.get("/api/users");
-    users.value = response.data.data.map((user) => ({
-      ...user,
-      className: classesMap.value[user.classId] || "-",
-      roleLabel: getRoleLabel(user.role),
-    }));
+    const response = await axiosInstance.get("/api/users", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+      },
+    });
+
+    users.value = response.data.data;
+    totalPages.value = response.data.totalPages;
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des utilisateurs.",
       type: "error",
     });
     console.error(error);
-  }
-};
-
-const fetchClasses = async () => {
-  try {
-    const response = await axiosInstance.get("/api/schoolClasses");
-    classesMap.value = response.data.data.reduce((map, cls) => {
-      map[cls._id] = cls.name;
-      return map;
-    }, {});
-  } catch (error) {
-    showToast({
-      message: "Erreur lors du chargement des classes.",
-      type: "error",
-    });
   }
 };
 
@@ -125,19 +111,17 @@ const updateUser = async (formData) => {
       if (index !== -1) {
         users.value[index] = {
           ...formData,
-          className: classesMap.value[formData.classId] || "Non attribuée",
           roleLabel: getRoleLabel(formData.role),
         };
       }
       showToast({
-      message: "Utilisateur mis à jour avec succès.",
-      type: "success",
-    });
+        message: "Utilisateur mis à jour avec succès.",
+        type: "success",
+      });
     } else {
       const response = await axiosInstance.post("/api/users", formData);
       users.value.push({
         ...response.data.data,
-        className: classesMap.value[response.data.data.classId] || "Non attribuée",
         roleLabel: getRoleLabel(response.data.data.role),
       });
       showToast("Nouvel utilisateur ajouté avec succès", "success");
@@ -158,9 +142,9 @@ const deleteUser = async () => {
     users.value = users.value.filter((u) => u._id !== userToDelete.value._id);
     isDeleteModalVisible.value = false;
     showToast({
-        message: "Uilisateur supprimé avec succès.",
-        type: "success",
-      });
+      message: "Utilisateur supprimé avec succès.",
+      type: "success",
+    });
   } catch (error) {
     showToast({
       message: "Erreur lors de la suppression de l'utilisateur.",
@@ -171,21 +155,23 @@ const deleteUser = async () => {
 };
 
 onMounted(async () => {
-  await fetchClasses();
   await fetchUsers();
 });
+
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage; 
+  fetchUsers();  
+};
 </script>
 
 <template>
-	<LayoutAuthenticated>
-		<div class="min-h-screen py-12 px-6">
-			<div class="flex justify-between items-center mb-8">
-				<PageTitle text="Utilisateurs" />
-				<NewItemButton
-					@click="openEditModal"
-					text="Nouvel Utilisateur"
-				/>
-			</div>
+  <LayoutAuthenticated>
+    <div class="min-h-screen py-12 px-6 pb-3">
+      <div class="flex justify-between items-center mb-8">
+        <PageTitle text="Utilisateurs" />
+        <NewItemButton @click="openEditModal" text="Nouvel Utilisateur" />
+      </div>
 
       <DynamicTable
         :columns="[
@@ -193,7 +179,6 @@ onMounted(async () => {
           { key: 'lastname', label: 'Nom' },
           { key: 'email', label: 'Email' },
           { key: 'roleLabel', label: 'Rôle' },
-          { key: 'className', label: 'Classe' },
         ]"
         :data="users"
         :hasActions="true"
@@ -230,5 +215,12 @@ onMounted(async () => {
         :onConfirm="deleteUser"
       />
     </div>
+
+    <Pagination
+    
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>

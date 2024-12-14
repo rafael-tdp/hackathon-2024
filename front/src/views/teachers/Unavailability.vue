@@ -30,24 +30,38 @@
         submitText="Confirmer"
       />
     </div>
+
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import axiosInstance from "@/utils/axiosInstance";
+
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
-import NewItemButton from "../../components/NewItemButton.vue";
+
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
+
+import NewItemButton from "@/components/NewItemButton.vue";
 import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import PageTitle from "@/components/PageTitle.vue";
-import { showToast } from "@/utils/toast";
+import Pagination from "@/components/Pagination.vue";
 
-const isModalVisible = ref(false);
 const teacherId = ref("");
 const unavailabilities = ref([]);
-const role = ref(null);
 const teachersList = ref([]);
+const role = ref(null);
+const totalPages = ref(1);
+const currentPage = ref(1);
+const itemsPerPage = 10;
+
+const isModalVisible = ref(false);
 
 const tableColumns = computed(() => {
   const baseColumns = [
@@ -122,6 +136,7 @@ const fetchTeacherId = async () => {
     }
   }
 };
+
 const fetchUnavailabilities = async () => {
   try {
     const formatDateWithA = (dateString) => {
@@ -149,34 +164,33 @@ const fetchUnavailabilities = async () => {
       return `${formattedDate} à ${formattedTime}`;
     };
 
+    let response;
     if (role.value === "teacher") {
-      const response = await axiosInstance.get(
-        `/api/unavailabilities?teacher=${teacherId.value}`
+      response = await axiosInstance.get(
+        `/api/unavailabilities?teacher=${teacherId.value}`,
+        {
+          params: {
+            page: currentPage.value,
+            limit: itemsPerPage,
+          },
+        }
       );
-
-      unavailabilities.value = response.data.data.map((item) => ({
-        startTime: formatDateWithA(item.startTime),
-        endTime: formatDateWithA(item.endTime),
-      }));
     } else if (role.value === "admin") {
-      const response = await axiosInstance.get(`/api/unavailabilities`);
-      const teachersResponse = await axiosInstance.get(
-        `/api/users?role=teacher`
-      );
-
-      const teachersMap = new Map(
-        teachersResponse.data.data.map((teacher) => [
-          teacher._id,
-          `${teacher.firstname} ${teacher.lastname}`,
-        ])
-      );
-
-      unavailabilities.value = response.data.data.map((item) => ({
-        startTime: formatDateWithA(item.startTime),
-        endTime: formatDateWithA(item.endTime),
-        teacher: teachersMap.get(item.teacher) || "Inconnu",
-      }));
+      response = await axiosInstance.get(`/api/unavailabilities`, {
+        params: {
+          page: currentPage.value,
+          limit: itemsPerPage,
+        },
+      });
     }
+
+    unavailabilities.value = response.data.data.map((item) => ({
+      startTime: formatDateWithA(item.startTime),
+      endTime: formatDateWithA(item.endTime),
+      teacher: item.teacher || "Inconnu", 
+    }));
+
+    totalPages.value = response.data.totalPages; 
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des indisponibilités.",
@@ -186,6 +200,21 @@ const fetchUnavailabilities = async () => {
   }
 };
 
+const fetchTeachers = async () => {
+  try {
+    const response = await axiosInstance.get("/api/users?role=teacher");
+    teachersList.value = response.data.data.map((teacher) => ({
+      value: teacher._id,
+      label: `${teacher.firstname} ${teacher.lastname}`,
+    }));
+  } catch (error) {
+    showToast({
+      message: "Erreur lors du chargement des intervenants.",
+      type: "error",
+    });
+    console.error(error);
+  }
+};
 const handleSubmit = async (formData) => {
   const submissionData = {
     startTime: formData.startTime,
@@ -227,20 +256,10 @@ const handleSubmit = async (formData) => {
   }
 };
 
-const fetchTeachers = async () => {
-  try {
-    const response = await axiosInstance.get("/api/users?role=teacher");
-    teachersList.value = response.data.data.map((teacher) => ({
-      value: teacher._id,
-      label: `${teacher.firstname} ${teacher.lastname}`,
-    }));
-  } catch (error) {
-    showToast({
-      message: "Erreur lors du chargement des intervenants.",
-      type: "error",
-    });
-    console.error(error);
-  }
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchUnavailabilities();
 };
 
 onMounted(async () => {

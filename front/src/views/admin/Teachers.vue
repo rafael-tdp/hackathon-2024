@@ -2,23 +2,30 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
+
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
+
+import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
+
 import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
-import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import NewItemButton from "../../components/NewItemButton.vue";
 import PageTitle from "../../components/PageTitle.vue";
-import axiosInstance from "@/utils/axiosInstance"; 
-import { showToast } from "@/utils/toast"; 
+import Pagination from "@/components/Pagination.vue";
 
 const router = useRouter();
 
 const teachers = ref([]);
+const totalPages = ref(1);
+const currentPage = ref(1);
+const itemsPerPage = 10;
 
-const isModalVisible = ref(false); 
-const isDeleteModalVisible = ref(false); 
-const teacherToEdit = ref(null); 
-const teacherToDelete = ref(null); 
+const isModalVisible = ref(false);
+const isDeleteModalVisible = ref(false);
+const teacherToEdit = ref(null);
+const teacherToDelete = ref(null);
 
 const teacherFields = [
   {
@@ -44,15 +51,31 @@ const teacherFields = [
   },
 ];
 
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchTeachers();
+};
+
 const fetchTeachers = async () => {
   try {
-    const response = await axiosInstance.get("/api/users");
-    teachers.value = response.data.data
-      .filter(user => user.role === 'teacher') 
-      .map((user) => ({
-        ...user,
-        roleLabel: "Intervenant",
-      }));
+    const response = await axiosInstance.get("/api/users", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+      },
+    });
+    
+    const filteredTeachers = response.data.data.filter((user) => user.role === "teacher");
+
+    teachers.value = filteredTeachers.map((user) => ({
+      ...user,
+      roleLabel: "Intervenant",
+    }));
+
+    const totalItems = filteredTeachers.length;
+    totalPages.value = Math.ceil(totalItems / itemsPerPage);
+
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des enseignants.",
@@ -61,6 +84,7 @@ const fetchTeachers = async () => {
     console.error(error);
   }
 };
+
 
 const openEditModal = (teacherItem) => {
   teacherToEdit.value = {
@@ -110,7 +134,9 @@ const updateTeacher = async (formData) => {
 const deleteTeacher = async () => {
   try {
     await axiosInstance.delete(`/api/users/${teacherToDelete.value._id}`);
-    teachers.value = teachers.value.filter((u) => u._id !== teacherToDelete.value._id);
+    teachers.value = teachers.value.filter(
+      (u) => u._id !== teacherToDelete.value._id
+    );
     isDeleteModalVisible.value = false;
     showToast({
       message: "Intervenant supprimé avec succès.",
@@ -132,13 +158,10 @@ onMounted(async () => {
 
 <template>
   <LayoutAuthenticated>
-    <div class="min-h-screen py-12 px-6">
+    <div class="min-h-screen py-12 px-6 pb-3">
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Intervenants" />
-        <NewItemButton
-          @click="openEditModal"
-          text="Nouvel Intervenant"
-        />
+        <NewItemButton @click="openEditModal" text="Nouvel Intervenant" />
       </div>
 
       <DynamicTable
@@ -146,7 +169,7 @@ onMounted(async () => {
           { key: 'firstname', label: 'Prénom' },
           { key: 'lastname', label: 'Nom' },
           { key: 'email', label: 'Email' },
-          { key: 'roleLabel', label: 'Rôle' }
+          { key: 'roleLabel', label: 'Rôle' },
         ]"
         :data="teachers"
         :hasActions="true"
@@ -183,5 +206,10 @@ onMounted(async () => {
         :onConfirm="deleteTeacher"
       />
     </div>
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>

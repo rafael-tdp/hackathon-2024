@@ -87,7 +87,7 @@ app.use("/api/courses", (req, res, next) => {
 	}
 	next();
 });
-app.use("/api/courses", courseRouter); // Routes génériques pour le reste
+app.use("/api/courses", courseRouter);
 
 app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);

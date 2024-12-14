@@ -1,123 +1,106 @@
-const { uuidv7 } = require("uuidv7");
-const ApiResponse = require("../models/apiResponse");
-
 class GenericService {
-    constructor(model) {
-        this.Model = model;
+  constructor(model) {
+    this.model = model;
+  }
+
+  async getAll(req, res) {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+      const pageNum = parseInt(page, 10);
+      const limitNum = parseInt(limit, 10);
+      const skip = (pageNum - 1) * limitNum;
+
+      const [data, total] = await Promise.all([
+        this.model.find().skip(skip).limit(limitNum),
+        this.model.countDocuments(),
+      ]);
+
+      const totalPages = Math.ceil(total / limitNum);
+
+      res.status(200).json({
+        success: true,
+        data,
+        total,
+        page: pageNum,
+        totalPages,
+      });
+    } catch (error) {
+      console.error("Erreur dans GenericService.getAll :", error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
     }
+  }
 
-    async getAll(req, res) {
-        const { page: reqPage, limit: reqLimit, startDate, endDate, ...filters } = req.query;
-        const page = parseInt(reqPage) || 1;
-        const limit = parseInt(reqLimit);
-        const offset = (page - 1) * limit;
-
-        if (startDate) {
-            filters.startTime = { ...filters.startTime, $gte: new Date(startDate) };
-        }
-        if (endDate) {
-            filters.startTime = { ...filters.startTime, $lte: new Date(endDate) };
-        }
-
-        try {
-            const models = await this.Model.find(filters)
-                .skip(offset)
-                .limit(limit);
-
-            const countTotal = await this.Model.countDocuments(filters);
-            res.set('X-Total-Count', countTotal);
-            return res.status(200).json(new ApiResponse({
-                success: true,
-                data: models,
-            }));
-        } catch (error) {
-            console.error("Une erreur s'est produite :", error);
-            return res.status(500).json(new ApiResponse({
-                success: false,
-                error: "Erreur interne du serveur",
-            }));
-        }
+  async getById(req, res) {
+    try {
+      const { id } = req.params;
+      const data = await this.model.findById(id);
+      if (!data) {
+        return res.status(404).json({ error: "Ressource non trouvée" });
+      }
+      res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Erreur dans GenericService.getById :", error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
     }
+  }
 
-    async getById(req, res) {
-        const id = req.params.id;
-        try {
-            const model = await this.Model.findById(id);
-            if (model) return res.status(200).json(new ApiResponse({
-                success: true,
-                data: model,
-            }));
-            return res.sendStatus(404);
-        } catch (error) {
-            console.error("Une erreur s'est produite :", error);
-            return res.status(500).json(new ApiResponse({
-                success: false,
-                error: "Erreur interne du serveur",
-            }));
-        }
+  async create(req, res, next) {
+    try {
+      const data = await this.model.create(req.body);
+      res.status(201).json({ success: true, data });
+    } catch (error) {
+      console.error("Erreur dans GenericService.create :", error);
+      next(error);
     }
+  }
 
-    async create(req, res, next) {
-        try {
-            const model = new this.Model({ ...req.body });
-            await model.save();
-            return res.status(201).json(new ApiResponse({
-                success: true,
-                data: model,
-            }));
-        } catch (error) {
-            next(error);
-        }
+  async update(req, res, next) {
+    try {
+      const { id } = req.params;
+      const data = await this.model.findByIdAndUpdate(id, req.body, {
+        new: true,
+      });
+      if (!data) {
+        return res.status(404).json({ error: "Ressource non trouvée" });
+      }
+      res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Erreur dans GenericService.update :", error);
+      next(error);
     }
+  }
 
-    async update(req, res, next) {
-        try {
-            const id = req.params.id;
-            const updatedItem = await this.Model.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-            if (updatedItem) {
-                return res.status(200).json(new ApiResponse({
-                    success: true,
-                    data: updatedItem,
-                }));
-            } else {
-                return res.sendStatus(404);
-            }
-        } catch (error) {
-            next(error);
-        }
+  async patch(req, res, next) {
+    try {
+      const { id } = req.params;
+      const data = await this.model.findByIdAndUpdate(id, req.body, {
+        new: true,
+      });
+      if (!data) {
+        return res.status(404).json({ error: "Ressource non trouvée" });
+      }
+      res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Erreur dans GenericService.patch :", error);
+      next(error);
     }
+  }
 
-    async patch(req, res, next) {
-        try {
-            const id = req.params.id;
-            const updatedItem = await this.Model.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-            if (updatedItem) {
-                return res.status(200).json(new ApiResponse({
-                    success: true,
-                    data: updatedItem,
-                }));
-            } else {
-                return res.sendStatus(404);
-            }
-        } catch (error) {
-            next(error);
-        }
+  async delete(req, res) {
+    try {
+      const { id } = req.params;
+      const data = await this.model.findByIdAndDelete(id);
+      if (!data) {
+        return res.status(404).json({ error: "Ressource non trouvée" });
+      }
+      res
+        .status(200)
+        .json({ success: true, message: "Ressource supprimée avec succès" });
+    } catch (error) {
+      console.error("Erreur dans GenericService.delete :", error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
     }
-
-    async delete(req, res) {
-        const id = req.params.id;
-        try {
-            const result = await this.Model.findByIdAndDelete(id);
-            if (result) return res.sendStatus(204);
-            return res.sendStatus(404);
-        } catch (error) {
-            console.error("Une erreur s'est produite :", error);
-            return res.status(500).json(new ApiResponse({
-                success: false,
-                error: "Erreur interne du serveur",
-            }));
-        }
-    }
+  }
 }
 
 module.exports = GenericService;

@@ -5,80 +5,96 @@ const Course = require("../models/course");
 const router = express.Router();
 
 router.get("/populated", async (req, res) => {
-	try {
-		const { teacherId, classRoomId, schoolClassId, status } = req.query;
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      teacherId,
+      classRoomId,
+      schoolClassId,
+      status,
+    } = req.query;
 
-		// create a query that populates the teacher, classRoom and schoolClass fields and filters by the query parameters
-		const query = Course.find()
-			.populate("teacher")
-			.populate("classRoom")
-			.populate("schoolClass")
-			.populate("subject");
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
 
-		if (teacherId) {
-			query.where("teacher", teacherId);
-		}
+    const query = Course.find()
+      .populate("teacher")
+      .populate("classRoom")
+      .populate("schoolClass")
+      .populate("subject");
 
-		if (classRoomId) {
-			query.where("classRoom", classRoomId);
-		}
+    if (teacherId) {
+      query.where("teacher", teacherId);
+    }
+    if (classRoomId) {
+      query.where("classRoom", classRoomId);
+    }
+    if (schoolClassId) {
+      query.where("schoolClass", schoolClassId);
+    }
+    if (status) {
+      query.where("status", status);
+    }
 
-		if (schoolClassId) {
-			query.where("schoolClass", schoolClassId);
-		}
+    // Récupérer les données avec la pagination
+    const [courses, total] = await Promise.all([
+      query.skip(skip).limit(limitNum).exec(),
+      Course.countDocuments(query),
+    ]);
 
-		if (status) {
-			query.where("status", status);
-		}
+    const totalPages = Math.ceil(total / limitNum);
 
-		const courses = await query.exec();
-
-		res.json(
-			new ApiResponse({
-				success: true,
-				data: courses,
-			})
-		);
-	} catch (error) {
-		res.status(500).json({ error: error.message });
-	}
+    res.json(
+      new ApiResponse({
+        success: true,
+        data: courses,
+        total,
+        page: pageNum,
+        totalPages,
+      })
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.post("/validation", async (req, res) => {
-	try {
-		const courses = req.body;
-		const createdCourses = await Course.insertMany(courses);
+  try {
+    const courses = req.body;
+    const createdCourses = await Course.insertMany(courses);
 
-		res.json(
-			new ApiResponse({
-				success: true,
-				data: createdCourses,
-			})
-		);
-	} catch (error) {
-		res.status(500).json({ error: error.message });
-	}
+    res.json(
+      new ApiResponse({
+        success: true,
+        data: createdCourses,
+      })
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.get("/status/:status", async (req, res) => {
-	try {
-		const { status } = req.params;
+  try {
+    const { status } = req.params;
 
-		const courses = await Course.find({ status })
-			.populate("teacher")
-			.populate("classRoom")
-			.populate("schoolClass")
-			.populate("subject");
+    const courses = await Course.find({ status })
+      .populate("teacher")
+      .populate("classRoom")
+      .populate("schoolClass")
+      .populate("subject");
 
-		res.json(
-			new ApiResponse({
-				success: true,
-				data: courses,
-			})
-		);
-	} catch (error) {
-		res.status(500).json({ error: error.message });
-	}
+    res.json(
+      new ApiResponse({
+        success: true,
+        data: courses,
+      })
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;

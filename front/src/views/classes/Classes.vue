@@ -1,19 +1,26 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
+
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
+
+import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
+
 import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
-import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import NewItemButton from "../../components/NewItemButton.vue";
 import PageTitle from "../../components/PageTitle.vue";
-import axiosInstance from "@/utils/axiosInstance";
-import { showToast } from "@/utils/toast";
+import Pagination from "@/components/Pagination.vue";
 
 const classes = ref([]);
 const subjects = ref([]);
 const classToEdit = ref(null);
 const classToDelete = ref(null);
+const totalPages = ref(1);
+const currentPage = ref(1);
+const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
@@ -65,7 +72,12 @@ const classFields = [
 
 const fetchClasses = async () => {
   try {
-    const response = await axiosInstance.get("/api/courses/populated");
+    const response = await axiosInstance.get("/api/courses/populated", {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage,
+      },
+    });
 
     const classesData = response.data.data.map((classes) => {
       const { studyField, level } = parseClassName(classes.schoolClass.name);
@@ -82,6 +94,7 @@ const fetchClasses = async () => {
     });
 
     classes.value = classesData;
+    totalPages.value = response.data.data.length;
   } catch (error) {
     showToast("Erreur lors du chargement des classes", "error");
     console.error("Erreur fetchClasses:", error);
@@ -119,6 +132,13 @@ const openEditModal = async (classItem) => {
   classToEdit.value.subjects = subjectsInfo;
 
   isModalVisible.value = true;
+};
+
+
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchClasses();
 };
 
 const parseClassName = (name) => {
@@ -191,7 +211,6 @@ const updateClass = async (formData) => {
 onMounted(async () => {
   await fetchClasses();
 });
-
 </script>
 
 <template>
@@ -254,5 +273,10 @@ onMounted(async () => {
         :onConfirm="deleteClass"
       />
     </div>
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>

@@ -12,20 +12,33 @@
         :hasActions="false"
       />
     </div>
+
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+
 import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
+
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import DynamicTable from "@/components/DynamicTable.vue";
+
 import PageTitle from "../../components/PageTitle.vue";
-import { showToast } from "@/utils/toast";
+import Pagination from "@/components/Pagination.vue";
 
 const notifications = ref([]);
 const role = ref(null);
 const teacherId = ref("");
+const totalPages = ref(1);
+const currentPage = ref(1);
+const itemsPerPage = 10;
 
 const tableColumns = computed(() => {
   const baseColumns = [
@@ -40,10 +53,15 @@ const tableColumns = computed(() => {
 const fetchNotifications = async () => {
   try {
     let response;
+    const params = {
+      page: currentPage.value,
+      limit: itemsPerPage,
+    };
+
     if (role.value === "teacher") {
-      response = await axiosInstance.get(`/api/notifications/${teacherId.value}`);
+      response = await axiosInstance.get(`/api/notifications/${teacherId.value}`, { params });
     } else if (role.value === "admin") {
-      response = await axiosInstance.get("/api/notifications");
+      response = await axiosInstance.get("/api/notifications", { params });
     }
 
     notifications.value = await Promise.all(
@@ -76,10 +94,12 @@ const fetchNotifications = async () => {
           courseName,
           teacherName, 
           message: notification.message,
-          status: role.value === "teacher" ? "Ouvert" : "Délivré", // Statut basé sur le rôle
+          status: role.value === "teacher" ? "Ouvert" : "Délivré", 
         };
       })
     );
+
+    totalPages.value = 3;
   } catch (error) {
     console.error("Erreur lors de la récupération des notifications :", error);
     showToast({
@@ -88,6 +108,7 @@ const fetchNotifications = async () => {
     });
   }
 };
+
 
 const getUserData = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -108,6 +129,12 @@ const fetchTeacherId = async () => {
       });
     }
   }
+};
+
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchNotifications();
 };
 
 onMounted(async () => {
