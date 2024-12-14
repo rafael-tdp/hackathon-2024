@@ -8,22 +8,23 @@ router.get("/populated", async (req, res) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit,
       teacherId,
       classRoomId,
       schoolClassId,
       status,
     } = req.query;
+    console.log("query", req.query)
 
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
-    const skip = (pageNum - 1) * limitNum;
+    const pageNum = parseInt(page);
+    const limitNum = limit ? parseInt(limit) : null;
+    const skip = (pageNum - 1) * (limitNum || 0);
 
     const query = Course.find()
-      .populate("teacher")
-      .populate("classRoom")
-      .populate("schoolClass")
-      .populate("subject");
+        .populate("teacher")
+        .populate("classRoom")
+        .populate("schoolClass")
+        .populate("subject");
 
     if (teacherId) {
       query.where("teacher", teacherId);
@@ -45,15 +46,15 @@ router.get("/populated", async (req, res) => {
     ]);
 
     const totalPages = Math.ceil(total / limitNum);
-
+    res.set("X-Total-Count", total)
     res.json(
-      new ApiResponse({
-        success: true,
-        data: courses,
-        total,
-        page: pageNum,
-        totalPages,
-      })
+        new ApiResponse({
+          success: true,
+          data: courses,
+          total,
+          page: pageNum,
+          totalPages,
+        })
     );
   } catch (error) {
     res.status(500).json({ error: error.message });
