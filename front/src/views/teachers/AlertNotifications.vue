@@ -74,7 +74,7 @@ const fetchNotifications = async () => {
 
         return {
           courseName,
-          teacherName, // Nom complet de l'enseignant
+          teacherName, 
           message: notification.message,
           status: role.value === "teacher" ? "Ouvert" : "Délivré", // Statut basé sur le rôle
         };
