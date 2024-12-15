@@ -20,8 +20,7 @@ Bienvenue dans notre projet réalisé dans le cadre du Hackathon 2024. Cette app
 
 5. **Indisponibilités**
 
-    - Admin : peut créer une indisponibilité pour n'importe quel intervenant.
-    - Intervenant : peut créer et gérer ses propres indisponibilités.
+    - Admin : peut créer une indisponibilité pour n'importe quel intervenant et un Intervenant : peut créer et gérer ses propres indisponibilités. (créé par *Asma*).
 
 6. **Gestion des rôles**  
    - Rôles disponibles :  
