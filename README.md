@@ -6,30 +6,35 @@ Bienvenue dans notre projet réalisé dans le cadre du Hackathon 2024. Cette app
 
 ## 📌 Fonctionnalités et auteurs
 
-1. **Dashboard avec statistiques**  
-   - Vue globale des métriques essentielles de l'établissement (créé par *Sharan*).  
+1. **Replanification des cours annulés par drag et drop**  
+   - Replanification des cours annulés via drag et drop (créé par *Rafael* et *Saidou*).  
 
-2. **Gestion des rôles**  
+2. **Génération automatique du planning via IA**  
+   - Génération automatique du planning des cours en fonction des disponibilités des intervenants, des semaines de cours, des matières etc. (créé par *Rafael* et *Makan*).
+
+3. **Notifications**  
+   - Notifications envoyées aux professeurs lorsque les cours sont repositionnés (créé par *Asma*).  
+
+4. **Filtre sur les cours**  
+   - Filtre sur les cours par classe, intervenant, salle, status. (créé par *Rafael* et *Saidou*).
+
+5. **Indisponibilités**
+
+    - Admin : peut créer une indisponibilité pour n'importe quel intervenant.
+    - Intervenant : peut créer et gérer ses propres indisponibilités.
+
+6. **Gestion des rôles**  
    - Rôles disponibles :  
      - **Admin** : accès complet à toutes les fonctionnalités, y compris la gestion des utilisateurs, intervenants, élèves, cours, classes, alertes, indisponibilités et planning.  
      - **Intervenant** : accès limité à la liste des étudiants, notifications reçues, et gestion de ses propres indisponibilités.  
      - **Élève** : accès uniquement à ses cours et au planning.  
    - Système d'envoi de mot de passe par email lors de la création d'un utilisateur (créé par *Asma*).  
 
-3. **Système de pagination**  
+7. **Système de pagination**  
    - Implémentation de la pagination sur tous les tableaux de bord (créé par *Asma*).  
 
-4. **Replanification des cours annulés par drag et drop**  
-   - Replanification des cours annulés via drag et drop (créé par *Rafael* et *Saidou*).  
-
-5. **Notifications**  
-   - Notifications envoyées aux professeurs lorsque les cours sont repositionnés (créé par *Asma*).  
-
-6. **Génération automatique du planning via IA**  
-   - Génération automatique du planning des cours en fonction des disponibilités des intervenants, des semaines de cours, des matières etc. (créé par *Rafael* et *Makan*).
-
-7. **Filtre sur les cours**  
-   - Filtre sur les cours par classe, intervenant, salle, status. (créé par *Rafael* et *Saidou*).
+8. **Dashboard avec statistiques**  
+   - Vue globale des métriques essentielles de l'établissement (créé par *Sharan* et *Asma*).  
 
 ---
 
@@ -57,7 +62,7 @@ Bienvenue dans notre projet réalisé dans le cadre du Hackathon 2024. Cette app
    cd hackathon-2024
   ```
 
-3. Ajouter le fichier .env à la racine du projet 
+3. Ajouter le fichier .env à la racine du projet
 
 4. Démarrez l'application avec Docker Compose :
 
@@ -71,7 +76,7 @@ Bienvenue dans notre projet réalisé dans le cadre du Hackathon 2024. Cette app
    http://localhost:5173/
    ```
 
-## 🔐 Comptes de test :
+## 🔐 Comptes de test
 
 Pour tester l'application, vous pouvez utiliser les trois profils suivants :
 

@@ -65,10 +65,10 @@ const navigation = [
     current: router.currentRoute.value.path === "/planification",
   },
   {
-    name: "Enseignants",
-    href: "/enseignants",
+    name: "Intervenants",
+    href: "/intervenants",
     icon: UsersIcon,
-    current: router.currentRoute.value.path === "/enseignants",
+    current: router.currentRoute.value.path === "/intervenants",
   },
   {
     name: "Etudiants",

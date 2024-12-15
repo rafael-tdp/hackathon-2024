@@ -23,7 +23,7 @@ const routes = [
   { path: "/courses", name: "Courses", component: Courses },
   { path: "/users", name: "Users", component: Users },
   { path: "/profile", name: "Profil", component: Profile },
-  { path: "/enseignants", name: "Teachers", component: Teachers },
+  { path: "/intervenants", name: "Teachers", component: Teachers },
   { path: "/etudiants", name: "Students", component: Students },
   {
     path: "/unavailabilities",
