@@ -53,7 +53,7 @@ const fetchStudents = async () => {
       .filter((user) => user.role === "student")
       .map((user) => ({
         ...user,
-        roleLabel: "Étudiant",
+        roleLabel: "Élève",
       }));
   } catch (error) {
     showToast({

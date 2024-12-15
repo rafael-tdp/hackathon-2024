@@ -15,7 +15,6 @@ import PageTitle from "../../components/PageTitle.vue";
 import Pagination from "@/components/Pagination.vue";
 
 const classes = ref([]);
-const subjects = ref([]);
 const classToEdit = ref(null);
 const classToDelete = ref(null);
 const totalPages = ref(1);
@@ -24,6 +23,7 @@ const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
+const isEditing = ref(false); 
 
 const classFields = [
   {
@@ -61,79 +61,36 @@ const classFields = [
     placeholder: "Niveau",
     required: false,
   },
-  {
-    name: "subjects",
-    label: "Matières",
-    type: "select",
-    options: subjects.value,
-    required: false,
-  },
 ];
 
 const fetchClasses = async () => {
   try {
-    const response = await axiosInstance.get("/api/courses/populated", {
+    const response = await axiosInstance.get("/api/schoolclasses", {
       params: {
         page: currentPage.value,
         limit: itemsPerPage,
       },
     });
 
-    const classesData = response.data.data.map((classes) => {
-      const { studyField, level } = parseClassName(classes.schoolClass.name);
+    classes.value = response.data.data.map((classItem) => {
+      const { graduating } = classItem;
 
       return {
-        name: classes.schoolClass.name,
-        nbStudents: classes.schoolClass.nbStudents,
-        year: classes.schoolClass.year,
-        studyField,
-        level,
-        subjects: classes.subject.name,
-        id: classes.schoolClass._id,
+        name: classItem.name,
+        nbStudents: classItem.nbStudents,
+        year: classItem.year,
+        studyField: graduating?.studyField || "",
+        level: graduating?.level || "",
+        id: classItem._id,
       };
     });
 
-    classes.value = classesData;
-    totalPages.value = response.data.data.length;
+    totalPages.value = Math.ceil(classes.value.length / itemsPerPage);
   } catch (error) {
     showToast("Erreur lors du chargement des classes", "error");
     console.error("Erreur fetchClasses:", error);
   }
 };
-
-
-const fetchSubjects = async (subjectsIds) => {
-  try {
-    if (!Array.isArray(subjectsIds)) {
-      throw new Error("subjectsIds doit être un tableau");
-    }
-    const promises = subjectsIds.map((id) =>
-      axiosInstance.get(`/api/subjects/${id}`)
-    );
-    const responses = await Promise.all(promises);
-    return responses.map((response) => response.data.data.name);
-  } catch (error) {
-    showToast("Erreur lors du chargement des matières", "error");
-    console.error(error);
-    return [];
-  }
-};
-
-const openEditModal = async (classItem) => {
-  classToEdit.value = { ...classItem };
-
-  if (classItem.graduating) {
-    const graduatingInfo = await fetchGraduatingInfo(classItem.graduating);
-    classToEdit.value.studyField = graduatingInfo.studyField;
-    classToEdit.value.level = graduatingInfo.level;
-  }
-
-  const subjectsInfo = await fetchSubjects(classItem.subjects);
-  classToEdit.value.subjects = subjectsInfo;
-
-  isModalVisible.value = true;
-};
-
 
 const handlePageChange = (newPage) => {
   if (newPage < 1 || newPage > totalPages.value) return;
@@ -141,29 +98,15 @@ const handlePageChange = (newPage) => {
   fetchClasses();
 };
 
-const parseClassName = (name) => {
-  if (!name) return { studyField: "", level: "" };
-
-  const parts = name.split(" ");
-  const studyField = parts[0] || "";
-  const level = parts[1] || "";
-
-  return { studyField, level };
+const openCreateModal = () => {
+  classToEdit.value = null;
+  isModalVisible.value = true;
 };
 
-const fetchGraduatingInfo = async (graduatingId) => {
-  try {
-    const response = await axiosInstance.get(
-      `/api/graduatings/${graduatingId}`
-    );
-    return response.data.data;
-  } catch (error) {
-    showToast(
-      "Erreur lors du chargement des informations de formation",
-      "error"
-    );
-    console.error(error);
-  }
+const openEditModal = async (classItem) => {
+  classToEdit.value = { ...classItem };
+
+  isModalVisible.value = true;
 };
 
 const deleteClass = async () => {
@@ -185,28 +128,45 @@ const openDeleteModal = (classId) => {
   isDeleteModalVisible.value = true;
 };
 
+
 const updateClass = async (formData) => {
   try {
-    const response = formData._id
-      ? await axiosInstance.put(`/api/schoolClasses/${formData._id}`, formData)
-      : await axiosInstance.post("/api/schoolClasses", formData);
-
-    if (formData._id) {
-      const index = classes.value.findIndex((c) => c._id === formData._id);
+    let response;
+    if (formData.id) {
+      // Classe existante
+      response = await axiosInstance.put(`/api/schoolClasses/${formData.id}`, formData);
+      const index = classes.value.findIndex((c) => c._id === formData.id);
       if (index !== -1) {
         classes.value[index] = response.data.data;
       }
-      showToast("Classe mise à jour avec succès", "success");
+
+      showToast({
+        message: "Classe mise à jour avec succès.",
+        type: "success",
+      });
     } else {
+      // Nouvelle classe
+      response = await axiosInstance.post("/api/schoolClasses", formData);
       classes.value.push(response.data.data);
-      showToast("Nouvelle classe ajoutée avec succès", "success");
+
+      showToast({
+        message: "Nouvelle classe ajoutée avec succès.",
+        type: "success",
+      });
     }
+
+    await fetchClasses();
+
     isModalVisible.value = false;
   } catch (error) {
-    showToast("Erreur lors de la mise à jour de la classe", "error");
+    showToast({
+      message: "Erreur lors de la mise à jour de la classe.",
+      type: "error",
+    });
     console.error(error);
   }
 };
+
 
 onMounted(async () => {
   await fetchClasses();
@@ -218,7 +178,7 @@ onMounted(async () => {
     <div class="min-h-screen py-12 px-6">
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Classes" />
-        <NewItemButton @click="openEditModal" text="Nouvelle classe" />
+        <NewItemButton @click="openCreateModal" text="Nouvelle classe" />
       </div>
 
       <DynamicTable
@@ -228,19 +188,10 @@ onMounted(async () => {
           { key: 'year', label: 'Année' },
           { key: 'studyField', label: 'Formation' },
           { key: 'level', label: 'Niveau' },
-          { key: 'subjects', label: 'Matières' },
         ]"
         :data="classes"
         :hasActions="true"
       >
-        <template #subjects="{ row }">
-          <ul class="list-disc pl-6">
-            <li v-for="subject in row.subjects" :key="subject">
-              {{ subject }}
-            </li>
-          </ul>
-        </template>
-
         <template #actions="{ row }">
           <button
             @click="openEditModal(row)"
@@ -259,10 +210,10 @@ onMounted(async () => {
 
       <Modal
         v-model:visible="isModalVisible"
-        title="Modifier une classe"
+        :title="classToEdit ? 'Modifier une classe' : 'Nouvelle classe'"
         :fields="classFields"
         :onSubmit="updateClass"
-        :submitText="'Mettre à jour'"
+        :submitText="classToEdit ? 'Mettre à jour' : 'Créer'"
         :entityData="classToEdit"
       />
 
@@ -273,6 +224,7 @@ onMounted(async () => {
         :onConfirm="deleteClass"
       />
     </div>
+
     <Pagination
       :currentPage="currentPage"
       :totalPages="totalPages"
