@@ -18,14 +18,16 @@ import Pagination from "@/components/Pagination.vue";
 const router = useRouter();
 
 const teachers = ref([]);
+const teacherToEdit = ref(null);
+const teacherToDelete = ref(null);
+const role = ref(null);
+
 const totalPages = ref(1);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
-const teacherToEdit = ref(null);
-const teacherToDelete = ref(null);
 
 const teacherFields = [
   {
@@ -65,8 +67,10 @@ const fetchTeachers = async () => {
         limit: itemsPerPage,
       },
     });
-    
-    const filteredTeachers = response.data.data.filter((user) => user.role === "teacher");
+
+    const filteredTeachers = response.data.data.filter(
+      (user) => user.role === "teacher"
+    );
 
     teachers.value = filteredTeachers.map((user) => ({
       ...user,
@@ -75,7 +79,6 @@ const fetchTeachers = async () => {
 
     const totalItems = filteredTeachers.length;
     totalPages.value = Math.ceil(totalItems / itemsPerPage);
-
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des enseignants.",
@@ -84,7 +87,6 @@ const fetchTeachers = async () => {
     console.error(error);
   }
 };
-
 
 const openEditModal = (teacherItem) => {
   teacherToEdit.value = {
@@ -152,6 +154,11 @@ const deleteTeacher = async () => {
 };
 
 onMounted(async () => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    role.value = parsedUser.role;
+  }
   await fetchTeachers();
 });
 </script>
@@ -171,16 +178,18 @@ onMounted(async () => {
           { key: 'roleLabel', label: 'Rôle' },
         ]"
         :data="teachers"
-        :hasActions="true"
+        :hasActions="role === 'admin'"
       >
         <template #actions="{ row }">
           <button
+            v-if="role === 'admin'"
             @click="openEditModal(row)"
             class="text-blue-600 hover:text-blue-800"
           >
             <PencilIcon class="h-5 w-5" />
           </button>
           <button
+            v-if="role === 'admin'"
             @click="openDeleteModal(row)"
             class="text-red-600 hover:text-red-800"
           >
