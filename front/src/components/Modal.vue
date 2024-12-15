@@ -4,7 +4,7 @@
     class="bg-white fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-70 z-50 backdrop-blur-lg transition-all duration-300"
   >
     <div
-      class="bg-white rounded-lg w-full max-w-lg p-8 shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+      class="bg-white rounded-lg w-full max-w-lg sm:max-w-md p-8 shadow-2xl transform transition-all duration-300 scale-95 opacity-0 overflow-y-auto max-h-[80vh]"
       :class="{ 'scale-100 opacity-100': visible }"
     >
       <div class="flex justify-between items-center mb-6">

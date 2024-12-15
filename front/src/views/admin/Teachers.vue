@@ -159,9 +159,8 @@ onMounted(async () => {
 <template>
   <LayoutAuthenticated>
     <div class="min-h-screen py-12 px-6 pb-3">
-      <div class="flex justify-between items-center mb-8">
+      <div class="flex justify-center items-center mb-16">
         <PageTitle text="Intervenants" />
-        <NewItemButton @click="openEditModal" text="Nouvel Intervenant" />
       </div>
 
       <DynamicTable

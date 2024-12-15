@@ -146,13 +146,8 @@ onMounted(async () => {
 <template>
   <LayoutAuthenticated>
     <div class="min-h-screen py-12 px-6">
-      <div class="flex justify-between items-center mb-8">
+      <div class="flex justify-center items-center mb-16">
         <PageTitle text="Étudiants" />
-        <NewItemButton
-          v-if="role === 'admin' || role === 'teacher'"
-          @click="openEditModal"
-          text="Nouvel Élève"
-        />
       </div>
 
       <DynamicTable
