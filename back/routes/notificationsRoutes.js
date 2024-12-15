@@ -66,7 +66,7 @@ router.get("/", async (req, res) => {
 
     const notifications = await Notification.find()
       .populate("teacher", "firstname lastname")
-      .populate("course", "name")
+      .populate("course", "schoolClassId")
       .sort({ date: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
