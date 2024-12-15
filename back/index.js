@@ -92,8 +92,9 @@ app.use("/api/courses", courseRouter);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);
 
+
 app.use("/api/unavailabilities", (req, res, next) => {
-	if (req.method === "POST" || (req.method === "GET" && req.path === "/")) {
+	if (req.method === "POST" || req.method === "GET") {
 		return unavailabilitiesRouterCustom(req, res, next);
 	}
 
