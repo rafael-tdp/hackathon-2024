@@ -5,9 +5,9 @@ class GenericService {
 
   async getAll(req, res) {
     try {
-      const { page = 1, limit = 10 } = req.query;
+      const { page = 1, limit } = req.query;
       const pageNum = parseInt(page, 10);
-      const limitNum = parseInt(limit, 10);
+      const limitNum = limit ? parseInt(limit) : null;
       const skip = (pageNum - 1) * limitNum;
 
       const [data, total] = await Promise.all([

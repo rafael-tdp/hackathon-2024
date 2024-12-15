@@ -586,7 +586,12 @@ const ConvertToCourse = async (jsonCourses) => {
 				const classRoom = await ClassRoom.findById(workHour.classRoom);
 				const schoolClass = await SchoolClass.findById(workHour.schoolClass);
 				const teacher = await User.findById(workHour.teacher);
-				const subject = await Subject.findById(workHour.subject);
+				let subject;
+                if (Types.ObjectId.isValid(workHour.subject)) {
+                    subject = await Subject.findById(workHour.subject);
+                } else {
+                    subject = await Subject.findOne({ name: workHour.subject });
+                }
 
 				return new Course({
 					_id: new Types.ObjectId(),
@@ -607,10 +612,35 @@ const ConvertToCourse = async (jsonCourses) => {
 	}
 };
 
+const ExcludeExistingCourses = async (courses) => {
+	const existingCourses = [];
+	for (const course of courses) {
+		const existingCourse = await Course.findOne({
+			$or: [
+				{ teacher: course.teacher._id },
+				{ schoolClass: course.schoolClass._id },
+			],
+			$and: [
+				{ startTime: { $lt: course.endTime } },
+				{ endTime: { $gt: course.startTime } }
+			]
+		}).populate("teacher").populate("schoolClass");
+
+		if (existingCourse) {
+			console.log(`Le cours de ${course.subject.name} pour la classe ${course.schoolClass.name} et le professeur ${course.teacher.firstname} ${course.teacher.lastname} chevauche le cours existant du ${existingCourse.startTime.toLocaleString()} au ${existingCourse.endTime.toLocaleString()} de la classe ${existingCourse.schoolClass.name} et du professeur ${existingCourse.teacher.lastname} ${existingCourse.teacher.firstName}`);
+			existingCourses.push(course);
+		}
+	}
+
+	// Retirer les cours existants
+	return courses.filter(course => !existingCourses.includes(course));
+}
+
 module.exports = {
 	ConvertToCourse,
 	getTheoreticalScheduleBySchoolClass,
 	getTheoreticalScheduleByTeacher,
+	ExcludeExistingCourses,
 	getSubjectClassesFromClass,
 	getSubjectClassesToPlanFromClass,
 	getSubjectsFromClass,

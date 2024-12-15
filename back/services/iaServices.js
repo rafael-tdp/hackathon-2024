@@ -8,7 +8,8 @@ const openai = new OpenAI({
 });
 
 const sendRequest = async (
-	prompt
+	prompt,
+	classId,
 ) => {
 	try {
 		const response = await openai.chat.completions.create({
@@ -22,15 +23,6 @@ Based on the input data, generate a JSON object strictly in the following format
   "potentialWorkHours": [
       {
 		"subject": "", The ID of the subject being taught (e.g., "675cb61c377025cb6c72b803").
-		"teacher": "", The ID of the teacher assigned to this course (e.g., "675cb61d377025cb6c72b888").
-		"startTime": "", The starting date and time of the course, in ISO 8601 format (e.g., "2024-12-26T16:00:00.000Z").
-		"endTime": "", The ending date and time of the course, in ISO 8601 format (e.g., "2024-12-26T18:00:00.000Z").
-		"classRoom": "", The ID of the classroom where the course takes place (e.g., "675cb61c377025cb6c72b844").
-		"schoolClass": "", The ID of the school class for which the course is planned (e.g., "675cb61c377025cb6c72b85d").
-		"status": "", The ID of the school class for which the course is planned. Can be "pending", "accepted", "cancelled" (e.g., "675cb61c377025cb6c72b85d").
-      },
-      {
-        "subject": "", The ID of the subject being taught (e.g., "675cb61c377025cb6c72b803").
 		"teacher": "", The ID of the teacher assigned to this course (e.g., "675cb61d377025cb6c72b888").
 		"startTime": "", The starting date and time of the course, in ISO 8601 format (e.g., "2024-12-26T16:00:00.000Z").
 		"endTime": "", The ending date and time of the course, in ISO 8601 format (e.g., "2024-12-26T18:00:00.000Z").
@@ -98,15 +90,33 @@ Based on the input data, generate a JSON object strictly in the following format
    - Make sure that \`potentialWorkHours\` are only generated during the teacher's available hours (excluding periods in \`listOfUnavailabilities\`).
 
 ### Example Scenario:
-- A teacher is available from 10:00 to 18:00 on weekdays (Monday to Friday).
 - A subject requires 20 hours of teaching, divided into sessions lasting 1.5–3 hours each.
-- Teachers are unavailable for certain time slots, and the classroom can only be used during specified school days.
-- Based on the input data, generate multiple \`potentialWorkHours\` that respect the constraints, distribute them across several days as indicated in \`schoolWeekClass\`, and ensure no conflicts with existing courses or teacher availability.
+- Teachers are unavailable for certain time slots, as specified in \`listOfUnavailabilities\`. Any courses scheduled during these periods should be rescheduled.
+- School classes are scheduled from Monday to Friday, with no classes on weekends. Courses can be scheduled between 8:00 AM and 6:00 PM and for the days specified in \`listOfSchoolClassesDays\`.
+- Any courses can be scheduled if they do not overlap with existing courses for the same teacher or classroom, as specified in \`listOfPlannedCourses\`.
+- The teacher can teach multiple subjects, and the total number of hours for each subject must be respected.
+- Do not schedule course on days whose date is not in \`listOfSchoolClassesDays\`.
 
+Verify that the generated \`potentialWorkHours\` adhere to the constraints and provide the JSON object as output with the following structure:
+json
+{
+  "potentialWorkHours": [
+	{
+		"subject": "", The ID of the subject being taught (e.g., "675cb61c377025cb6c72b803").
+		"teacher": "", The ID of the teacher assigned to this course (e.g., "675cb61d377025cb6c72b888").
+		"startTime": "", The starting date and time of the course, in ISO 8601 format (e.g., "2024-12-26T16:00:00.000Z").
+		"endTime": "", The ending date and time of the course, in ISO 8601 format (e.g., "2024-12-26T18:00:00.000Z").
+		"classRoom": "", The ID of the classroom where the course takes place (e.g., "675cb61c377025cb6c72b844").
+		"schoolClass": "", The ID of the school class for which the course is planned (e.g., "675cb61c377025cb6c72b85d").
+		"status": "", The ID of the school class for which the course is planned. Can be "pending", "accepted", "cancelled" (e.g., "675cb61c377025cb6c72b85d").
+      },...
+	] 
+}
+ 
 `},
-				{ role: "user", content: prompt },
+				{ role: "user", content: `I want a list potential hours for the class with the following id : ${classId} and based on the following data : ${prompt}` },
 			],
-			temperature: 0.1,
+			temperature: 0.1, 
 			frequency_penalty: 0,
 			presence_penalty: 0,
 			n: 1,

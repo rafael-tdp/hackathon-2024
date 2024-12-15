@@ -24,7 +24,6 @@ const courseSchema = new mongoose.Schema(
         classRoom: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'ClassRoom',
-            required: true
         },
         schoolClass: {
             type: mongoose.Schema.Types.ObjectId,

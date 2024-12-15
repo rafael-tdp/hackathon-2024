@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
         } else {
             res.status(400).json({ error: "Missing required query parameter: teacher or user" });
         }
-        const response = await iaServices.sendRequest(JSON.stringify(schedule));
+        const response = await iaServices.sendRequest(JSON.stringify(schedule), schedule.classId);
         const parsedResponse = JSON.parse(response)
         const result = await planningServices.ConvertToCourse(parsedResponse)
         res.json(new ApiResponse({
