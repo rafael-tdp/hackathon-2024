@@ -158,18 +158,18 @@ onMounted(async () => {
           { key: 'roleLabel', label: 'Rôle' },
         ]"
         :data="students"
-        :hasActions="role === 'admin' || role === 'teacher'"
+        :hasActions="role === 'admin'"
       >
         <template #actions="{ row }">
           <button
-            v-if="role === 'admin' || role === 'teacher'"
+            v-if="role === 'admin'"
             @click="openEditModal(row)"
             class="text-blue-600 hover:text-blue-800"
           >
             <PencilIcon class="h-5 w-5" />
           </button>
           <button
-            v-if="role === 'admin' || role === 'teacher'"
+            v-if="role === 'admin'"
             @click="openDeleteModal(row)"
             class="text-red-600 hover:text-red-800"
           >

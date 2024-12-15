@@ -17,13 +17,15 @@ import Pagination from "@/components/Pagination.vue";
 const classes = ref([]);
 const classToEdit = ref(null);
 const classToDelete = ref(null);
+const role = ref(null);
+
 const totalPages = ref(1);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
-const isEditing = ref(false); 
+const isEditing = ref(false);
 
 const classFields = [
   {
@@ -128,13 +130,15 @@ const openDeleteModal = (classId) => {
   isDeleteModalVisible.value = true;
 };
 
-
 const updateClass = async (formData) => {
   try {
     let response;
     if (formData.id) {
       // Classe existante
-      response = await axiosInstance.put(`/api/schoolClasses/${formData.id}`, formData);
+      response = await axiosInstance.put(
+        `/api/schoolClasses/${formData.id}`,
+        formData
+      );
       const index = classes.value.findIndex((c) => c._id === formData.id);
       if (index !== -1) {
         classes.value[index] = response.data.data;
@@ -167,8 +171,12 @@ const updateClass = async (formData) => {
   }
 };
 
-
 onMounted(async () => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    const parsedUser = JSON.parse(storedUser);
+    role.value = parsedUser.role;
+  }
   await fetchClasses();
 });
 </script>
@@ -190,16 +198,18 @@ onMounted(async () => {
           { key: 'level', label: 'Niveau' },
         ]"
         :data="classes"
-        :hasActions="true"
+        :hasActions="role === 'admin'"
       >
         <template #actions="{ row }">
           <button
+            v-if="role === 'admin'"
             @click="openEditModal(row)"
             class="text-blue-600 hover:text-blue-800"
           >
             <PencilIcon class="h-5 w-5" />
           </button>
           <button
+            v-if="role === 'admin'"
             @click="openDeleteModal(row)"
             class="text-red-600 hover:text-red-800"
           >
