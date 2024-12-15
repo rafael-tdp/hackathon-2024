@@ -2,18 +2,24 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
-import DynamicTable from "@/components/DynamicTable.vue";
-import Modal from "@/components/Modal.vue";
-import ConfirmationModal from "@/components/ConfirmationModal.vue";
-import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
-import PageTitle from "../../components/PageTitle.vue";
-import Pagination from "@/components/Pagination.vue"; // Ajout de la pagination
+
 import axiosInstance from "@/utils/axiosInstance";
 import { showToast } from "@/utils/toast";
 
+import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
+
+import DynamicTable from "@/components/DynamicTable.vue";
+import Modal from "@/components/Modal.vue";
+import ConfirmationModal from "@/components/ConfirmationModal.vue";
+import NewItemButton from "../../components/NewItemButton.vue";
+import PageTitle from "../../components/PageTitle.vue";
+import Pagination from "@/components/Pagination.vue";
+
 const router = useRouter();
 
-const students = ref([]);
+const teachers = ref([]);
+const teacherToEdit = ref(null);
+const teacherToDelete = ref(null);
 const role = ref(null);
 
 const totalPages = ref(1);
@@ -22,11 +28,8 @@ const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
-const studentToEdit = ref(null);
-const studentToDelete = ref(null);
 
-// Students columns dashboard
-const studentFields = [
+const teacherFields = [
   {
     name: "firstname",
     label: "Prénom",
@@ -50,9 +53,14 @@ const studentFields = [
   },
 ];
 
-const fetchStudents = async () => {
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchTeachers();
+};
+
+const fetchTeachers = async () => {
   try {
-    // On passe les paramètres de page et de limite à l'API
     const response = await axiosInstance.get("/api/users", {
       params: {
         page: currentPage.value,
@@ -60,79 +68,85 @@ const fetchStudents = async () => {
       },
     });
 
-    const filteredStudents = response.data.data.filter(
-      (user) => user.role === "student"
+    const filteredTeachers = response.data.data.filter(
+      (user) => user.role === "teacher"
     );
 
-    students.value = filteredStudents.map((user) => ({
+    teachers.value = filteredTeachers.map((user) => ({
       ...user,
-      roleLabel: "Élève",
+      roleLabel: "Intervenant",
     }));
 
-    // Calcul du nombre total de pages en fonction du nombre total d'étudiants
-    const totalItems = response.data.total; // Assure-toi que ton API renvoie le total des éléments
+    const totalItems = filteredTeachers.length;
     totalPages.value = Math.ceil(totalItems / itemsPerPage);
   } catch (error) {
     showToast({
-      message: "Erreur lors du chargement des étudiants.",
+      message: "Erreur lors du chargement des enseignants.",
       type: "error",
     });
     console.error(error);
   }
 };
 
-// Handle page change
-const handlePageChange = (newPage) => {
-  if (newPage < 1 || newPage > totalPages.value) return;
-  currentPage.value = newPage;
-  fetchStudents();
-};
-
-const openEditModal = (studentItem) => {
-  studentToEdit.value = { ...studentItem };
+const openEditModal = (teacherItem) => {
+  teacherToEdit.value = {
+    ...teacherItem,
+  };
   isModalVisible.value = true;
 };
 
-const openDeleteModal = (studentItem) => {
-  studentToDelete.value = studentItem;
+const openDeleteModal = (teacherItem) => {
+  teacherToDelete.value = teacherItem;
   isDeleteModalVisible.value = true;
 };
 
-const updateStudent = async (formData) => {
+const updateTeacher = async (formData) => {
   try {
     if (formData._id) {
       await axiosInstance.put(`/api/users/${formData._id}`, formData);
-      const index = students.value.findIndex((u) => u._id === formData._id);
+      const index = teachers.value.findIndex((u) => u._id === formData._id);
       if (index !== -1) {
-        students.value[index] = { ...formData, roleLabel: "Élève" };
+        teachers.value[index] = {
+          ...formData,
+          roleLabel: "Intervenant",
+        };
       }
-      showToast({ message: "Élève mis à jour avec succès.", type: "success" });
+      showToast({
+        message: "Intervenant mis à jour avec succès.",
+        type: "success",
+      });
     } else {
       const response = await axiosInstance.post("/api/users", formData);
-      students.value.push({ ...response.data.data, roleLabel: "Élève" });
-      showToast("Nouvel élève ajouté avec succès", "success");
+      teachers.value.push({
+        ...response.data.data,
+        roleLabel: "Intervenant",
+      });
+      showToast("Nouvel intervenant ajouté avec succès", "success");
     }
     isModalVisible.value = false;
   } catch (error) {
     showToast({
-      message: "Erreur lors de la sauvegarde de l'élève.",
+      message: "Erreur lors de la sauvegarde de l'enseignant.",
       type: "error",
     });
     console.error(error);
   }
 };
 
-const deleteStudent = async () => {
+const deleteTeacher = async () => {
   try {
-    await axiosInstance.delete(`/api/users/${studentToDelete.value._id}`);
-    students.value = students.value.filter(
-      (u) => u._id !== studentToDelete.value._id
+    await axiosInstance.delete(`/api/users/${teacherToDelete.value._id}`);
+    teachers.value = teachers.value.filter(
+      (u) => u._id !== teacherToDelete.value._id
     );
     isDeleteModalVisible.value = false;
-    showToast({ message: "Élève supprimé avec succès.", type: "success" });
+    showToast({
+      message: "Intervenant supprimé avec succès.",
+      type: "success",
+    });
   } catch (error) {
     showToast({
-      message: "Erreur lors de la suppression de l'élève.",
+      message: "Erreur lors de la suppression de l'intervenant.",
       type: "error",
     });
     console.error(error);
@@ -145,15 +159,15 @@ onMounted(async () => {
     const parsedUser = JSON.parse(storedUser);
     role.value = parsedUser.role;
   }
-  await fetchStudents();
+  await fetchTeachers();
 });
 </script>
 
 <template>
   <LayoutAuthenticated>
-    <div class="min-h-screen py-12 px-6">
+    <div class="min-h-screen py-12 px-6 pb-3">
       <div class="flex justify-center items-center mb-16">
-        <PageTitle text="Étudiants" />
+        <PageTitle text="Intervenants" />
       </div>
 
       <DynamicTable
@@ -163,7 +177,7 @@ onMounted(async () => {
           { key: 'email', label: 'Email' },
           { key: 'roleLabel', label: 'Rôle' },
         ]"
-        :data="students"
+        :data="teachers"
         :hasActions="role === 'admin'"
       >
         <template #actions="{ row }">
@@ -186,26 +200,24 @@ onMounted(async () => {
 
       <Modal
         v-model:visible="isModalVisible"
-        title="Modifier un élève"
-        :fields="studentFields"
-        :onSubmit="updateStudent"
+        title="Modifier un intervenant"
+        :fields="teacherFields"
+        :onSubmit="updateTeacher"
         :submitText="'Mettre à jour'"
-        :entityData="studentToEdit"
+        :entityData="teacherToEdit"
       />
 
       <ConfirmationModal
         v-model:visible="isDeleteModalVisible"
-        title="Supprimer un élève"
-        :message="'Êtes-vous sûr de vouloir supprimer cet élève ?'"
-        :onConfirm="deleteStudent"
-      />
-
-      <!-- Pagination component -->
-      <Pagination
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        @update:currentPage="handlePageChange"
+        title="Supprimer un intervenant"
+        :message="'Êtes-vous sûr de vouloir supprimer cet intervenant ?'"
+        :onConfirm="deleteTeacher"
       />
     </div>
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>

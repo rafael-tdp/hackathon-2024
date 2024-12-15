@@ -9,7 +9,6 @@ import NewItemButton from "../components/NewItemButton.vue";
 import PageTitle from "../components/PageTitle.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import { Draggable } from "@fullcalendar/interaction";
-import moment from 'moment-timezone';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -32,7 +31,7 @@ const state = reactive({
 const teachers = ref([]);
 const classRooms = ref([]);
 const schoolClasses = ref([]);
-const status = ref([]); 
+const status = ref([]);
 const subjects = ref([]);
 const isValidationModalVisible = ref(false);
 const isLoading = ref(false);
@@ -42,7 +41,6 @@ const eventsToReplace = ref([]);
 
 const validateGeneratedCourses = async () => {
 	try {
-		console.log("state.generatedCourses : ", state.generatedCourses);
 		await axios.post(
 			`${BASE_URL}/api/courses/validation`,
 			state.generatedCourses
@@ -180,14 +178,14 @@ const fetchCourses = async () => {
 
 const enrichGeneratedCourse = (course) => {
 	const schoolClass = schoolClasses.value.find(
-		(c) => c._id === course.schoolClass
+		(c) => c._id === course.schoolClass.id
 	);
 
 	const classRoom = classRooms.value.find(
-		(r) => r._id === course.classRoom
+		(r) => r._id === course.classRoom.id
 	);
-	const teacher = teachers.value.find((t) => t._id === course.teacher);
-	const subject = subjects.value.find((s) => s._id === course.subject);
+	const teacher = teachers.value.find((t) => t._id === course.teacher.id);
+	const subject = subjects.value.find((s) => s._id === course.subject.id);
 
 	return {
 		...course,
@@ -201,83 +199,41 @@ const enrichGeneratedCourse = (course) => {
 const generateCourses = async () => {
 	isLoading.value = true;
 	try {
-		// const response = await axios.get(
-		// 	`${BASE_URL}/api/planning?schoolClass=${state.selectedFilters.classId}`
-		// );
-		// const rawGeneratedCourses = response.data.data.potentialWorkHours;
-    
-		// // Enrichir les données des cours générés
-		// state.generatedCourses = rawGeneratedCourses.map(enrichGeneratedCourse);
-    
-		// // Ajouter les cours générés à la liste des événements
-		// state.courses = [
-		// 	...state.courses,
-		// 	...state.generatedCourses.map((course) => ({
-		// 		id: `generated-${Math.random().toString(36).substring(2)}`,
-		// 		title: `Classe: ${
-		// 			course.schoolClass?.name || "Inconnue"
-		// 		}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
-		// 			course.teacher?.firstname || "Professeur inconnu"
-		// 		} ${course.teacher?.lastname || ""}<br>Salle: ${
-		// 			course.classRoom?.name || "Non attribuée"
-		// 		}`,
-		// 		start: course.startTime,
-		// 		end: course.endTime,
-		// 		classRoom: course.classRoom,
-		// 		teacher: course.teacher,
-		// 		subject: course.subject,
-		// 		schoolClass: course.schoolClass,
-		// 		status: course.status,
-		// 		backgroundColor:
-		// 			course.status === "cancelled" ? "rgb(239 68 68)" : "#b8c130",
-		// 		display: {
-		// 			backgroundColor:
-		// 				course.status === "cancelled" ? "red" : "green",
-		// 		},
-		// 	})),
-		// ];
+		const response = await axios.get(
+			`${BASE_URL}/api/planning/${state.selectedFilters.schoolClassId}`
+		);
+		const rawGeneratedCourses = response.data.data.potentialWorkHours;
 
+		// Enrichir les données des cours générés
+		state.generatedCourses = rawGeneratedCourses.map(enrichGeneratedCourse);
 
-    const response = await axios.get(
-        `${BASE_URL}/api/planning?schoolClass=${state.selectedFilters.classId}`
-    );
-    const potentialWorkHours = response.data.data;
-    console.log("potentialWorkHours : ", potentialWorkHours)
-    state.generatedCourses = potentialWorkHours.map((course) => {
-
-		return {
-			id: course._id,
-			title: `Classe: ${
-				course.schoolClass?.name || "Inconnue"
-			}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
-				course.teacher?.firstname || "Professeur inconnu"
-			} ${course.teacher?.lastname || ""}<br>Salle: ${
-				course.classRoom?.name || "Non attribuée"
-			}`,
-			start: course.startTime,
-			end: course.endTime,
-			classRoom: course.classRoom,
-			teacher: course.teacher,
-			subject: course.subject,
-			schoolClass: course.schoolClass,
-			status: course.status,
-			backgroundColor:
-				course.status === "cancelled" ? "rgb(239 68 68)" : "#b8c130",
-			display: {
-			backgroundColor:
-				course.status === "cancelled" ? "red" : "green",
-			},
-		};
-    });
-    console.log("state.generatedCourses : ", state.generatedCourses)
-
-    // Ajouter les cours générés à la liste des événements
-    state.courses = [
-      ...state.courses,
-      ...state.generatedCourses
-    ];
-
-    // console.log("Events : ", state.courses);
+		// Ajouter les cours générés à la liste des événements
+		state.courses = [
+			...state.courses,
+			...state.generatedCourses.map((course) => ({
+				id: `generated-${Math.random().toString(36).substring(2)}`,
+				title: `Classe: ${
+					course.schoolClass?.name || "Inconnue"
+				}<br>Cours: ${course.subject?.name || "Inconnu"}<br>Prof: ${
+					course.teacher?.firstname || "Professeur inconnu"
+				} ${course.teacher?.lastname || ""}<br>Salle: ${
+					course.classRoom?.name || "Non attribuée"
+				}`,
+				start: course.startTime,
+				end: course.endTime,
+				classRoom: course.classRoom,
+				teacher: course.teacher,
+				subject: course.subject,
+				schoolClass: course.schoolClass,
+				status: course.status,
+				backgroundColor:
+					course.status === "cancelled" ? "rgb(239 68 68)" : "#b8c130",
+				display: {
+					backgroundColor:
+						course.status === "cancelled" ? "red" : "green",
+				},
+			})),
+		];
 	} catch (error) {
 		console.error("Erreur lors de la génération des cours :", error);
 		alert("Une erreur s'est produite lors de la génération des cours.");
