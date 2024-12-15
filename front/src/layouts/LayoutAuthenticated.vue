@@ -100,6 +100,12 @@ const navigation = [
     icon: BookOpenIcon,
     current: router.currentRoute.value.path === "/unavailabilities",
   },
+  {
+    name: "Préférences",
+    href: "/preferences",
+    icon: UsersIcon,
+    current: router.currentRoute.value.path === "/preferences",
+  },
 ];
 
 const filteredNavigation = computed(() => {

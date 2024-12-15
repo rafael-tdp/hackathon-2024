@@ -190,7 +190,7 @@ const fetchUnavailabilities = async () => {
         `${item.teacher.firstname} ${item.teacher.lastname}` || "Inconnu",
     }));
 
-    totalPages.value = response.data.totalPages; // Assurez-vous que l'API renvoie totalPages
+    totalPages.value = response.data.totalPages; 
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des indisponibilités.",
