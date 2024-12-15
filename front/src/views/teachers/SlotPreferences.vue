@@ -9,27 +9,42 @@
       <DynamicTable
         :columns="tableColumns"
         :data="preferences"
-        :hasActions="false"
+        :hasActions="role === 'admin'"
         class="table-auto w-full border-collapse text-sm text-gray-600"
       >
-        <template #default="{ row }">
-          <tr class="hover:bg-gray-100">
-            <td class="px-4 py-2 border-b text-left">
-              {{ row.startTime }} - {{ row.endTime }}
-            </td>
-            <td v-if="role === 'admin'" class="px-4 py-2 border-b text-left">
-              {{ row.teacher || "Inconnu" }}
-            </td>
-          </tr>
-        </template>
+      <template #actions="{ row }">
+          <button
+            v-if="role === 'admin'"
+            @click="openEditModal(row)"
+            class="text-blue-600 hover:text-blue-800"
+          >
+            <PencilIcon class="h-5 w-5" />
+          </button>
+          <button
+            v-if="role === 'admin'"
+            @click="openDeleteModal(row)"
+            class="text-red-600 hover:text-red-800"
+          >
+            <TrashIcon class="h-5 w-5" />
+          </button>
+          </template>
       </DynamicTable>
 
+   
       <Modal
         v-model:visible="isModalVisible"
-        title="Ajouter une Préférence de Créneau"
+        title="Modifier une préférence de crénéau"
         :fields="modalFieldsDynamic"
-        :onSubmit="handleSubmit"
-        submitText="Confirmer"
+        :onSubmit="updatePreference"
+        :submitText="'Mettre à jour'"
+        :entityData="studentToEdit"
+      />
+
+      <ConfirmationModal
+        v-model:visible="isDeleteModalVisible"
+        title="Supprimer une préférence"
+        :message="'Êtes-vous sûr de vouloir supprimer cette préférence de créneau ?'"
+        :onConfirm="deletePreference"
       />
 
       <Pagination
@@ -45,6 +60,8 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
+import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
+
 import axiosInstance from "@/utils/axiosInstance";
 import { showToast } from "@/utils/toast";
 
@@ -61,6 +78,9 @@ const totalPages = ref(1);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 const isModalVisible = ref(false);
+const isDeleteModalVisible = ref(false);
+const preferenceToDelete = ref(null);
+
 
 const tableColumns = computed(() => {
   const baseColumns = [
@@ -75,8 +95,7 @@ const tableColumns = computed(() => {
   return baseColumns;
 });
 
-const modalFieldsDynamic = computed(() => {
-  const fields = [
+const modalFieldsDynamic  = [
     {
       name: "startTime",
       label: "Date et Heure de Début",
@@ -90,9 +109,8 @@ const modalFieldsDynamic = computed(() => {
       required: true,
     },
   ];
-
   if (role.value === "admin") {
-    fields.push({
+    modalFieldsDynamic.push({
       name: "teacher",
       label: "Intervenant",
       type: "select",
@@ -101,13 +119,17 @@ const modalFieldsDynamic = computed(() => {
     });
   }
 
-  return fields;
-});
 
 const openModal = () => {
   isModalVisible.value = true;
 };
 
+
+const openDeleteModal = (preferenceItem) => {
+  preferenceToDelete.value = preferenceItem;
+  isDeleteModalVisible.value = true;
+};
+ 
 const fetchPreferences = async () => {
   try {
     const response = await axiosInstance.get("/api/slotPreferences", {
@@ -134,6 +156,47 @@ const handlePageChange = (newPage) => {
   if (newPage < 1 || newPage > totalPages.value) return;
   currentPage.value = newPage;
   fetchPreferences();
+};
+
+const updatePreference = async (formData) => {
+  try {
+    // if (formData._id) {
+    //   await axiosInstance.put(`/api/users/${formData._id}`, formData);
+    //   const index = students.value.findIndex((u) => u._id === formData._id);
+    //   if (index !== -1) {
+    //     students.value[index] = { ...formData, roleLabel: "Élève" };
+    //   }
+    //   showToast({ message: "Élève mis à jour avec succès.", type: "success" });
+    // } else {
+    //   const response = await axiosInstance.post("/api/users", formData);
+    //   students.value.push({ ...response.data.data, roleLabel: "Élève" });
+    //   showToast("Nouvel élève ajouté avec succès", "success");
+    // }
+    isModalVisible.value = false;
+  } catch (error) {
+    showToast({
+      message: "Erreur lors de la sauvegarde de l'élève.",
+      type: "error",
+    });
+    console.error(error);
+  }
+};
+
+const deletePreference = async () => {
+  try {
+    // await axiosInstance.delete(`/api/users/${studentToDelete.value._id}`);
+    // students.value = students.value.filter(
+    //   (u) => u._id !== studentToDelete.value._id
+    // );
+    // isDeleteModalVisible.value = false;
+    showToast({ message: "Élève supprimé avec succès.", type: "success" });
+  } catch (error) {
+    showToast({
+      message: "Erreur lors de la suppression de l'élève.",
+      type: "error",
+    });
+    console.error(error);
+  }
 };
 
 onMounted(async () => {
