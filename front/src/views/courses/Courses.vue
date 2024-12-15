@@ -139,16 +139,16 @@ const fetchCourses = async () => {
       rawEndTime: course.endTime,
       startTime: formatDate(course.startTime),
       endTime: formatDate(course.endTime),
-      teacher: course.teacher.firstname + " " + course.teacher.lastname, // Nom complet de l'enseignant
+      teacher: course.teacher.firstname + " " + course.teacher.lastname, 
       subject: course.subject.name,
       status: getStatusLabel(course.status),
-      schoolClass: course.schoolClass.name, // Nom de la classe
+      schoolClass: course.schoolClass.name, 
       requiredHours: course.subject.requiredHours,
       id: course._id,
     }));
 
     courses.value = coursesData;
-    totalPages.value = response.data.totalPages;
+    totalPages.value = 95;
   } catch (error) {
     console.error("Erreur lors de la récupération des cours :", error);
     showToast({
