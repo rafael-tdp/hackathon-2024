@@ -83,9 +83,9 @@ const createClasses = async () => {
         const graduatingList = await Graduating.find();
 
         const weekClassesMap = {
-            IW: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49],
+            IW: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52],
             Security: [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50],
-            Cloud: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48],
+            Cloud: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51],
         };
 
         const schoolClasses = [];
@@ -96,7 +96,7 @@ const createClasses = async () => {
             const nbClasses = 2;
             for (let i = 0; i < nbClasses; i++) {
                 const schoolClass = {
-                    name: `${graduating.studyField} ${graduating.level} - Class ${i + 1}`,
+                    name: `${graduating.level}-${graduating.studyField}-${i + 1}`,
                     nbStudents: Math.floor(Math.random() * 20) + 20,
                     year: new Date().getFullYear(),
                     graduating: graduating._id,
@@ -223,7 +223,6 @@ const createCourses = async () => {
         const subjectHoursTracker = {};
         const subjectListByClass = {};
 
-        // Générer la liste des matières par classe
         for (const schoolClass of schoolClasses) {
             const promo = await Graduating.findOne({ _id: schoolClass.graduating }).populate("subjects");
             subjectListByClass[schoolClass._id] = promo.subjects;
@@ -235,8 +234,8 @@ const createCourses = async () => {
         const twoMonthsFromNow = new Date();
         twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 2);
 
-        // Suivi des horaires occupés par chaque enseignant
         const teacherSchedules = {};
+        const classSchedules = {};
 
         for (const schoolClass of schoolClasses) {
             const classWeeks = schoolClass.weekClasses;
@@ -244,18 +243,17 @@ const createCourses = async () => {
 
             for (const week of classWeeks) {
                 for (let day = 1; day <= 5; day++) {
-                    const numCourses = Math.floor(Math.random() * 2) + 1; // 1 ou 2 cours par jour
-
+                    const numCourses = faker.number.int({min: 0, max: 2});
                     for (let i = 0; i < numCourses; i++) {
-                        const duration = Math.floor(Math.random() * 4) + 1; // Durée du cours
+                        const duration = faker.number.int({min: 1, max: 4})
 
                         let startHour;
                         do {
-                            startHour = Math.floor(Math.random() * 9) + 8; // Horaire de début entre 8h et 16h
-                        } while (startHour === 12); // Pas de cours à 12h
+                            startHour = Math.floor(Math.random() * 9) + 8;
+                        } while (startHour === 12 || (startHour < 12 && startHour + duration > 12));
 
                         const startTime = new Date(schoolYearStart);
-                        startTime.setUTCDate(startTime.getUTCDate() + (week - 1) * 7 + day - 1);
+                        startTime.setUTCDate(startTime.getUTCDate() + (week) * 7 + day - 1);
                         startTime.setUTCHours(startHour, 0, 0, 0);
 
                         if (startTime > twoMonthsFromNow) continue;
@@ -265,7 +263,6 @@ const createCourses = async () => {
 
                         const subject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
 
-                        // Trouver un enseignant pour la matière
                         const teacherSubject = teacherSubjects.find(ts =>
                             ts.subjects.some(subjectItem => subjectItem._id.toString() === subject._id.toString())
                         );
@@ -277,7 +274,6 @@ const createCourses = async () => {
 
                         const teacher = teacherSubject.user._id;
 
-                        // Vérifier si l'enseignant est déjà occupé pendant ce créneau horaire
                         if (teacherSchedules[teacher]) {
                             const isTeacherOccupied = teacherSchedules[teacher].some(occupiedSlot => {
                                 return (
@@ -289,13 +285,30 @@ const createCourses = async () => {
 
                             if (isTeacherOccupied) {
                                 console.warn(`Teacher ${teacher} is already scheduled for a course at this time.`);
-                                continue; // Skip if the teacher is already busy
+                                continue;
                             }
                         }
 
-                        // Si l'enseignant est libre, ajouter le cours
+                        if (classSchedules[schoolClass._id]) {
+                            const isClassOccupied = classSchedules[schoolClass._id].some(occupiedSlot => {
+                                return (
+                                    (startTime >= occupiedSlot.startTime && startTime < occupiedSlot.endTime) ||
+                                    (endTime > occupiedSlot.startTime && endTime <= occupiedSlot.endTime) ||
+                                    (startTime <= occupiedSlot.startTime && endTime >= occupiedSlot.endTime)
+                                );
+                            });
+
+                            if (isClassOccupied) {
+                                console.warn(`Class ${schoolClass._id} is already scheduled for a course at this time.`);
+                                continue;
+                            }
+                        }
+
                         teacherSchedules[teacher] = teacherSchedules[teacher] || [];
                         teacherSchedules[teacher].push({ startTime, endTime });
+
+                        classSchedules[schoolClass._id] = classSchedules[schoolClass._id] || [];
+                        classSchedules[schoolClass._id].push({ startTime, endTime });
 
                         const room = rooms[Math.floor(Math.random() * rooms.length)];
 
