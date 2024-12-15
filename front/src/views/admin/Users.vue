@@ -107,6 +107,12 @@ const openEditModal = (userItem) => {
   isModalVisible.value = true;
 };
 
+const openCreateModal = () => {
+  userToEdit.value = null;
+  isModalVisible.value = true;
+};
+
+
 const mapRoleToValue = (roleLabel) => {
   switch (roleLabel) {
     case "Administrateur":
@@ -128,6 +134,7 @@ const openDeleteModal = (userItem) => {
 const updateUser = async (formData) => {
   try {
     if (formData._id) {
+      // existed user
       await axiosInstance.put(`/api/users/${formData._id}`, formData);
       const index = users.value.findIndex((u) => u._id === formData._id);
       if (index !== -1) {
@@ -142,12 +149,16 @@ const updateUser = async (formData) => {
         type: "success",
       });
     } else {
-      const response = await axiosInstance.post("/api/users", formData);
+      // new user
+      const response = await axiosInstance.post("/api/notifications/create-user", formData);
       users.value.push({
         ...response.data.data,
         role: getRoleLabel(response.data.data.role),
       });
-      showToast("Nouvel utilisateur ajouté avec succès", "success");
+      showToast({
+        message: "Nouvel utilisateur créé avec succès. Un email a été envoyé.",
+        type: "success",
+      });
     }
     isModalVisible.value = false;
   } catch (error) {
@@ -158,6 +169,7 @@ const updateUser = async (formData) => {
     console.error(error);
   }
 };
+
 
 const deleteUser = async () => {
   try {
@@ -193,7 +205,7 @@ const handlePageChange = (newPage) => {
     <div class="min-h-screen py-12 px-6 pb-3">
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Utilisateurs" />
-        <NewItemButton @click="openEditModal" text="Nouvel Utilisateur" />
+        <NewItemButton @click="openCreateModal" text="Nouvel Utilisateur" />
       </div>
 
       <DynamicTable
@@ -224,10 +236,10 @@ const handlePageChange = (newPage) => {
 
       <Modal
         v-model:visible="isModalVisible"
-        title="Modifier un utilisateur"
+        :title="userToEdit ? 'Modifier un utilisateur' : 'Créer un utilisateur'"
         :fields="userFields"
         :onSubmit="updateUser"
-        :submitText="'Mettre à jour'"
+        :submitText="userToEdit ? 'Mettre à jour' : 'Créer'"
         :entityData="userToEdit"
       />
 

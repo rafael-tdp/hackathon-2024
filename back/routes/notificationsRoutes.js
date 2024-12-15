@@ -165,4 +165,79 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.post("/create-user", async (req, res) => {
+  try {
+    const { email, role, firstname, lastname } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json(
+        new ApiResponse({
+          success: false,
+          message: "Un utilisateur avec cet email existe déjà.",
+        })
+      );
+    }
+
+    const generateRandomPassword = () => {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+      return Array.from(
+        { length: 10 },
+        () => chars[Math.floor(Math.random() * chars.length)]
+      ).join("");
+    };
+
+    const password = generateRandomPassword();
+
+    const newUser = new User({
+      email,
+      role,
+      firstname,
+      lastname,
+      password, 
+    });
+
+
+    await newUser.save();
+
+    const emailSubject = "Bienvenue ! Votre compte a été créé";
+    const emailText = `
+      Bonjour ${firstname} ${lastname},
+
+      Votre compte a été créé avec succès. Voici vos identifiants :
+
+      - Email : ${email}
+      - Mot de passe : ${password}
+
+      Merci de vous connecter dès que possible et de modifier votre mot de passe pour sécuriser votre compte.
+
+      Cordialement,
+      L'équipe.
+    `;
+
+    await sendEmail({
+      to: email,
+      subject: emailSubject,
+      text: emailText,
+    });
+
+    res.status(201).json(
+      new ApiResponse({
+        success: true,
+        message: "Utilisateur créé et email envoyé avec succès.",
+        data: newUser,
+      })
+    );
+  } catch (error) {
+    console.error("Erreur lors de la création de l'utilisateur :", error);
+    res.status(500).json(
+      new ApiResponse({
+        success: false,
+        message: "Erreur lors de la création de l'utilisateur",
+      })
+    );
+  }
+});
+
 module.exports = router;
