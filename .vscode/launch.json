@@ -1,10 +1,19 @@
 {
     "configurations": [
+        
+
         {
             "type": "node-terminal",
             "name": "back",
             "request": "launch",
             "command": "npm run dev",
+            "cwd": "${workspaceFolder}\\back"
+        },
+        {
+            "type": "node-terminal",
+            "name": "fixture",
+            "request": "launch",
+            "command": "npm run fixture",
             "cwd": "${workspaceFolder}\\back"
         },
         {

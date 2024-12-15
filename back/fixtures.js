@@ -83,9 +83,9 @@ const createClasses = async () => {
         const graduatingList = await Graduating.find();
 
         const weekClassesMap = {
-            IW: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52],
-            Security: [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 38, 41, 44, 47, 50],
-            Cloud: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51],
+            IW: [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 37, 40, 43, 46, 49, 52],
+            Security: [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 38, 41, 44, 47, 50],
+            Cloud: [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35, 36, 39, 42, 45, 48, 51],
         };
 
         const schoolClasses = [];
@@ -232,7 +232,7 @@ const createCourses = async () => {
 
         const schoolYearStart = new Date("2024-09-02T00:00:00Z");
         const twoMonthsFromNow = new Date();
-        twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 2);
+        twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 4);
 
         const teacherSchedules = {};
         const classSchedules = {};
@@ -243,86 +243,96 @@ const createCourses = async () => {
 
             for (const week of classWeeks) {
                 for (let day = 1; day <= 5; day++) {
-                    const numCourses = faker.number.int({min: 0, max: 2});
+                    const numCourses = faker.number.int({ min: 0, max: 2 });
+                    const yearOfWeek = week > 35 ? 2024 : 2025;
+                    function getFirstThursday(year) {
+                        const jan1 = new Date(Date.UTC(year, 0, 1));
+                        const dayOfWeek = jan1.getUTCDay();
+                        const offset = (dayOfWeek <= 4 ? 4 - dayOfWeek : 11 - dayOfWeek); // Distance to the first Thursday
+                        jan1.setUTCDate(jan1.getUTCDate() + offset);
+                        return jan1;
+                    }
+
+                    // Get the first Monday of the first ISO week
+                    const firstThursday = getFirstThursday(yearOfWeek);
+                    const firstMonday = new Date(firstThursday);
+                    firstMonday.setUTCDate(firstThursday.getUTCDate() - 3); // Go back to the Monday of the same week
+
                     for (let i = 0; i < numCourses; i++) {
-                        const duration = faker.number.int({min: 1, max: 4})
+                        let attempts = 0;
+                        const maxAttempts = 10; // Limiter les tentatives pour éviter des boucles infinies
+                        let scheduled = false;
 
-                        let startHour;
-                        do {
-                            startHour = Math.floor(Math.random() * 9) + 8;
-                        } while (startHour === 12 || (startHour < 12 && startHour + duration > 12));
+                        while (attempts < maxAttempts && !scheduled) {
+                            attempts++;
 
-                        const startTime = new Date(schoolYearStart);
-                        startTime.setUTCDate(startTime.getUTCDate() + (week) * 7 + day - 1);
-                        startTime.setUTCHours(startHour, 0, 0, 0);
+                            const duration = faker.number.int({ min: 1, max: 4 });
+                            let startHour;
 
-                        if (startTime > twoMonthsFromNow) continue;
+                            do {
+                                startHour = Math.floor(Math.random() * 9) + 7; 
+                            } while (startHour === 12 || (startHour < 12 && startHour + duration > 12));
 
-                        const endTime = new Date(startTime);
-                        endTime.setUTCHours(startHour + duration);
 
-                        const subject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
+                            // Calculate the start and end of the requested week
+                            const startTime = new Date(firstMonday);
+                            startTime.setUTCDate(startTime.getUTCDate() + ((week - 1) * 7) + day - 1);
+                            startTime.setUTCHours(startHour, 0, 0, 0);
 
-                        const teacherSubject = teacherSubjects.find(ts =>
-                            ts.subjects.some(subjectItem => subjectItem._id.toString() === subject._id.toString())
-                        );
+                            if (startTime > twoMonthsFromNow) break;
 
-                        if (!teacherSubject) {
-                            console.warn(`No teacher found for subject: ${subject.name}`);
-                            continue;
-                        }
+                            const endTime = new Date(startTime);
+                            endTime.setUTCHours(startHour + duration);
 
-                        const teacher = teacherSubject.user._id;
+                            const subject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
+                            const teacherSubject = teacherSubjects.find(ts =>
+                                ts.subjects.some(subjectItem => subjectItem._id.toString() === subject._id.toString())
+                            );
 
-                        if (teacherSchedules[teacher]) {
-                            const isTeacherOccupied = teacherSchedules[teacher].some(occupiedSlot => {
-                                return (
-                                    (startTime >= occupiedSlot.startTime && startTime < occupiedSlot.endTime) ||
-                                    (endTime > occupiedSlot.startTime && endTime <= occupiedSlot.endTime) ||
-                                    (startTime <= occupiedSlot.startTime && endTime >= occupiedSlot.endTime)
-                                );
+                            if (!teacherSubject) {
+                                console.warn(`No teacher found for subject: ${subject.name}`);
+                                break;
+                            }
+
+                            const teacher = teacherSubject.user._id;
+
+                            const isTeacherOccupied = teacherSchedules[teacher]?.some(occupiedSlot => (
+                                (startTime >= occupiedSlot.startTime && startTime < occupiedSlot.endTime) ||
+                                (endTime > occupiedSlot.startTime && endTime <= occupiedSlot.endTime) ||
+                                (startTime <= occupiedSlot.startTime && endTime >= occupiedSlot.endTime)
+                            ));
+
+                            const isClassOccupied = classSchedules[schoolClass._id]?.some(occupiedSlot => (
+                                (startTime >= occupiedSlot.startTime && startTime < occupiedSlot.endTime) ||
+                                (endTime > occupiedSlot.startTime && endTime <= occupiedSlot.endTime) ||
+                                (startTime <= occupiedSlot.startTime && endTime >= occupiedSlot.endTime)
+                            ));
+
+                            if (isTeacherOccupied || isClassOccupied) {
+                                continue; // Reessayer un nouveau créneau
+                            }
+
+                            teacherSchedules[teacher] = teacherSchedules[teacher] || [];
+                            teacherSchedules[teacher].push({ startTime, endTime });
+
+                            classSchedules[schoolClass._id] = classSchedules[schoolClass._id] || [];
+                            classSchedules[schoolClass._id].push({ startTime, endTime });
+
+                            const room = rooms[Math.floor(Math.random() * rooms.length)];
+
+                            courses.push({
+                                subject: subject._id,
+                                teacher: teacher,
+                                startTime,
+                                endTime,
+                                classRoom: room._id,
+                                schoolClass: schoolClass._id,
+                                status: startTime < new Date() ? Math.random() < 0.9 ? CourseStatus.ACCEPTED : CourseStatus.CANCELLED : CourseStatus.PENDING,
                             });
 
-                            if (isTeacherOccupied) {
-                                console.warn(`Teacher ${teacher} is already scheduled for a course at this time.`);
-                                continue;
-                            }
+                            subjectHoursTracker[subject._id] = (subjectHoursTracker[subject._id] || 0) + duration;
+                            scheduled = true; // Créneau trouvé et planifié
                         }
-
-                        if (classSchedules[schoolClass._id]) {
-                            const isClassOccupied = classSchedules[schoolClass._id].some(occupiedSlot => {
-                                return (
-                                    (startTime >= occupiedSlot.startTime && startTime < occupiedSlot.endTime) ||
-                                    (endTime > occupiedSlot.startTime && endTime <= occupiedSlot.endTime) ||
-                                    (startTime <= occupiedSlot.startTime && endTime >= occupiedSlot.endTime)
-                                );
-                            });
-
-                            if (isClassOccupied) {
-                                console.warn(`Class ${schoolClass._id} is already scheduled for a course at this time.`);
-                                continue;
-                            }
-                        }
-
-                        teacherSchedules[teacher] = teacherSchedules[teacher] || [];
-                        teacherSchedules[teacher].push({ startTime, endTime });
-
-                        classSchedules[schoolClass._id] = classSchedules[schoolClass._id] || [];
-                        classSchedules[schoolClass._id].push({ startTime, endTime });
-
-                        const room = rooms[Math.floor(Math.random() * rooms.length)];
-
-                        courses.push({
-                            subject: subject._id,
-                            teacher: teacher,
-                            startTime,
-                            endTime,
-                            classRoom: room._id,
-                            schoolClass: schoolClass._id,
-                            status: startTime < new Date() ? Math.random() < 0.9 ? CourseStatus.ACCEPTED : CourseStatus.CANCELLED : CourseStatus.PENDING,
-                        });
-
-                        subjectHoursTracker[subject._id] = (subjectHoursTracker[subject._id] || 0) + duration;
                     }
                 }
             }

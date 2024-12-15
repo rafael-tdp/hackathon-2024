@@ -1,6 +1,7 @@
 const SchoolClass = require("../models/schoolClass");
 const Subject = require("../models/subject");
 const Course = require("../models/course");
+const User = require("../models/user");
 
 const getStats = async () => {
 	const schoolClasses = await SchoolClass.find().populate("graduating");
@@ -45,12 +46,18 @@ const getStats = async () => {
 	]);
 
 	const totalSubjects = await Subject.countDocuments();
+	const totalCourses = await Course.countDocuments();
+	const totalTeachers = await User.countDocuments({ role: "teacher" });
+	const totalStudents = await User.countDocuments({ role: "student" });
 
 	return {
 		studentsByLevel,
 		studentsByField,
 		coursesStatus,
 		totalSubjects,
+		totalCourses,
+		totalTeachers,
+		totalStudents,
 	};
 };
 

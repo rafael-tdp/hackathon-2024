@@ -21,33 +21,59 @@ Based on the input data, generate a JSON object strictly in the following format
 {
   "potentialWorkHours": [
       {
-        "startTime": "",
-        "endTime": "",
-        "classRoom": Object('id'),
-        "schoolClass": Object('id'),
-        "teacher": Object('id'),
-        "subject": Object('id'),
-        "status": "pending"
+		"subject": "", The ID of the subject being taught (e.g., "675cb61c377025cb6c72b803").
+		"teacher": "", The ID of the teacher assigned to this course (e.g., "675cb61d377025cb6c72b888").
+		"startTime": "", The starting date and time of the course, in ISO 8601 format (e.g., "2024-12-26T16:00:00.000Z").
+		"endTime": "", The ending date and time of the course, in ISO 8601 format (e.g., "2024-12-26T18:00:00.000Z").
+		"classRoom": "", The ID of the classroom where the course takes place (e.g., "675cb61c377025cb6c72b844").
+		"schoolClass": "", The ID of the school class for which the course is planned (e.g., "675cb61c377025cb6c72b85d").
+		"status": "", The ID of the school class for which the course is planned. Can be "pending", "accepted", "cancelled" (e.g., "675cb61c377025cb6c72b85d").
       },
       {
-        "startTime": "",
-        "endTime": "",
-        "classRoom": Object('id'),
-        "schoolClass": Object('id'),
-        "teacher": Object('id'),
-        "subject": Object('id'),
-        "status": "pending"
+        "subject": "", The ID of the subject being taught (e.g., "675cb61c377025cb6c72b803").
+		"teacher": "", The ID of the teacher assigned to this course (e.g., "675cb61d377025cb6c72b888").
+		"startTime": "", The starting date and time of the course, in ISO 8601 format (e.g., "2024-12-26T16:00:00.000Z").
+		"endTime": "", The ending date and time of the course, in ISO 8601 format (e.g., "2024-12-26T18:00:00.000Z").
+		"classRoom": "", The ID of the classroom where the course takes place (e.g., "675cb61c377025cb6c72b844").
+		"schoolClass": "", The ID of the school class for which the course is planned (e.g., "675cb61c377025cb6c72b85d").
+		"status": "", The ID of the school class for which the course is planned. Can be "pending", "accepted", "cancelled" (e.g., "675cb61c377025cb6c72b85d").
       },
       ...
   ]
 }
 
 ### Input Data:
-- **teacherId**: The ID of the teacher for whom potential work hours are being generated.
-- **unavailabilityHours**: A list of time slots during which the teacher is unavailable. Each unavailability entry is an object containing a \`beginDate\` and \`endDate\`.
-- **schoolWeekClass**: An array of objects defining the school working week for each of the teacher's school classes (e.g., days and hours).
-- **subjectClass**: An array of objects specifying the required number of hours for each subject of the teacher's school classes (identified by their \`_id\`).
-- **plannedCourses**: A list of already planned courses. Each course contains the following information: \`subject\`, \`teacher\`, \`startTime\`, \`endTime\`, \`classRoom\`, \`schoolClass\`, and \`status\`.
+- **classId**: The ID of the class for whom potential work hours are being generated.
+- **listOfUnavailabilities**: A list of time periods during which specific teachers are unavailable.
+ [{
+	"startTime": "", The starting date and time of the unavailability, in ISO 8601 format (e.g., "2024-12-25T07:27:43.311Z").
+	"endTime": "", The ending date and time of the unavailability, in ISO 8601 format (e.g., "2024-12-25T10:27:43.311Z").
+	"teacher": "" The ID of the teacher who is unavailable during this period (e.g., "675cb61d377025cb6c72b888").
+}, ...]
+- **listOfSchoolClassesDays**: A list of dates. Each date corresponds to a specific day when school classes are scheduled to occur.
+[   
+ 	"2024-12-24T23:00:00.000Z",
+	"2024-12-25T23:00:00.000Z",
+	"2024-12-26T23:00:00.000Z"
+]
+- **listOfSubjectsToPlan**: An array of objects specifying the required number of hours for each subject of the teacher's school classes.
+[{
+	"subject": "", The name of the subject (e.g., "HTML").
+	"hoursToPlan": , The total number of hours to be scheduled for this subject (e.g., 40 hours).
+	"teachers": [] A list of IDs representing the teachers eligible to teach this subject.
+}, ...]
+- **listOfPlannedCourses**: A list of already planned courses. Each course contains the following information: 
+[{
+	"_id": "", A unique identifier for the planned course (e.g., "675cb620377025cb6c72bb38").
+	"subject": "", The ID of the subject being taught (e.g., "675cb61c377025cb6c72b803").
+	"teacher": "", The ID of the teacher assigned to this course (e.g., "675cb61d377025cb6c72b888").
+	"startTime": "", The starting date and time of the course, in ISO 8601 format (e.g., "2024-12-26T16:00:00.000Z").
+	"endTime": "", The ending date and time of the course, in ISO 8601 format (e.g., "2024-12-26T18:00:00.000Z").
+	"classRoom": "", The ID of the classroom where the course takes place (e.g., "675cb61c377025cb6c72b844").
+	"schoolClass": "", The ID of the school class for which the course is planned (e.g., "675cb61c377025cb6c72b85d").
+	"status": "", The ID of the school class for which the course is planned. Can be "pending", "accepted", "cancelled" (e.g., "675cb61c377025cb6c72b85d").
+	"__v": 0
+}, ...]
 
 ### Constraints:
 1. **No overlap**:
@@ -69,11 +95,12 @@ Based on the input data, generate a JSON object strictly in the following format
    - Ensure \`potentialWorkHours\` are not scheduled on Saturdays or Sundays.
    
 6. **Teacher availability**:
-   - Make sure that \`potentialWorkHours\` are only generated during the teacher's available hours (excluding periods in \`unavailabilityHours\`).
+   - Make sure that \`potentialWorkHours\` are only generated during the teacher's available hours (excluding periods in \`listOfUnavailabilities\`).
 
 ### Example Scenario:
 - A teacher is available from 10:00 to 18:00 on weekdays (Monday to Friday).
-- The school operates only during these available hours.
+- A subject requires 20 hours of teaching, divided into sessions lasting 1.5–3 hours each.
+- Teachers are unavailable for certain time slots, and the classroom can only be used during specified school days.
 - Based on the input data, generate multiple \`potentialWorkHours\` that respect the constraints, distribute them across several days as indicated in \`schoolWeekClass\`, and ensure no conflicts with existing courses or teacher availability.
 
 `},

@@ -207,15 +207,21 @@ onMounted(loadStats);
         class="stats grid grid-cols-1 md:grid-cols-4 gap-4 w-full max-w-4xl text-center mb-8"
       >
         <div class="stat bg-white shadow-md p-6 rounded-lg">
-          <h2 class="text-2xl font-bold text-green-700">250</h2>
+          <h2 class="text-2xl font-bold text-green-700">
+            {{ stats.totalCourses }}
+          </h2>
           <p class="text-gray-600">Cours planifiés</p>
         </div>
         <div class="stat bg-white shadow-md p-6 rounded-lg">
-          <h2 class="text-2xl font-bold text-green-700">30</h2>
+          <h2 class="text-2xl font-bold text-green-700">
+            {{ stats.totalTeachers }}
+          </h2>
           <p class="text-gray-600">Enseignants actifs</p>
         </div>
         <div class="stat bg-white shadow-md p-6 rounded-lg">
-          <h2 class="text-2xl font-bold text-green-700">500</h2>
+          <h2 class="text-2xl font-bold text-green-700">
+            {{ stats.totalStudents }}
+          </h2>
           <p class="text-gray-600">Étudiants inscrits</p>
         </div>
         <div class="stat bg-white shadow-md p-6 rounded-lg">

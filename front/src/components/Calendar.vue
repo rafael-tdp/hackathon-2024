@@ -46,7 +46,9 @@ const calendarOptions = ref({
 	droppable: true,
 	events: props.events,
 	handleWindowResize: true,
-	eventContent: (arg) => {
+  locale: "fr", // Set locale to French
+  firstDay: 1, // Set the first day of the week to Monday
+  eventContent: (arg) => {
 		return { html: arg.event.title };
 	},
 	select: (arg) => {
