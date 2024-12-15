@@ -2,19 +2,28 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { TrashIcon, PencilIcon } from "@heroicons/vue/24/outline";
+
+import axiosInstance from "@/utils/axiosInstance";
+import { showToast } from "@/utils/toast";
+
+import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
+
 import DynamicTable from "@/components/DynamicTable.vue";
 import Modal from "@/components/Modal.vue";
 import ConfirmationModal from "@/components/ConfirmationModal.vue";
-import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
 import NewItemButton from "../../components/NewItemButton.vue";
 import PageTitle from "../../components/PageTitle.vue";
-import axiosInstance from "@/utils/axiosInstance";
-import { showToast } from "@/utils/toast";
+
+import Pagination from "@/components/Pagination.vue"; // Ajout de la pagination
 
 const router = useRouter();
 
 const students = ref([]);
 const role = ref(null);
+
+const totalPages = ref(1);
+const currentPage = ref(1);
+const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
@@ -45,16 +54,25 @@ const studentFields = [
     required: true,
   },
 ];
-
 const fetchStudents = async () => {
   try {
-    const response = await axiosInstance.get("/api/users");
-    students.value = response.data.data
-      .filter((user) => user.role === "student")
-      .map((user) => ({
-        ...user,
-        roleLabel: "Élève",
-      }));
+    const response = await axiosInstance.get("/api/users", {
+      params: {
+        page: currentPage.value,
+        limit: 25,
+      },
+    });
+
+    const filteredStudents = response.data.data.filter(user => user.role === "student");
+
+    students.value = filteredStudents.map(user => ({
+      ...user,
+      roleLabel: "Élève",
+    }));
+
+    const totalItems = response.data.total;
+    totalPages.value = Math.ceil(totalItems / itemsPerPage);
+
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des étudiants.",
@@ -63,6 +81,7 @@ const fetchStudents = async () => {
     console.error(error);
   }
 };
+
 
 // Update student
 const openEditModal = (studentItem) => {
@@ -133,6 +152,12 @@ const deleteStudent = async () => {
   }
 };
 
+const handlePageChange = (newPage) => {
+  if (newPage < 1 || newPage > totalPages.value) return;
+  currentPage.value = newPage;
+  fetchStudents();
+};
+
 onMounted(async () => {
   const storedUser = localStorage.getItem("user");
   if (storedUser) {
@@ -194,5 +219,10 @@ onMounted(async () => {
         :onConfirm="deleteStudent"
       />
     </div>
+    <Pagination
+      :currentPage="currentPage"
+      :totalPages="totalPages"
+      @update:currentPage="handlePageChange"
+    />
   </LayoutAuthenticated>
 </template>
