@@ -203,8 +203,6 @@ const createSubjectAndCourse = async (formData) => {
       requiredHours: subjectResponse.data.data.requiredHours || "N/A",
     };
 
-    console.log("subjectResponse.data.data", subjectResponse.data.data);
-
     courses.value.push(formattedCourse);
 
     showToast({
@@ -271,7 +269,6 @@ const openEditModal = (courseItem) => {
     schoolClass: courseItem.schoolClass ? courseItem.schoolClass._id : null,
     classRoom: courseItem.classRoom ? courseItem.classRoom._id : null,
   };
-  console.log("courseToEdit.value", courseToEdit.value);
   isModalVisible.value = true;
 };
 
@@ -294,7 +291,6 @@ const openDeleteModal = (courseItem) => {
 };
 
 const updateCourse = async (formData) => {
-  console.log(formData);
 
   try {
     if (formData.id) {
@@ -327,7 +323,6 @@ const updateCourse = async (formData) => {
       // Create new course
       const response = await axiosInstance.post(" ", payload);
 
-      console.log("response", response);
       courses.value.push({
         ...response.data.data,
         status: getStatusLabel(response.data.data.status),
