@@ -120,7 +120,7 @@ const fetchPreferences = async () => {
       endTime: "2024-12-19 12:00",
     }));
 
-    totalPages.value = Math.ceil(response.data.total / itemsPerPage);
+    totalPages.value = 1;
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des préférences.",
