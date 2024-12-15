@@ -20,7 +20,7 @@ const GenericController = require("./controllers/genericController");
 const courseRouterCustom = require("./routes/courseRoutes");
 const unavailabilitiesRouterCustom = require("./routes/unavailabilitiesRoutes");
 
-
+const slotPreferencesRouter = require("./routes/slotPreferencesRoutes");
 const notificationsRouter = require("./routes/notificationsRoutes");
 const statsRouter = require("./routes/statsRoutes");
 
@@ -74,6 +74,7 @@ app.use("/api/users", userRouter);
 app.use("/api/schoolClasses", schoolClassRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/stats", statsRouter);
+app.use("/api/slotPreferences", slotPreferencesRouter);
 
 app.use("/api/courses", (req, res, next) => {
 	if (req.method === "POST" && req.path === "/validation") {
@@ -92,8 +93,9 @@ app.use("/api/courses", courseRouter);
 app.use("/api/subjects", subjectRouter);
 app.use("/api/subjectClass", subjectClassRouter);
 
+
 app.use("/api/unavailabilities", (req, res, next) => {
-	if (req.method === "POST" || (req.method === "GET" && req.path === "/")) {
+	if (req.method === "POST" || req.method === "GET") {
 		return unavailabilitiesRouterCustom(req, res, next);
 	}
 

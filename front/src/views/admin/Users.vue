@@ -18,7 +18,7 @@ const router = useRouter();
 
 const users = ref([]);
 const totalPages = ref(1);
-const currentPage = ref(1); 
+const currentPage = ref(1);
 const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
@@ -52,7 +52,11 @@ const userFields = [
     name: "role",
     label: "Rôle",
     type: "select",
-    options: ["admin", "teacher", "student"],
+    options: [
+      { value: "admin", label: "Administrateur" },
+      { value: "teacher", label: "Intervenant" },
+      { value: "student", label: "Élève" },
+    ],
     required: true,
   },
 ];
@@ -66,7 +70,10 @@ const fetchUsers = async () => {
       },
     });
 
-    users.value = response.data.data;
+    users.value = response.data.data.map((user) => ({
+      ...user,
+      role: getRoleLabel(user.role),
+    }));
     totalPages.value = response.data.totalPages;
   } catch (error) {
     showToast({
@@ -94,9 +101,30 @@ const openEditModal = (userItem) => {
   userToEdit.value = {
     ...userItem,
     classId: userItem.classId || null,
+    role: mapRoleToValue(userItem.role),
   };
+
   isModalVisible.value = true;
 };
+
+const openCreateModal = () => {
+  userToEdit.value = null;
+  isModalVisible.value = true;
+};
+
+
+const mapRoleToValue = (roleLabel) => {
+  switch (roleLabel) {
+    case "Administrateur":
+      return "admin";
+    case "Intervenant":
+      return "teacher";
+    case "Élève":
+      return "student";
+    default:
+      return null;
+  }
+}
 
 const openDeleteModal = (userItem) => {
   userToDelete.value = userItem;
@@ -106,25 +134,31 @@ const openDeleteModal = (userItem) => {
 const updateUser = async (formData) => {
   try {
     if (formData._id) {
+      // existed user
       await axiosInstance.put(`/api/users/${formData._id}`, formData);
       const index = users.value.findIndex((u) => u._id === formData._id);
       if (index !== -1) {
         users.value[index] = {
           ...formData,
-          roleLabel: getRoleLabel(formData.role),
+          role: getRoleLabel(formData.role),
         };
       }
+
       showToast({
         message: "Utilisateur mis à jour avec succès.",
         type: "success",
       });
     } else {
-      const response = await axiosInstance.post("/api/users", formData);
+      // new user
+      const response = await axiosInstance.post("/api/notifications/create-user", formData);
       users.value.push({
         ...response.data.data,
-        roleLabel: getRoleLabel(response.data.data.role),
+        role: getRoleLabel(response.data.data.role),
       });
-      showToast("Nouvel utilisateur ajouté avec succès", "success");
+      showToast({
+        message: "Nouvel utilisateur créé avec succès. Un email a été envoyé.",
+        type: "success",
+      });
     }
     isModalVisible.value = false;
   } catch (error) {
@@ -135,6 +169,7 @@ const updateUser = async (formData) => {
     console.error(error);
   }
 };
+
 
 const deleteUser = async () => {
   try {
@@ -160,8 +195,8 @@ onMounted(async () => {
 
 const handlePageChange = (newPage) => {
   if (newPage < 1 || newPage > totalPages.value) return;
-  currentPage.value = newPage; 
-  fetchUsers();  
+  currentPage.value = newPage;
+  fetchUsers();
 };
 </script>
 
@@ -170,7 +205,7 @@ const handlePageChange = (newPage) => {
     <div class="min-h-screen py-12 px-6 pb-3">
       <div class="flex justify-between items-center mb-8">
         <PageTitle text="Utilisateurs" />
-        <NewItemButton @click="openEditModal" text="Nouvel Utilisateur" />
+        <NewItemButton @click="openCreateModal" text="Nouvel Utilisateur" />
       </div>
 
       <DynamicTable
@@ -178,7 +213,7 @@ const handlePageChange = (newPage) => {
           { key: 'firstname', label: 'Prénom' },
           { key: 'lastname', label: 'Nom' },
           { key: 'email', label: 'Email' },
-          { key: 'roleLabel', label: 'Rôle' },
+          { key: 'role', label: 'Rôle', formatter: getRoleLabel },
         ]"
         :data="users"
         :hasActions="true"
@@ -201,10 +236,10 @@ const handlePageChange = (newPage) => {
 
       <Modal
         v-model:visible="isModalVisible"
-        title="Modifier un utilisateur"
+        :title="userToEdit ? 'Modifier un utilisateur' : 'Créer un utilisateur'"
         :fields="userFields"
         :onSubmit="updateUser"
-        :submitText="'Mettre à jour'"
+        :submitText="userToEdit ? 'Mettre à jour' : 'Créer'"
         :entityData="userToEdit"
       />
 
@@ -217,7 +252,6 @@ const handlePageChange = (newPage) => {
     </div>
 
     <Pagination
-    
       :currentPage="currentPage"
       :totalPages="totalPages"
       @update:currentPage="handlePageChange"

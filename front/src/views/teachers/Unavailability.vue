@@ -30,14 +30,13 @@
         submitText="Confirmer"
       />
 
-    <Pagination
-      class="mt-8"
-      :currentPage="currentPage"
-      :totalPages="totalPages"
-      @update:currentPage="handlePageChange"
-    />
+      <Pagination
+        class="mt-8"
+        :currentPage="currentPage"
+        :totalPages="totalPages"
+        @update:currentPage="handlePageChange"
+      />
     </div>
-
   </LayoutAuthenticated>
 </template>
 
@@ -45,7 +44,6 @@
 import { ref, onMounted, computed } from "vue";
 
 import LayoutAuthenticated from "../../layouts/LayoutAuthenticated.vue";
-
 import axiosInstance from "@/utils/axiosInstance";
 import { showToast } from "@/utils/toast";
 
@@ -123,18 +121,19 @@ const getUserData = () => {
 
 const fetchTeacherId = async () => {
   const email = getUserData();
+
   if (email) {
     try {
       const response = await axiosInstance.get(`/api/users?email=${email}`);
-      teacherId.value = response.data.data[0]._id;
+      const user = response.data.data.find((user) => user.email === email);
+
+      teacherId.value = user._id;
     } catch (error) {
+      console.error("Erreur lors de la récupération de l'utilisateur :", error);
       showToast({
         message: "Veuillez vous connecter pour accéder à cette page",
         type: "error",
       });
-      console.error(
-        "Erreur lors de la récupération des infos du user connecté"
-      );
     }
   }
 };
@@ -166,29 +165,29 @@ const fetchUnavailabilities = async () => {
     };
 
     let response;
+    const params = {
+      page: currentPage.value,
+      limit: itemsPerPage,
+    };
+
     if (role.value === "teacher") {
+      console.log("teacherId===", teacherId);
+
       response = await axiosInstance.get(
-        `/api/unavailabilities?teacher=${teacherId.value}`,
-        {
-          params: {
-            page: currentPage.value,
-            limit: itemsPerPage,
-          },
-        }
+        `/api/unavailabilities/${teacherId._value}`,
+        { params }
       );
     } else if (role.value === "admin") {
       response = await axiosInstance.get(`/api/unavailabilities`, {
-        params: {
-          page: currentPage.value,
-          limit: itemsPerPage,
-        },
+        params,
       });
     }
 
     unavailabilities.value = response.data.data.map((item) => ({
       startTime: formatDateWithA(item.startTime),
       endTime: formatDateWithA(item.endTime),
-      teacher: `${item.teacher.firstname} ${item.teacher.lastname}` || "Inconnu",
+      teacher:
+        `${item.teacher.firstname} ${item.teacher.lastname}` || "Inconnu",
     }));
 
     totalPages.value = response.data.totalPages; 
@@ -216,6 +215,7 @@ const fetchTeachers = async () => {
     console.error(error);
   }
 };
+
 const handleSubmit = async (formData) => {
   const submissionData = {
     startTime: formData.startTime,

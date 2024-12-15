@@ -59,7 +59,10 @@ const fetchNotifications = async () => {
     };
 
     if (role.value === "teacher") {
-      response = await axiosInstance.get(`/api/notifications/${teacherId.value}`, { params });
+      response = await axiosInstance.get(
+        `/api/notifications/${teacherId._value}`,
+        { params }
+      );
     } else if (role.value === "admin") {
       response = await axiosInstance.get("/api/notifications", { params });
     }
@@ -71,18 +74,27 @@ const fetchNotifications = async () => {
         if (notification.course) {
           try {
             let courseResponse;
-            if(role.value === "teacher"){
-                courseResponse= await axiosInstance.get(`/api/courses/${notification.course}`);
-            }else{
-                courseResponse = await axiosInstance.get(`/api/courses/${notification.course._id}`);
+            if (role.value === "teacher") {
+              courseResponse = await axiosInstance.get(
+                `/api/courses/${notification.course}`
+              );
+            } else {
+              courseResponse = await axiosInstance.get(
+                `/api/courses/${notification.course._id}`
+              );
             }
             const subjectId = courseResponse.data.data.subject;
             if (subjectId) {
-              const subject = await axiosInstance.get(`/api/subjects/${subjectId}`);
+              const subject = await axiosInstance.get(
+                `/api/subjects/${subjectId}`
+              );
               courseName = subject.data.data.name;
             }
           } catch (error) {
-            console.error(`Erreur lors de la récupération du cours: ${notification.course}`, error);
+            console.error(
+              `Erreur lors de la récupération du cours: ${notification.course}`,
+              error
+            );
           }
         }
 
@@ -92,9 +104,9 @@ const fetchNotifications = async () => {
 
         return {
           courseName,
-          teacherName, 
+          teacherName,
           message: notification.message,
-          status: role.value === "teacher" ? "Ouvert" : "Délivré", 
+          status: role.value === "teacher" ? "Ouvert" : "Délivré",
         };
       })
     );
@@ -103,12 +115,12 @@ const fetchNotifications = async () => {
   } catch (error) {
     console.error("Erreur lors de la récupération des notifications :", error);
     showToast({
-      message: "Impossible de récupérer les notifications. Réessayez plus tard.",
+      message:
+        "Impossible de récupérer les notifications. Réessayez plus tard.",
       type: "error",
     });
   }
 };
-
 
 const getUserData = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -117,10 +129,13 @@ const getUserData = () => {
 
 const fetchTeacherId = async () => {
   const email = getUserData();
+
   if (email) {
     try {
       const response = await axiosInstance.get(`/api/users?email=${email}`);
-      teacherId.value = response.data.data[0]._id;
+      const user = response.data.data.find((user) => user.email === email);
+
+      teacherId.value = user._id;
     } catch (error) {
       console.error("Erreur lors de la récupération de l'utilisateur :", error);
       showToast({

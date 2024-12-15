@@ -4,7 +4,7 @@
     class="bg-white fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-70 z-50 backdrop-blur-lg transition-all duration-300"
   >
     <div
-      class="bg-white rounded-lg w-full max-w-lg p-8 shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+      class="bg-white rounded-lg w-full max-w-lg sm:max-w-md p-8 shadow-2xl transform transition-all duration-300 scale-95 opacity-0 overflow-y-auto max-h-[80vh]"
       :class="{ 'scale-100 opacity-100': visible }"
     >
       <div class="flex justify-between items-center mb-6">
@@ -96,7 +96,6 @@ import { ref, watch } from "vue";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
-// Props passés depuis le parent
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -124,17 +123,15 @@ const props = defineProps({
   },
 });
 
-// Emission pour la mise à jour de la visibilité de la modal
 const emit = defineEmits(["update:visible"]);
 
-// Données du formulaire
 const formData = ref({ ...props.entityData });
 
 watch(
   () => props.visible,
   (newVisible) => {
     if (newVisible) {
-      formData.value = { ...props.entityData }; // Réinitialiser ou pré-remplir les données en fonction de l'entité
+      formData.value = { ...props.entityData };
     }
   }
 );
@@ -150,7 +147,6 @@ const submitForm = () => {
 </script>
 
 <style scoped>
-/* Effet de transition pour la modal */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -162,12 +158,10 @@ const submitForm = () => {
   transform: scale(0.95);
 }
 
-/* Animation du fond avec un flou plus prononcé */
 .backdrop-blur-lg {
-  backdrop-filter: blur(8px); /* Augmenter le flou */
+  backdrop-filter: blur(8px);
 }
 
-/* Ombre plus forte autour de la modal */
 .shadow-2xl {
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3), 0 5px 5px rgba(0, 0, 0, 0.1);
 }

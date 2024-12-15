@@ -10,9 +10,9 @@ import Teachers from "../views/admin/Teachers.vue";
 import Students from "../views/students/Students.vue";
 import Unavailability from "../views/teachers/Unavailability.vue";
 import AlertNotifications from "../views/teachers/AlertNotifications.vue";
+import SlotPreferences from "../views/teachers/SlotPreferences.vue";
 
 import Home from "../views/Home.vue";
-
 
 const routes = [
   { path: "/", name: "Home", component: Home },
@@ -23,7 +23,7 @@ const routes = [
   { path: "/courses", name: "Courses", component: Courses },
   { path: "/users", name: "Users", component: Users },
   { path: "/profile", name: "Profil", component: Profile },
-  { path: "/enseignants", name: "Teachers", component: Teachers },
+  { path: "/intervenants", name: "Teachers", component: Teachers },
   { path: "/etudiants", name: "Students", component: Students },
   {
     path: "/unavailabilities",
@@ -31,7 +31,7 @@ const routes = [
     component: Unavailability,
   },
   { path: "/alertes", name: "Alertes", component: AlertNotifications },
-
+  { path: "/preferences", name: "Préférences", component: SlotPreferences },
 ];
 
 const router = createRouter({

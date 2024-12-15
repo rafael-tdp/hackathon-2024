@@ -14,7 +14,6 @@ router.get("/populated", async (req, res) => {
       schoolClassId,
       status,
     } = req.query;
-    console.log("query", req.query)
 
     const pageNum = parseInt(page);
     const limitNum = limit ? parseInt(limit) : null;
