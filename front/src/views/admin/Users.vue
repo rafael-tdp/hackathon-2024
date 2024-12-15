@@ -52,7 +52,11 @@ const userFields = [
     name: "role",
     label: "Rôle",
     type: "select",
-    options: ["admin", "teacher", "student"],
+    options: [
+      { value: "admin", label: "Administrateur" },
+      { value: "teacher", label: "Intervenant" },
+      { value: "student", label: "Élève" },
+    ],
     required: true,
   },
 ];
@@ -97,9 +101,24 @@ const openEditModal = (userItem) => {
   userToEdit.value = {
     ...userItem,
     classId: userItem.classId || null,
+    role: mapRoleToValue(userItem.role),
   };
+
   isModalVisible.value = true;
 };
+
+const mapRoleToValue = (roleLabel) => {
+  switch (roleLabel) {
+    case "Administrateur":
+      return "admin";
+    case "Intervenant":
+      return "teacher";
+    case "Élève":
+      return "student";
+    default:
+      return null;
+  }
+}
 
 const openDeleteModal = (userItem) => {
   userToDelete.value = userItem;
@@ -117,6 +136,7 @@ const updateUser = async (formData) => {
           role: getRoleLabel(formData.role),
         };
       }
+
       showToast({
         message: "Utilisateur mis à jour avec succès.",
         type: "success",
