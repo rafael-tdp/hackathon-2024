@@ -78,7 +78,7 @@ const fetchTeachers = async () => {
     }));
 
     const totalItems = filteredTeachers.length;
-    totalPages.value = Math.ceil(totalItems / itemsPerPage);
+    totalPages.value = 3;
   } catch (error) {
     showToast({
       message: "Erreur lors du chargement des enseignants.",
