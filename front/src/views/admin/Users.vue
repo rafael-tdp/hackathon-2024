@@ -18,7 +18,7 @@ const router = useRouter();
 
 const users = ref([]);
 const totalPages = ref(1);
-const currentPage = ref(1); 
+const currentPage = ref(1);
 const itemsPerPage = 10;
 
 const isModalVisible = ref(false);
@@ -66,7 +66,10 @@ const fetchUsers = async () => {
       },
     });
 
-    users.value = response.data.data;
+    users.value = response.data.data.map((user) => ({
+      ...user,
+      role: getRoleLabel(user.role),
+    }));
     totalPages.value = response.data.totalPages;
   } catch (error) {
     showToast({
@@ -111,7 +114,7 @@ const updateUser = async (formData) => {
       if (index !== -1) {
         users.value[index] = {
           ...formData,
-          roleLabel: getRoleLabel(formData.role),
+          role: getRoleLabel(formData.role),
         };
       }
       showToast({
@@ -122,7 +125,7 @@ const updateUser = async (formData) => {
       const response = await axiosInstance.post("/api/users", formData);
       users.value.push({
         ...response.data.data,
-        roleLabel: getRoleLabel(response.data.data.role),
+        role: getRoleLabel(response.data.data.role),
       });
       showToast("Nouvel utilisateur ajouté avec succès", "success");
     }
@@ -160,8 +163,8 @@ onMounted(async () => {
 
 const handlePageChange = (newPage) => {
   if (newPage < 1 || newPage > totalPages.value) return;
-  currentPage.value = newPage; 
-  fetchUsers();  
+  currentPage.value = newPage;
+  fetchUsers();
 };
 </script>
 
@@ -178,7 +181,7 @@ const handlePageChange = (newPage) => {
           { key: 'firstname', label: 'Prénom' },
           { key: 'lastname', label: 'Nom' },
           { key: 'email', label: 'Email' },
-          { key: 'roleLabel', label: 'Rôle' },
+          { key: 'role', label: 'Rôle', formatter: getRoleLabel },
         ]"
         :data="users"
         :hasActions="true"
@@ -217,7 +220,6 @@ const handlePageChange = (newPage) => {
     </div>
 
     <Pagination
-    
       :currentPage="currentPage"
       :totalPages="totalPages"
       @update:currentPage="handlePageChange"
