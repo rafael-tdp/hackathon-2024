@@ -14,19 +14,22 @@ Bienvenue dans notre projet réalisé dans le cadre du Hackathon 2024. Cette app
      - **Admin** : accès complet à toutes les fonctionnalités, y compris la gestion des utilisateurs, intervenants, élèves, cours, classes, alertes, indisponibilités et planning.  
      - **Intervenant** : accès limité à la liste des étudiants, notifications reçues, et gestion de ses propres indisponibilités.  
      - **Élève** : accès uniquement à ses cours et au planning.  
-   - Système d'envoi de mot de passe par email lors de la création d'un utilisateur (créé par *Auteur 2*).  
+   - Système d'envoi de mot de passe par email lors de la création d'un utilisateur (créé par *Asma*).  
 
 3. **Système de pagination**  
-   - Implémentation de la pagination sur tous les tableaux de bord (créé par *Auteur 3*).  
+   - Implémentation de la pagination sur tous les tableaux de bord (créé par *Asma*).  
 
-4. **Replanification des cours annulés**  
-   - Gestion des déplacements et annulations de cours avec notifications (créé par *Auteur 4*).  
+4. **Replanification des cours annulés par drag et drop**  
+   - Replanification des cours annulés via drag et drop (créé par *Rafael* et *Saidou*).  
 
 5. **Notifications**  
-   - Notifications envoyées aux professeurs lorsque les cours sont repositionnés (créé par *Auteur 5*).  
+   - Notifications envoyées aux professeurs lorsque les cours sont repositionnés (créé par *Asma*).  
 
-6. **Préférences des créneaux horaires**  
-   - Gestion des préférences horaires des intervenants, intégrée à la génération automatique du planning (créé par *Auteur 6*).  
+6. **Génération automatique du planning via IA**  
+   - Génération automatique du planning des cours en fonction des disponibilités des intervenants, des semaines de cours, des matières etc. (créé par *Rafael* et *Makan*).
+
+7. **Filtre sur les cours**  
+   - Filtre sur les cours par classe, intervenant, salle, status. (créé par *Rafael* et *Saidou*).
 
 ---
 
@@ -54,13 +57,15 @@ Bienvenue dans notre projet réalisé dans le cadre du Hackathon 2024. Cette app
    cd hackathon-2024
   ```
 
-3. Démarrez l'application avec Docker Compose :
+3. Ajouter le fichier .env à la racine du projet 
+
+4. Démarrez l'application avec Docker Compose :
 
   ```bash
   docker-compose up
   ```
 
-4. Une fois le projet lancé, ouvrez votre navigateur et accédez à l'URL suivante :
+5. Une fois le projet lancé, ouvrez votre navigateur et accédez à l'URL suivante :
 
   ```bash
    http://localhost:5173/
