@@ -35,6 +35,8 @@ Bienvenue dans notre projet réalisé dans le cadre du Hackathon 2024. Cette app
 8. **Dashboard avec statistiques**  
    - Vue globale des métriques essentielles de l'établissement (créé par *Sharan* et *Asma*).  
 
+0. **Les intervenants peuvent définir leurs préférences pour les horaires, les matières ou les salles.** Ces préférences sont prises en compte lors de la création du planning pour optimiser l'affectation des cours en fonction des disponibilités et des souhaits des intervenants (créé par Asma, Rafel et Makan).
+
 ---
 
 ## 👤 Développeurs
