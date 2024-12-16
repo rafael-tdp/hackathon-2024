@@ -1,57 +1,27 @@
 version: "3.8"
 
 services:
-  front:
-    image: node:18-alpine
-    working_dir: /app
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./front:/app
-      - /app/node_modules
-    environment:
-      - VITE_PORT=5173
-    command: sh -c "npm install && npm run dev"
-    depends_on:
-      - back
+    front:
+        image: node:18-alpine
+        working_dir: /app
+        ports:
+            - "5173:5173"
+        volumes:
+            - ./front:/app
+            - /app/node_modules
+        command: sh -c "npm install && npm run dev"
+        depends_on:
+            - back
 
-  back:
-    image: node:18-alpine
-    working_dir: /app
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./back:/app
-      - /app/node_modules
-      - ./back/.env:/app/.env
-    environment:
-      - MONGO_URI=mongodb+srv://hackathon:Lb4c1seSfMmpspYR@cluster0.n1qsqdw.mongodb.net/hackathon?retryWrites=true&w=majority&appName=Cluster0
-    command: sh -c "npm install && npm run dev"
-
-  front2:
-    image: node:18-alpine
-    working_dir: /app
-    ports:
-      - "5174:5174"
-    volumes:
-      - ./front:/app
-      - /app/node_modules
-    environment:
-      - VITE_PORT=5174
-    command: sh -c "npm install && npm run dev"
-    depends_on:
-      - back2
-
-  back2:
-    image: node:18-alpine
-    working_dir: /app
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./back:/app
-      - /app/node_modules
-      - ./back/.env:/app/.env
-    environment:
-      - MONGO_URI=mongodb+srv://hackathon:Lb4c1seSfMmpspYR@cluster0.n1qsqdw.mongodb.net/hackathon?retryWrites=true&w=majority&appName=Cluster0
-      - PORT=3002
-    command: sh -c "npm install && npm run dev"
+    back:
+        image: node:18-alpine
+        working_dir: /app
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./back:/app
+            - /app/node_modules
+            - ./back/.env:/app/.env
+        environment:
+            MONGO_URI: mongodb+srv://hackathon:Lb4c1seSfMmpspYR@cluster0.n1qsqdw.mongodb.net/hackathon?retryWrites=true&w=majority&appName=Cluster0
+        command: sh -c "npm install && npm run dev"
